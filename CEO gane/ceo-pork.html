@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smithfield Foods — CEO Command</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --border: #e5e9ef;
+            --text: #1a1a2e;
+            --text-2: #5a6178;
+            --text-3: #9ca3b4;
+            --accent: #c41e3a;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --blue: #3b82f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            min-height: 100vh;
+        }
+
+        .app { 
+            display: grid; 
+            grid-template-columns: minmax(220px, 260px) 1fr minmax(240px, 280px); 
+            min-height: 100vh;
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .panel { background: var(--surface); overflow-y: auto; }
+
+        /* Left */
+        .left { padding: 16px; display: flex; flex-direction: column; }
+        .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #8b1538); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .brand h1 { font-size: 14px; font-weight: 700; }
+        .brand p { font-size: 10px; color: var(--text-3); }
+
+        .facility-img { width: 100%; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 14px; }
+
+        .section-title { font-size: 9px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; margin-top: 12px; }
+        .metric-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+        .metric-row:last-child { border: none; }
+        .metric-val { font-weight: 600; }
+        .metric-val.green { color: var(--green); }
+
+        .progress-item { margin-bottom: 8px; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; }
+        .progress-bar { height: 4px; background: var(--border); border-radius: 2px; }
+        .progress-fill { height: 100%; border-radius: 2px; background: var(--green); }
+
+        /* Executive Avatars */
+        .exec-list { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
+        .exec-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+        .exec-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+        .exec-info { flex: 1; }
+        .exec-name { font-size: 11px; font-weight: 600; }
+        .exec-role { font-size: 9px; color: var(--text-3); }
+        .exec-status { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+        /* Center */
+        .center { display: flex; flex-direction: column; }
+        .chat-header { 
+            padding: 14px 18px; 
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .chat-header h2 { font-size: 14px; font-weight: 600; }
+        .badge { font-size: 9px; font-weight: 600; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; margin-left: 8px; }
+        .badge.critical { background: #fef2f2; color: var(--red); }
+        .badge.strategic { background: #eff6ff; color: var(--blue); }
+        .chat-time { font-size: 10px; color: var(--text-3); }
+
+        .chat-body { flex: 1; overflow-y: auto; padding: 14px 18px; }
+
+        /* Alert */
+        .alert { background: var(--bg); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+        .alert-img { width: 100%; height: 120px; object-fit: cover; }
+        .alert-content { padding: 14px; }
+        .alert-badge { display: inline-block; font-size: 9px; font-weight: 600; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 8px; }
+        .alert-badge.critical { background: var(--red); color: white; }
+        .alert-badge.strategic { background: #7c3aed; color: white; }
+        .alert h3 { font-size: 15px; margin-bottom: 6px; }
+        .alert p { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+
+        .specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+        .spec { background: var(--surface); padding: 8px; border-radius: 6px; text-align: center; }
+        .spec-label { font-size: 8px; color: var(--text-3); text-transform: uppercase; }
+        .spec-value { font-size: 11px; font-weight: 600; margin-top: 2px; }
+        .spec-value.critical { color: var(--red); }
+
+        /* Messages */
+        .message { display: flex; gap: 10px; margin-bottom: 12px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } }
+        .msg-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--border); }
+        .msg-content { flex: 1; }
+        .msg-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+        .msg-name { font-size: 12px; font-weight: 600; }
+        .msg-role { font-size: 10px; color: var(--text-3); }
+        .msg-text { background: var(--bg); padding: 10px 12px; border-radius: 10px; font-size: 12px; line-height: 1.6; color: var(--text-2); }
+        .msg-text strong { color: var(--text); }
+        .msg-text .hl { color: var(--amber); font-weight: 600; }
+        .msg-text .bad { color: var(--red); font-weight: 600; }
+        .msg-text .good { color: var(--green); font-weight: 600; }
+
+        .typing { display: flex; gap: 3px; padding: 10px 12px; background: var(--bg); border-radius: 10px; width: fit-content; }
+        .dot { width: 5px; height: 5px; background: var(--text-3); border-radius: 50%; animation: bounce 1.2s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-3px); } }
+
+        /* Decisions - LARGER */
+        .decisions { padding: 14px 18px; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+        .decisions-title { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; margin-bottom: 10px; }
+        .decision-btn { 
+            width: 100%; 
+            background: var(--bg); 
+            border: 2px solid var(--border); 
+            border-radius: 12px; 
+            padding: 14px 16px; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+            text-align: left;
+            transition: all 0.15s;
+        }
+        .decision-btn:hover { border-color: var(--text-3); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .decision-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .decision-title { font-size: 14px; font-weight: 700; }
+        .decision-tag { font-size: 9px; font-weight: 600; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; }
+        .decision-btn.safe .decision-tag { background: #dcfce7; color: var(--green); }
+        .decision-btn.risk .decision-tag { background: #fef3c7; color: var(--amber); }
+        .decision-btn.bold .decision-tag { background: #fee2e2; color: var(--red); }
+        .decision-desc { font-size: 12px; color: var(--text-2); margin-bottom: 10px; line-height: 1.5; }
+        .impacts { display: flex; gap: 8px; }
+        .impact { background: var(--surface); padding: 8px 12px; border-radius: 8px; text-align: center; flex: 1; border: 1px solid var(--border); }
+        .impact-label { font-size: 9px; color: var(--text-3); text-transform: uppercase; }
+        .impact-val { font-size: 13px; font-weight: 700; margin-top: 2px; }
+        .impact-val.up { color: var(--green); }
+        .impact-val.down { color: var(--red); }
+        .impact-val.neutral { color: var(--amber); }
+
+        /* Right */
+        .right { padding: 16px; display: flex; flex-direction: column; }
+        .section { margin-bottom: 16px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .live { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--green); font-weight: 600; }
+        .live-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .kpi { background: var(--bg); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .kpi-label { font-size: 10px; color: var(--text-2); }
+        .kpi-value { font-size: 15px; font-weight: 700; }
+        .kpi-value.green { color: var(--green); }
+
+        .score-ring { display: flex; gap: 6px; }
+        .ring-item { flex: 1; background: var(--bg); border-radius: 8px; padding: 10px; text-align: center; }
+        .ring-value { font-size: 16px; font-weight: 700; }
+        .ring-value.green { color: var(--green); }
+        .ring-value.amber { color: var(--amber); }
+        .ring-label { font-size: 8px; color: var(--text-3); margin-top: 2px; }
+
+        .history-item { background: var(--bg); border-radius: 6px; padding: 8px 10px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .history-title { font-size: 10px; font-weight: 500; }
+        .history-impact { font-size: 10px; font-weight: 600; }
+        .history-impact.up { color: var(--green); }
+        .history-impact.down { color: var(--red); }
+
+        /* Lessons Section */
+        .lessons { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
+        .lesson-card { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+        .lesson-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .lesson-icon { font-size: 14px; }
+        .lesson-title { font-size: 10px; font-weight: 600; color: var(--blue); text-transform: uppercase; }
+        .lesson-text { font-size: 11px; color: var(--text-2); line-height: 1.5; }
+        .lesson-text strong { color: var(--text); }
+
+        /* Auth */
+        .auth { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .auth.hidden { display: none; }
+        .auth-card { background: var(--surface); border-radius: 20px; padding: 36px; width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        .auth-icon { width: 52px; height: 52px; background: linear-gradient(135deg, var(--accent), #8b1538); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 26px; }
+        .auth h1 { font-size: 18px; margin-bottom: 6px; }
+        .auth p { font-size: 12px; color: var(--text-3); margin-bottom: 20px; }
+        .auth input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; margin-bottom: 14px; outline: none; }
+        .auth input:focus { border-color: var(--accent); }
+        .auth button { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 10px; font-size: 13px; font-weight: 600; color: white; cursor: pointer; }
+
+        /* Result */
+        .result-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .result-overlay.active { display: flex; }
+        .result-modal { background: var(--surface); border-radius: 20px; padding: 28px; width: 400px; text-align: center; }
+        .result-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; margin-bottom: 14px; }
+        .result-badge.success { background: #dcfce7; color: var(--green); }
+        .result-badge.warning { background: #fef3c7; color: var(--amber); }
+        .result h3 { font-size: 16px; margin-bottom: 8px; }
+        .result p { font-size: 12px; color: var(--text-2); line-height: 1.6; margin-bottom: 16px; }
+        .result-metrics { display: flex; justify-content: center; gap: 20px; padding: 14px; background: var(--bg); border-radius: 12px; margin-bottom: 16px; }
+        .result-metric { text-align: center; }
+        .result-metric-val { font-size: 15px; font-weight: 700; }
+        .result-metric-val.up { color: var(--green); }
+        .result-metric-val.down { color: var(--red); }
+        .result-metric-label { font-size: 9px; color: var(--text-3); }
+        .result-lesson { background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 10px; padding: 12px; margin-bottom: 16px; text-align: left; }
+        .result-lesson-title { font-size: 10px; font-weight: 600; color: var(--amber); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+        .result-lesson-text { font-size: 11px; color: var(--text-2); line-height: 1.5; }
+        .result button { padding: 10px 28px; background: var(--text); border: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: white; cursor: pointer; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .app { grid-template-columns: 200px 1fr 220px; }
+        }
+        @media (max-width: 900px) {
+            .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+            .left, .right { max-height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth" id="auth">
+        <div class="auth-card">
+            <div class="auth-icon">🐷</div>
+            <h1>Pork Production CEO</h1>
+            <p>Meat Processing & Packaging Simulation</p>
+            <input type="text" id="companyInput" placeholder="Company name (e.g. Smithfield Foods)">
+            <button onclick="start()">Start Simulation</button>
+        </div>
+    </div>
+
+    <div class="app">
+        <aside class="panel left">
+            <div class="brand">
+                <div class="brand-icon">🐷</div>
+                <div>
+                    <h1 id="companyName">Smithfield Foods</h1>
+                    <p>Pork Processor</p>
+                </div>
+            </div>
+            <img class="facility-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=200&fit=crop" alt="Facility">
+            
+            <div class="section-title">Production</div>
+            <div class="metric-row"><span>Daily Output</span><span class="metric-val">32,400 hogs</span></div>
+            <div class="metric-row"><span>Yield Rate</span><span class="metric-val green">94.2%</span></div>
+            <div class="metric-row"><span>Cold Chain</span><span class="metric-val green">-18°C ✓</span></div>
+
+            <div class="section-title">Food Safety</div>
+            <div class="progress-item">
+                <div class="progress-header"><span>HACCP</span><span id="haccpVal">92%</span></div>
+                <div class="progress-bar"><div class="progress-fill" id="haccpBar" style="width:92%"></div></div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-header"><span>USDA Audit</span><span>88%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div>
+            </div>
+
+            <div class="exec-list">
+                <div class="section-title">Executive Team</div>
+                <div class="exec-item">
+                    <img class="exec-avatar" src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=100&h=100&fit=crop&crop=face" alt="">
+                    <div class="exec-info"><div class="exec-name">Dr. Jennifer Walsh</div><div class="exec-role">VP Quality</div></div>
+                    <div class="exec-status"></div>
+                </div>
+                <div class="exec-item">
+                    <img class="exec-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="">
+                    <div class="exec-info"><div class="exec-name">Marcus Rodriguez</div><div class="exec-role">VP Operations</div></div>
+                    <div class="exec-status"></div>
+                </div>
+                <div class="exec-item">
+                    <img class="exec-avatar" src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&h=100&fit=crop&crop=face" alt="">
+                    <div class="exec-info"><div class="exec-name">Sarah Thompson</div><div class="exec-role">Legal Officer</div></div>
+                    <div class="exec-status"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="panel center">
+            <div class="chat-header">
+                <div style="display:flex;align-items:center">
+                    <h2 id="chatTitle">Executive Briefing</h2>
+                    <span class="badge critical" id="chatBadge">Urgent</span>
+                </div>
+                <span class="chat-time" id="chatTime"></span>
+            </div>
+            <div class="chat-body" id="chatBody"></div>
+            <div class="decisions" id="decisions" style="display:none">
+                <div class="decisions-title">Your Decision</div>
+                <div id="decisionsGrid"></div>
+            </div>
+        </main>
+
+        <aside class="panel right">
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Performance</span>
+                    <span class="live"><span class="live-dot"></span>Live</span>
+                </div>
+                <div class="kpi">
+                    <span class="kpi-label">Revenue</span>
+                    <span class="kpi-value">$15.4B</span>
+                </div>
+                <div class="kpi">
+                    <span class="kpi-label">Market Share</span>
+                    <span class="kpi-value green">26%</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" style="margin-bottom:8px">Scores</div>
+                <div class="score-ring">
+                    <div class="ring-item">
+                        <div class="ring-value green" id="boardVal">82</div>
+                        <div class="ring-label">Board</div>
+                    </div>
+                    <div class="ring-item">
+                        <div class="ring-value amber" id="esgVal">B+</div>
+                        <div class="ring-label">ESG</div>
+                    </div>
+                    <div class="ring-item">
+                        <div class="ring-value green">94</div>
+                        <div class="ring-label">Safety</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" style="margin-bottom:8px">Decision History</div>
+                <div id="historyList"></div>
+            </div>
+
+            <div class="lessons">
+                <div class="section-title" style="margin-bottom:8px">Key Lessons</div>
+                <div id="lessonsList">
+                    <div class="lesson-card">
+                        <div class="lesson-header">
+                            <span class="lesson-icon">💡</span>
+                            <span class="lesson-title">Food Safety First</span>
+                        </div>
+                        <div class="lesson-text">In meat processing, <strong>speed of response</strong> to contamination determines both legal liability and brand survival.</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-modal result">
+            <div class="result-badge" id="resultBadge">Success</div>
+            <h3 id="resultTitle">Decision Impact</h3>
+            <p id="resultText"></p>
+            <div class="result-metrics" id="resultMetrics"></div>
+            <div class="result-lesson" id="resultLesson">
+                <div class="result-lesson-title">📚 Lesson Learned</div>
+                <div class="result-lesson-text" id="resultLessonText"></div>
+            </div>
+            <button onclick="next()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        const state = { company: '', scenario: 0, board: 82, lessons: [] };
+
+        const execs = [
+            { id: 'qa', name: 'Dr. Jennifer Walsh', role: 'VP Quality', avatar: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=100&h=100&fit=crop&crop=face' },
+            { id: 'ops', name: 'Marcus Rodriguez', role: 'VP Operations', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face' },
+            { id: 'supply', name: 'David Chen', role: 'VP Supply Chain', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face' },
+            { id: 'legal', name: 'Sarah Thompson', role: 'Legal Officer', avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&h=100&fit=crop&crop=face' }
+        ];
+
+        const scenarios = [
+            {
+                title: 'Salmonella Contamination Detected',
+                type: 'critical',
+                image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=800&h=280&fit=crop',
+                brief: 'Salmonella detected in Processing Line 3. 180,000 lbs of ground pork affected, distributed to 12 states.',
+                specs: [
+                    { label: 'Product', value: 'Ground Pork' },
+                    { label: 'Volume', value: '180,000 lbs', critical: true },
+                    { label: 'States', value: '12' },
+                    { label: 'Est. Cost', value: '$45-60M' }
+                ],
+                speakers: [
+                    { exec: 'qa', text: 'Contamination at <strong>Critical Control Point 7</strong>. Salmonella levels <span class="bad">2.4x limit</span>. Recommend <strong>immediate halt</strong> on Line 3.' },
+                    { exec: 'ops', text: 'Halting means <strong>$2.8M daily loss</strong>. Walmart and Costco contracts have <span class="hl">48-hour windows</span>. Penalties: $5M/week.' },
+                    { exec: 'legal', text: 'USDA requires <strong>24-hour reporting</strong>. Post-knowledge illness = <span class="bad">criminal liability</span>. Full FDA transparency advised.' }
+                ],
+                decisions: [
+                    { type: 'safe', title: 'Full Recall + Shutdown', desc: 'Recall all 180,000 lbs, halt production, notify FDA immediately.', impacts: [{ label: 'Cost', value: '-$58M', class: 'down' }, { label: 'Trust', value: '+15%', class: 'up' }], result: { badge: 'success', title: 'Crisis Contained', text: 'Swift action praised by FDA. No illness reports. Brand trust improved significantly.', metrics: [{ value: '-$58M', label: 'Cost', up: false }, { value: '0', label: 'Illnesses', up: true }], lesson: 'Proactive transparency in food safety crises preserves long-term brand value more than short-term cost savings.' } },
+                    { type: 'risk', title: 'Targeted Recall Only', desc: 'Recall only high-risk batches (45,000 lbs), monitor remaining inventory.', impacts: [{ label: 'Cost', value: '-$18M', class: 'down' }, { label: 'Risk', value: 'HIGH', class: 'neutral' }], result: { badge: 'warning', title: 'Partial Containment', text: '3 illness cases reported in Texas from non-recalled batch. Emergency full recall required. Congressional inquiry.', metrics: [{ value: '-$95M', label: 'Damage', up: false }, { value: '3', label: 'Illnesses', up: false }], lesson: 'Underestimating contamination scope multiplies costs exponentially when incidents occur.' } },
+                    { type: 'bold', title: 'Enhanced Testing + Hold', desc: '100% batch testing over 48h, release only verified safe products.', impacts: [{ label: 'Cost', value: '-$32M', class: 'down' }, { label: 'Accuracy', value: '99.9%', class: 'up' }], result: { badge: 'success', title: 'Precision Approach', text: 'Exact contaminated batches identified (62,000 lbs). FDA impressed by scientific rigor. Premium contracts secured.', metrics: [{ value: '-$32M', label: 'Cost', up: false }, { value: '+5%', label: 'Contracts', up: true }], lesson: 'Data-driven recall decisions can balance safety with business continuity when time permits.' } }
+                ]
+            },
+            {
+                title: 'Automation Investment Decision',
+                type: 'strategic',
+                image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=280&fit=crop',
+                brief: 'Proposal: $280M AI automation investment. +40% throughput but eliminates 3,200 positions over 3 years.',
+                specs: [
+                    { label: 'Investment', value: '$280M' },
+                    { label: 'Jobs', value: '-3,200', critical: true },
+                    { label: 'Savings', value: '$67M/yr' },
+                    { label: 'Safety', value: '-45% injuries' }
+                ],
+                speakers: [
+                    { exec: 'ops', text: 'Robotics achieves <strong>0.5mm precision</strong>. Injury rates <span class="good">45% lower</span>. Competitors are 2 years ahead.' },
+                    { exec: 'legal', text: 'WARN Act: <strong>60-day notice</strong> for layoffs. Union contract expires in <span class="hl">8 months</span> — timing critical.' },
+                    { exec: 'qa', text: 'Human error = <strong>67% of contamination</strong>. Automation improves HACCP by <span class="good">8-12 points</span>.' }
+                ],
+                decisions: [
+                    { type: 'safe', title: 'Phased + Retraining', desc: '5-year rollout with $40M retraining fund. Zero layoffs through reassignment.', impacts: [{ label: 'Cost', value: '+$40M', class: 'down' }, { label: 'ESG', value: '+12%', class: 'up' }], result: { badge: 'success', title: 'Workforce Preserved', text: 'Union accepted plan. 2,400 workers transitioned to oversight roles. ESG investors increased holdings 8%.', metrics: [{ value: '0', label: 'Layoffs', up: true }, { value: '+8%', label: 'ESG', up: true }], lesson: 'Investing in workforce transition builds stakeholder trust and reduces long-term labor risks.' } },
+                    { type: 'bold', title: 'Fast-Track 18 Months', desc: 'Accelerated rollout with generous severance (12 months pay).', impacts: [{ label: 'Severance', value: '$85M', class: 'down' }, { label: 'Strike', value: '65%', class: 'neutral' }], result: { badge: 'warning', title: 'Mixed Outcome', text: '6-week strike cost $72M. Efficiency gains exceeded projections but brand perception suffered 2 quarters.', metrics: [{ value: '+40%', label: 'Throughput', up: true }, { value: '-3%', label: 'Brand', up: false }], lesson: 'Speed of transformation must be balanced against workforce relations and public perception.' } },
+                    { type: 'risk', title: 'Delay for Union Contract', desc: 'Wait 8 months for contract expiry. Build flexibility clauses first.', impacts: [{ label: 'Time', value: '+12mo', class: 'neutral' }, { label: 'Market', value: '-8%', class: 'down' }], result: { badge: 'warning', title: 'Opportunity Cost', text: 'Competitors completed automation while waiting. Lost 2 major retail contracts to lower-cost rivals.', metrics: [{ value: '-2', label: 'Contracts', up: false }, { value: '-12%', label: 'Stock', up: false }], lesson: 'Delayed strategic decisions often cost more than imperfect timely ones.' } }
+                ]
+            },
+            {
+                title: 'China Export License Renewal',
+                type: 'strategic',
+                image: 'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=800&h=280&fit=crop',
+                brief: 'China = 18% export revenue ($2.7B). License requires facility upgrades conflicting with US animal welfare standards.',
+                specs: [
+                    { label: 'Revenue', value: '$2.7B/yr' },
+                    { label: 'Upgrade', value: '$145M' },
+                    { label: 'Deadline', value: '90 days' },
+                    { label: 'ESG Risk', value: 'Medium' }
+                ],
+                speakers: [
+                    { exec: 'supply', text: 'China is our <strong>largest export market</strong>. Requirements include <span class="hl">separate processing lines</span> for China products.' },
+                    { exec: 'legal', text: 'Some requirements conflict with <strong>US Humane Slaughter Act</strong>. <span class="hl">Geopolitical risk</span> remains high.' },
+                    { exec: 'ops', text: '$145M investment has <strong>2.1-year payback</strong>. Alternative: <span class="good">Vietnam + Korea</span> expansion at same cost.' }
+                ],
+                decisions: [
+                    { type: 'safe', title: 'Diversify Markets', desc: 'Accept China reduction, invest $145M in Vietnam and Korea expansion.', impacts: [{ label: 'Revenue', value: '-$800M Y1', class: 'down' }, { label: 'ESG', value: '+5%', class: 'up' }], result: { badge: 'success', title: 'Strategic Pivot', text: 'Combined Asian revenue exceeded previous China levels within 2 years. Avoided tariff exposure.', metrics: [{ value: '+$340M', label: 'New Markets', up: true }, { value: 'A', label: 'ESG Rating', up: true }], lesson: 'Market diversification reduces geopolitical risk and creates negotiating leverage.' } },
+                    { type: 'bold', title: 'Full China Compliance', desc: 'Invest $145M in China-specific facility upgrades and dual standards.', impacts: [{ label: 'Revenue', value: 'Kept', class: 'up' }, { label: 'ESG', value: '-8%', class: 'down' }], result: { badge: 'warning', title: 'Short-term Win', text: 'License renewed but China imposed new 40% import cuts 22 months later. Investment partially stranded.', metrics: [{ value: '-40%', label: 'China Vol', up: false }, { value: 'B-', label: 'ESG', up: false }], lesson: 'Single-market dependency amplifies regulatory and political risks.' } },
+                    { type: 'risk', title: 'Negotiate Partial', desc: 'Propose 70% compliance, leverage relationship and volume importance.', impacts: [{ label: 'Success', value: '35%', class: 'neutral' }, { label: 'Cost', value: '$90M', class: 'down' }], result: { badge: 'warning', title: 'Negotiation Failed', text: 'China rejected partial compliance. Emergency investment at 20% premium required. Relationship damaged.', metrics: [{ value: '-$174M', label: 'Rush Cost', up: false }, { value: '-60 days', label: 'Market Gap', up: false }], lesson: 'Regulatory negotiations require realistic assessment of leverage and fallback plans.' } }
+                ]
+            }
+        ];
+
+        function start() {
+            state.company = document.getElementById('companyInput').value || 'Smithfield Foods';
+            document.getElementById('companyName').textContent = state.company;
+            document.getElementById('auth').classList.add('hidden');
+            runScenario();
+        }
+
+        async function runScenario() {
+            const s = scenarios[state.scenario];
+            const chat = document.getElementById('chatBody');
+            chat.innerHTML = '';
+            document.getElementById('decisions').style.display = 'none';
+            document.getElementById('chatTitle').textContent = s.title;
+            document.getElementById('chatBadge').textContent = s.type === 'critical' ? 'Urgent' : 'Strategic';
+            document.getElementById('chatBadge').className = 'badge ' + s.type;
+
+            // Alert
+            chat.innerHTML = `
+                <div class="alert">
+                    <img class="alert-img" src="${s.image}" alt="">
+                    <div class="alert-content">
+                        <div class="alert-badge ${s.type}">${s.type === 'critical' ? 'Critical' : 'Strategic'}</div>
+                        <h3>${s.title}</h3>
+                        <p>${s.brief}</p>
+                        <div class="specs">${s.specs.map(sp => `<div class="spec"><div class="spec-label">${sp.label}</div><div class="spec-value ${sp.critical ? 'critical' : ''}">${sp.value}</div></div>`).join('')}</div>
+                    </div>
+                </div>
+            `;
+            await sleep(800);
+
+            for (const sp of s.speakers) {
+                const exec = execs.find(e => e.id === sp.exec);
+                await showTyping(exec);
+                await addMessage(exec, sp.text);
+                await sleep(400);
+            }
+
+            document.getElementById('decisions').style.display = 'block';
+            document.getElementById('decisionsGrid').innerHTML = s.decisions.map((d, i) => `
+                <button class="decision-btn ${d.type}" onclick="decide(${i})">
+                    <div class="decision-header">
+                        <span class="decision-title">${d.title}</span>
+                        <span class="decision-tag">${d.type === 'safe' ? 'Safe' : d.type === 'bold' ? 'Bold' : 'Risk'}</span>
+                    </div>
+                    <div class="decision-desc">${d.desc}</div>
+                    <div class="impacts">${d.impacts.map(im => `<div class="impact"><div class="impact-label">${im.label}</div><div class="impact-val ${im.class}">${im.value}</div></div>`).join('')}</div>
+                </button>
+            `).join('');
+        }
+
+        async function showTyping(exec) {
+            const chat = document.getElementById('chatBody');
+            const t = document.createElement('div');
+            t.className = 'message';
+            t.innerHTML = `<img class="msg-avatar" src="${exec.avatar}" alt=""><div class="msg-content"><div class="msg-header"><span class="msg-name">${exec.name}</span><span class="msg-role">${exec.role}</span></div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+            chat.appendChild(t);
+            chat.scrollTop = chat.scrollHeight;
+            await sleep(1200 + Math.random() * 800);
+            t.remove();
+        }
+
+        async function addMessage(exec, text) {
+            const chat = document.getElementById('chatBody');
+            const m = document.createElement('div');
+            m.className = 'message';
+            m.innerHTML = `<img class="msg-avatar" src="${exec.avatar}" alt=""><div class="msg-content"><div class="msg-header"><span class="msg-name">${exec.name}</span><span class="msg-role">${exec.role}</span></div><div class="msg-text">${text}</div></div>`;
+            chat.appendChild(m);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function decide(idx) {
+            const s = scenarios[state.scenario];
+            const d = s.decisions[idx];
+            const r = d.result;
+
+            state.board += d.type === 'safe' ? 3 : d.type === 'bold' ? -2 : -5;
+            state.board = Math.max(40, Math.min(100, state.board));
+            document.getElementById('boardVal').textContent = state.board;
+            addHistory(d.title, d.type === 'safe');
+            addLesson(r.lesson);
+
+            document.getElementById('resultBadge').textContent = r.badge === 'success' ? 'Success' : 'Warning';
+            document.getElementById('resultBadge').className = 'result-badge ' + r.badge;
+            document.getElementById('resultTitle').textContent = r.title;
+            document.getElementById('resultText').textContent = r.text;
+            document.getElementById('resultLessonText').textContent = r.lesson;
+            document.getElementById('resultMetrics').innerHTML = r.metrics.map(m => `<div class="result-metric"><div class="result-metric-val ${m.up ? 'up' : 'down'}">${m.value}</div><div class="result-metric-label">${m.label}</div></div>`).join('');
+            document.getElementById('resultOverlay').classList.add('active');
+        }
+
+        function next() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            state.scenario = (state.scenario + 1) % scenarios.length;
+            runScenario();
+        }
+
+        function addHistory(title, positive) {
+            const list = document.getElementById('historyList');
+            list.innerHTML = `<div class="history-item"><span class="history-title">${title.substring(0, 22)}...</span><span class="history-impact ${positive ? 'up' : 'down'}">${positive ? '↑' : '↓'}</span></div>` + list.innerHTML;
+        }
+
+        function addLesson(lesson) {
+            state.lessons.unshift(lesson);
+            const list = document.getElementById('lessonsList');
+            if (state.lessons.length > 3) state.lessons.pop();
+            list.innerHTML = state.lessons.map((l, i) => `
+                <div class="lesson-card">
+                    <div class="lesson-header">
+                        <span class="lesson-icon">${['📚', '💡', '⚡'][i]}</span>
+                        <span class="lesson-title">Lesson ${state.lessons.length - i}</span>
+                    </div>
+                    <div class="lesson-text">${l}</div>
+                </div>
+            `).join('');
+        }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+        setInterval(() => { document.getElementById('chatTime').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  image         String?
+  cfaLevel      CFALevel  @default(LEVEL_1)
+  subscription  SubscriptionType @default(FREE)
+  subscriptionEndsAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  quizAttempts      QuizAttempt[]
+  itemSetAttempts   ItemSetAttempt[]
+  essayAttempts     EssayAttempt[]
+  studyPlans        StudyPlan[]
+  dailyProgress     DailyProgress[]
+  topicPerformances TopicPerformance[]
+}
+
+enum CFALevel {
+  LEVEL_1
+  LEVEL_2
+  LEVEL_3
+}
+
+enum SubscriptionType {
+  FREE
+  PREMIUM_MONTHLY
+  PREMIUM_YEARLY
+}
+
+// Topics and Learning Objectives
+model Topic {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  cfaLevel    CFALevel
+  order       Int
+  parentId    String?
+  parent      Topic?   @relation("TopicChildren", fields: [parentId], references: [id])
+  children    Topic[]  @relation("TopicChildren")
+  
+  // Relations
+  questions         Question[]
+  itemSets          ItemSet[]
+  essayQuestions    EssayQuestion[]
+  los               LearningObjective[]
+  topicPerformances TopicPerformance[]
+  studyPlanItems    StudyPlanItem[]
+}
+
+model LearningObjective {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  description String
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  
+  questions   Question[]
+  itemSets    ItemSet[]
+}
+
+// Multiple Choice Questions (MCQ)
+model Question {
+  id          String   @id @default(cuid())
+  content     String
+  optionA     String
+  optionB     String
+  optionC     String
+  correctAnswer String
+  explanation String
+  formula     String?
+  difficulty  Difficulty @default(MEDIUM)
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  losId       String?
+  los         LearningObjective? @relation(fields: [losId], references: [id])
+  cfaLevel    CFALevel
+  createdAt   DateTime @default(now())
+
+  quizQuestions QuizQuestion[]
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+// Item Sets (Vignettes) for Level II
+model ItemSet {
+  id          String   @id @default(cuid())
+  title       String
+  vignette    String   @db.Text
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  losId       String?
+  los         LearningObjective? @relation(fields: [losId], references: [id])
+  cfaLevel    CFALevel @default(LEVEL_2)
+  timeLimit   Int      @default(18) // minutes
+  createdAt   DateTime @default(now())
+
+  questions   ItemSetQuestion[]
+  attempts    ItemSetAttempt[]
+}
+
+model ItemSetQuestion {
+  id            String   @id @default(cuid())
+  itemSetId     String
+  itemSet       ItemSet  @relation(fields: [itemSetId], references: [id], onDelete: Cascade)
+  order         Int
+  content       String
+  optionA       String
+  optionB       String
+  optionC       String
+  correctAnswer String
+  explanation   String
+  formula       String?
+
+  answers       ItemSetAnswer[]
+}
+
+// Essay Questions for Level III
+model EssayQuestion {
+  id          String   @id @default(cuid())
+  title       String
+  scenario    String   @db.Text
+  prompt      String   @db.Text
+  rubric      String   @db.Text
+  modelAnswer String   @db.Text
+  maxScore    Int      @default(10)
+  timeLimit   Int      @default(20) // minutes
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  cfaLevel    CFALevel @default(LEVEL_3)
+  createdAt   DateTime @default(now())
+
+  attempts    EssayAttempt[]
+}
+
+// Quiz Attempts
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cfaLevel    CFALevel
+  mode        QuizMode @default(PRACTICE)
+  timeLimit   Int?     // in seconds
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  score       Float?
+  totalQuestions Int
+  correctAnswers Int    @default(0)
+
+  questions   QuizQuestion[]
+}
+
+enum QuizMode {
+  PRACTICE
+  TIMED
+  EXAM
+}
+
+model QuizQuestion {
+  id            String   @id @default(cuid())
+  quizAttemptId String
+  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+  questionId    String
+  question      Question @relation(fields: [questionId], references: [id])
+  order         Int
+  userAnswer    String?
+  isCorrect     Boolean?
+  timeTaken     Int?     // in seconds
+  answeredAt    DateTime?
+}
+
+// Item Set Attempts
+model ItemSetAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemSetId   String
+  itemSet     ItemSet  @relation(fields: [itemSetId], references: [id])
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  score       Float?
+  totalQuestions Int
+  correctAnswers Int    @default(0)
+
+  answers     ItemSetAnswer[]
+}
+
+model ItemSetAnswer {
+  id              String   @id @default(cuid())
+  attemptId       String
+  attempt         ItemSetAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId      String
+  question        ItemSetQuestion @relation(fields: [questionId], references: [id])
+  userAnswer      String?
+  isCorrect       Boolean?
+  timeTaken       Int?
+  answeredAt      DateTime?
+}
+
+// Essay Attempts
+model EssayAttempt {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  essayQuestionId String
+  essayQuestion   EssayQuestion @relation(fields: [essayQuestionId], references: [id])
+  userResponse    String   @db.Text
+  aiScore         Float?
+  aiFeedback      String?  @db.Text
+  missingPoints   String?  @db.Text
+  startedAt       DateTime @default(now())
+  submittedAt     DateTime?
+}
+
+// Analytics and Progress
+model TopicPerformance {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId       String
+  topic         Topic    @relation(fields: [topicId], references: [id])
+  totalAttempts Int      @default(0)
+  correctCount  Int      @default(0)
+  accuracy      Float    @default(0)
+  lastPracticed DateTime?
+  
+  @@unique([userId, topicId])
+}
+
+model DailyProgress {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime @db.Date
+  questionsAnswered Int    @default(0)
+  correctAnswers  Int      @default(0)
+  timeSpent       Int      @default(0) // in seconds
+  sessionsCount   Int      @default(0)
+  
+  @@unique([userId, date])
+}
+
+// Study Plan
+model StudyPlan {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  cfaLevel    CFALevel
+  examDate    DateTime
+  startDate   DateTime @default(now())
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  items       StudyPlanItem[]
+}
+
+model StudyPlanItem {
+  id          String   @id @default(cuid())
+  studyPlanId String
+  studyPlan   StudyPlan @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  weekNumber  Int
+  targetDate  DateTime
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+}

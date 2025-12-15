@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise CEO — Strategic Command</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #18181b;
+            --surface-2: #27272a;
+            --surface-3: #3f3f46;
+            --border: #3f3f46;
+            --text: #fafafa;
+            --text-2: #a1a1aa;
+            --text-3: #71717a;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --blue: #3b82f6;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .app { display: grid; grid-template-columns: 280px 1fr 320px; height: 100vh; }
+
+        /* Left - Executives */
+        .executives-panel { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .panel-header { padding: 20px; border-bottom: 1px solid var(--border); }
+        .logo { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .logo-sub { font-size: 11px; color: var(--text-3); }
+        .exec-list { flex: 1; overflow-y: auto; padding: 12px; }
+        .exec-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; transition: background 0.15s; margin-bottom: 4px; }
+        .exec-item:hover { background: var(--surface-2); }
+        .exec-item.active { background: var(--surface-2); border: 1px solid var(--border); }
+        .exec-item.speaking { background: rgba(34,197,94,0.1); border: 1px solid var(--green); }
+        .exec-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; flex-shrink: 0; }
+        .exec-info { flex: 1; min-width: 0; }
+        .exec-name { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .exec-role { font-size: 10px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .exec-status { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+        .exec-status.offline { background: var(--text-3); }
+
+        /* Center - Chat */
+        .chat-panel { display: flex; flex-direction: column; background: var(--bg); }
+        .chat-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
+        .chat-title { font-weight: 600; font-size: 14px; }
+        .chat-meta { font-size: 11px; color: var(--text-3); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        
+        .message { display: flex; gap: 12px; max-width: 85%; animation: msgIn 0.3s ease; }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.system { max-width: 100%; }
+        .message-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+        .message-content { flex: 1; }
+        .message-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .message-name { font-weight: 600; font-size: 12px; }
+        .message-time { font-size: 10px; color: var(--text-3); }
+        .message-text { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 13px; line-height: 1.6; color: var(--text-2); }
+        .message-text strong { color: var(--text); font-weight: 600; }
+        .message-text .highlight { color: var(--amber); }
+        .message-text .critical { color: var(--red); }
+        .message-text .positive { color: var(--green); }
+
+        .typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
+        .typing-dot { width: 6px; height: 6px; background: var(--text-3); border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+
+        .system-alert { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+        .alert-badge { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; text-transform: uppercase; display: inline-block; margin-bottom: 10px; }
+        .alert-badge.critical { background: rgba(239,68,68,0.15); color: var(--red); }
+        .alert-badge.strategic { background: rgba(168,85,247,0.15); color: var(--purple); }
+        .alert-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+        .alert-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+        /* Decisions */
+        .decisions-container { padding: 20px 24px; border-top: 1px solid var(--border); background: var(--surface); }
+        .decisions-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+        .decisions-grid { display: flex; flex-direction: column; gap: 8px; }
+        .decision-btn { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; text-align: left; }
+        .decision-btn:hover { border-color: var(--text-3); transform: translateY(-1px); }
+        .decision-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .decision-title { font-weight: 600; font-size: 13px; }
+        .decision-tag { font-size: 9px; font-weight: 600; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+        .decision-btn.safe .decision-tag { background: rgba(34,197,94,0.15); color: var(--green); }
+        .decision-btn.risk .decision-tag { background: rgba(245,158,11,0.15); color: var(--amber); }
+        .decision-btn.bold .decision-tag { background: rgba(168,85,247,0.15); color: var(--purple); }
+        .decision-desc { font-size: 11px; color: var(--text-3); }
+
+        /* Right - Dashboard */
+        .dashboard-panel { background: var(--surface); border-left: 1px solid var(--border); overflow-y: auto; padding: 20px; }
+        .dash-section { margin-bottom: 24px; }
+        .dash-header { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .live-badge { display: flex; align-items: center; gap: 4px; color: var(--green); font-size: 9px; }
+        .live-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Metric Cards */
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .metric-card { background: var(--surface-2); border-radius: 10px; padding: 14px; }
+        .metric-label { font-size: 10px; color: var(--text-3); margin-bottom: 6px; }
+        .metric-value { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; }
+        .metric-value.up { color: var(--green); }
+        .metric-value.down { color: var(--red); }
+        .metric-change { font-size: 10px; margin-top: 4px; }
+        .metric-change.up { color: var(--green); }
+        .metric-change.down { color: var(--red); }
+
+        /* Score Ring */
+        .score-card { background: var(--surface-2); border-radius: 12px; padding: 16px; margin-bottom: 8px; }
+        .score-row { display: flex; align-items: center; gap: 14px; }
+        .score-ring { position: relative; width: 48px; height: 48px; }
+        .score-ring svg { transform: rotate(-90deg); }
+        .score-ring-bg { fill: none; stroke: var(--surface-3); stroke-width: 5; }
+        .score-ring-fill { fill: none; stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+        .score-ring-fill.green { stroke: var(--green); }
+        .score-ring-fill.amber { stroke: var(--amber); }
+        .score-ring-fill.red { stroke: var(--red); }
+        .score-ring-value { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+        .score-info { flex: 1; }
+        .score-label { font-size: 12px; font-weight: 500; }
+        .score-sublabel { font-size: 10px; color: var(--text-3); }
+
+        /* Decision History */
+        .history-item { background: var(--surface-2); border-radius: 8px; padding: 12px; margin-bottom: 6px; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .history-title { font-size: 11px; font-weight: 500; }
+        .history-impact { font-size: 10px; font-weight: 600; }
+        .history-impact.positive { color: var(--green); }
+        .history-impact.negative { color: var(--red); }
+        .history-time { font-size: 10px; color: var(--text-3); }
+
+        /* Auth */
+        .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .auth-overlay.hidden { display: none; }
+        .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 420px; }
+        .auth-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .auth-sub { font-size: 13px; color: var(--text-3); margin-bottom: 28px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 11px; color: var(--text-3); margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; color: var(--text); outline: none; }
+        .form-input:focus { border-color: var(--text-3); }
+        .form-btn { width: 100%; padding: 14px; background: var(--text); border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--bg); cursor: pointer; margin-top: 8px; }
+
+        /* Result Modal */
+        .result-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .result-overlay.active { display: flex; }
+        .result-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 36px; width: 480px; text-align: center; }
+        .result-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 6px 14px; border-radius: 6px; text-transform: uppercase; margin-bottom: 16px; }
+        .result-badge.success { background: rgba(34,197,94,0.15); color: var(--green); }
+        .result-badge.warning { background: rgba(245,158,11,0.15); color: var(--amber); }
+        .result-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+        .result-text { font-size: 13px; color: var(--text-2); line-height: 1.7; margin-bottom: 24px; }
+        .result-metrics { display: flex; justify-content: center; gap: 28px; padding: 20px; background: var(--surface-2); border-radius: 12px; margin-bottom: 24px; }
+        .result-metric { text-align: center; }
+        .result-metric-value { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; }
+        .result-metric-value.up { color: var(--green); }
+        .result-metric-value.down { color: var(--red); }
+        .result-metric-label { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+        .result-btn { padding: 12px 32px; background: var(--text); border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--bg); cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h1 class="auth-title">Enterprise CEO</h1>
+            <p class="auth-sub">Fortune 500 Strategic Command System</p>
+            <div class="form-group">
+                <label class="form-label">Corporation Name</label>
+                <input type="text" class="form-input" id="companyInput" placeholder="e.g., Global Foods International">
+            </div>
+            <button class="form-btn" onclick="startGame()">Initialize System</button>
+        </div>
+    </div>
+
+    <div class="app">
+        <aside class="executives-panel">
+            <div class="panel-header">
+                <div class="logo">Executive Board</div>
+                <div class="logo-sub">C-Suite Leadership Team</div>
+            </div>
+            <div class="exec-list" id="execList"></div>
+        </aside>
+
+        <main class="chat-panel">
+            <div class="chat-header">
+                <div>
+                    <div class="chat-title" id="chatTitle">Strategic Advisory Session</div>
+                    <div class="chat-meta" id="chatMeta">Emergency Board Meeting</div>
+                </div>
+                <div class="chat-meta" id="chatTime"></div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="decisions-container" id="decisionsContainer" style="display:none;">
+                <div class="decisions-label">Your Decision</div>
+                <div class="decisions-grid" id="decisionsGrid"></div>
+            </div>
+        </main>
+
+        <aside class="dashboard-panel">
+            <div class="dash-section">
+                <div class="dash-header">Company Performance <span class="live-badge"><span class="live-dot"></span>Live</span></div>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Revenue (TTM)</div>
+                        <div class="metric-value" id="revenueValue">$14.2B</div>
+                        <div class="metric-change up" id="revenueChange">↑ 8.4% YoY</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Net Income</div>
+                        <div class="metric-value" id="incomeValue">$1.8B</div>
+                        <div class="metric-change up" id="incomeChange">↑ 12.1% YoY</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Employees</div>
+                        <div class="metric-value" id="employeesValue">82,400</div>
+                        <div class="metric-change" id="employeesChange">Across 45 countries</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Stock Price</div>
+                        <div class="metric-value up" id="stockValue">$127.45</div>
+                        <div class="metric-change up" id="stockChange">↑ 2.3% today</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-section">
+                <div class="dash-header">Strategic Scores</div>
+                <div class="score-card">
+                    <div class="score-row">
+                        <div class="score-ring">
+                            <svg width="48" height="48" viewBox="0 0 48 48">
+                                <circle class="score-ring-bg" cx="24" cy="24" r="20"/>
+                                <circle class="score-ring-fill green" id="boardRing" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="25"/>
+                            </svg>
+                            <div class="score-ring-value" id="boardValue">80</div>
+                        </div>
+                        <div class="score-info">
+                            <div class="score-label">Board Confidence</div>
+                            <div class="score-sublabel">Shareholder trust level</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="score-card">
+                    <div class="score-row">
+                        <div class="score-ring">
+                            <svg width="48" height="48" viewBox="0 0 48 48">
+                                <circle class="score-ring-bg" cx="24" cy="24" r="20"/>
+                                <circle class="score-ring-fill green" id="esgRing" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="31"/>
+                            </svg>
+                            <div class="score-ring-value" id="esgValue">75</div>
+                        </div>
+                        <div class="score-info">
+                            <div class="score-label">ESG Rating</div>
+                            <div class="score-sublabel">Environmental & Social</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="score-card">
+                    <div class="score-row">
+                        <div class="score-ring">
+                            <svg width="48" height="48" viewBox="0 0 48 48">
+                                <circle class="score-ring-bg" cx="24" cy="24" r="20"/>
+                                <circle class="score-ring-fill amber" id="riskRing" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="88"/>
+                            </svg>
+                            <div class="score-ring-value" id="riskValue">30</div>
+                        </div>
+                        <div class="score-info">
+                            <div class="score-label">Risk Index</div>
+                            <div class="score-sublabel">Operational exposure</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-section">
+                <div class="dash-header">Decision History</div>
+                <div id="historyList"></div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-modal">
+            <div class="result-badge" id="resultBadge">Executed</div>
+            <h3 class="result-title" id="resultTitle">Decision Impact</h3>
+            <p class="result-text" id="resultText"></p>
+            <div class="result-metrics" id="resultMetrics"></div>
+            <button class="result-btn" onclick="continueGame()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        const state = { company: '', scenario: 0, board: 80, esg: 75, risk: 30, revenue: 14.2, stock: 127.45 };
+
+        const executives = [
+            { id: 'cfo', name: 'Sarah Chen', role: 'Chief Financial Officer', init: 'SC', color: '#3b82f6' },
+            { id: 'coo', name: 'Michael Torres', role: 'Chief Operating Officer', init: 'MT', color: '#22c55e' },
+            { id: 'cto', name: 'David Park', role: 'Chief Technology Officer', init: 'DP', color: '#a855f7' },
+            { id: 'cmo', name: 'Emma Wilson', role: 'Chief Marketing Officer', init: 'EW', color: '#f59e0b' },
+            { id: 'chro', name: 'James Miller', role: 'Chief HR Officer', init: 'JM', color: '#06b6d4' },
+            { id: 'clo', name: 'Rachel Adams', role: 'Chief Legal Officer', init: 'RA', color: '#ef4444' },
+            { id: 'cso', name: 'Thomas Wright', role: 'Chief Strategy Officer', init: 'TW', color: '#ec4899' },
+            { id: 'ciso', name: 'Karen Lee', role: 'Chief Info Security Officer', init: 'KL', color: '#8b5cf6' },
+            { id: 'csco', name: 'Robert Kim', role: 'Chief Supply Chain Officer', init: 'RK', color: '#14b8a6' },
+            { id: 'cdo', name: 'Lisa Zhang', role: 'Chief Data Officer', init: 'LZ', color: '#f97316' }
+        ];
+
+        const scenarios = [
+            {
+                title: 'Major Acquisition Opportunity',
+                type: 'strategic',
+                brief: 'A competitor with $2.8B revenue and 12,000 employees is available for acquisition at $4.2B. This would expand our market share by 18% but requires significant debt financing.',
+                speakers: [
+                    { exec: 'cfo', text: 'The acquisition price of <strong>$4.2 billion</strong> represents a <span class="highlight">1.5x revenue multiple</span> — fair but not cheap. We\'d need to issue <strong>$3B in bonds</strong> at current rates of 6.2%. Our debt-to-equity ratio would jump from 0.4 to <span class="critical">1.2</span>, triggering covenant reviews with existing lenders.' },
+                    { exec: 'cso', text: 'Strategically, this is a <span class="positive">once-in-a-decade opportunity</span>. The target has <strong>strong presence in Southeast Asia</strong> where we\'ve struggled. Combined entity would control <strong>34% market share</strong> in processed foods. However, antitrust review in EU is <span class="highlight">70% likely</span>.' },
+                    { exec: 'chro', text: 'Integration will be complex. We\'re looking at <strong>15-20% workforce overlap</strong> — roughly <span class="critical">8,000-10,000 positions</span> at risk of redundancy. Cultural integration historically takes 2-3 years. Employee satisfaction typically drops <strong>12-18%</strong> during M&A transitions.' },
+                    { exec: 'clo', text: 'Legal due diligence reveals <strong>2 pending class actions</strong> against the target totaling $180M in potential liability. Their FCPA compliance in Latin America operations is <span class="highlight">questionable</span>. I recommend a $250M escrow for indemnification.' }
+                ],
+                decisions: [
+                    { type: 'bold', title: 'Proceed with Full Acquisition', desc: 'Accept the $4.2B price and move forward with debt financing. Target 18-month integration.', result: { badge: 'success', title: 'Acquisition Approved', text: 'The board greenlit the deal after intense debate. Stock initially dropped 8% on debt concerns but recovered within 6 weeks as market recognized strategic value. Integration challenges ahead.', metrics: [{ value: '-$4.2B', label: 'Cash/Debt', up: false }, { value: '+18%', label: 'Market Share', up: true }, { value: '+12K', label: 'Employees', up: true }] } },
+                    { type: 'safe', title: 'Negotiate Lower Price + Asset Sale', desc: 'Counter at $3.5B with commitment to divest overlapping assets to reduce antitrust risk.', result: { badge: 'success', title: 'Counter Accepted', text: 'After 3 weeks of negotiation, target accepted $3.7B with asset divestiture plan. EU antitrust concerns significantly reduced. More conservative debt structure preserved credit rating.', metrics: [{ value: '-$3.7B', label: 'Cash/Debt', up: false }, { value: '+14%', label: 'Market Share', up: true }, { value: 'BBB+', label: 'Credit Rating', up: true }] } },
+                    { type: 'risk', title: 'Walk Away — Focus on Organic Growth', desc: 'Decline acquisition. Invest $1B in R&D and market expansion over 3 years instead.', result: { badge: 'warning', title: 'Opportunity Passed', text: 'Within 4 months, a private equity firm acquired the target at $4.8B. They\'re now aggressively expanding in your markets. Board questions if organic growth can compete.', metrics: [{ value: '+$1B', label: 'Cash Preserved', up: true }, { value: '-5%', label: 'Market Outlook', up: false }, { value: '-8%', label: 'Board Conf', up: false }] } }
+                ]
+            },
+            {
+                title: 'Supply Chain Contamination Crisis',
+                type: 'critical',
+                brief: 'Quality control detected bacterial contamination in products from our largest manufacturing facility. 2.4 million units shipped in the last 72 hours across 15 states. No illnesses reported yet.',
+                speakers: [
+                    { exec: 'coo', text: 'The contamination originated in <strong>Processing Line 7</strong> at our Memphis facility. Preliminary tests show <span class="critical">Salmonella</span> levels at 3x acceptable limits. <strong>2.4 million units</strong> are in distribution channels right now. We can initiate full recall within <span class="highlight">6 hours</span> if you authorize.' },
+                    { exec: 'cfo', text: 'Full recall cost estimate: <span class="critical">$145-180 million</span> including logistics, destruction, retailer credits, and production restart. Our insurance covers up to <strong>$50M</strong>. Stock will likely drop <strong>15-25%</strong> on news. Partial recall targeting high-risk batches could reduce costs to <span class="highlight">$60M</span>.' },
+                    { exec: 'clo', text: 'Every hour of delay increases legal exposure exponentially. If someone gets sick after we knew about contamination, we\'re looking at <span class="critical">criminal negligence charges</span>, not just civil liability. FDA notification is required within <strong>24 hours</strong>. I strongly advise full transparency.' },
+                    { exec: 'cmo', text: 'Brand reputation is at stake. Companies that recall proactively typically see <span class="positive">stock recovery within 6 months</span>. Those caught hiding issues — like the 2008 peanut scandal — suffer <strong>permanent brand damage</strong>. I recommend getting ahead of this with direct consumer communication.' },
+                    { exec: 'csco', text: 'I can redirect supply from our Ohio and Texas facilities to cover <strong>65% of demand</strong> within 72 hours. Full recovery to normal supply levels will take <span class="highlight">3-4 weeks</span>. Retailers are already asking questions — Walmart wants a call in 2 hours.' }
+                ],
+                decisions: [
+                    { type: 'safe', title: 'Immediate Full Recall + Public Statement', desc: 'Recall all 2.4M units, notify FDA, issue press release within 4 hours. CEO appears on morning news.', result: { badge: 'success', title: 'Crisis Contained', text: 'Swift action praised by FDA and consumer advocates. Stock dropped 18% initially but recovered 12% within 2 weeks. No illness reports. Brand trust surveys show minimal long-term damage.', metrics: [{ value: '-$165M', label: 'Recall Cost', up: false }, { value: '+15%', label: 'Trust Score', up: true }, { value: 'A-', label: 'ESG Rating', up: true }] } },
+                    { type: 'risk', title: 'Targeted Recall — High-Risk Batches Only', desc: 'Recall only products from dates with confirmed contamination (800K units). Monitor for illness reports.', result: { badge: 'warning', title: 'Partial Success', text: '5 days later, 3 illness cases reported from non-recalled batches. Emergency expansion to full recall. Media coverage significantly more negative. Congressional inquiry announced.', metrics: [{ value: '-$240M', label: 'Total Cost', up: false }, { value: '-22%', label: 'Stock Price', up: false }, { value: '-15%', label: 'Board Conf', up: false }] } },
+                    { type: 'bold', title: 'Silent Recall + Retailer Coordination', desc: 'Quietly pull products through retail partners without public announcement. Compensate retailers generously.', result: { badge: 'warning', title: 'Cover-Up Exposed', text: 'A retailer employee leaked the quiet recall to media on day 3. "Secret Recall" headlines devastated brand. FDA launched formal investigation. Three board members demanded CEO resignation.', metrics: [{ value: '-$380M', label: 'Total Damage', up: false }, { value: '-45%', label: 'Stock Price', up: false }, { value: '-35%', label: 'Board Conf', up: false }] } }
+                ]
+            },
+            {
+                title: 'AI Automation vs Workforce Decision',
+                type: 'strategic',
+                brief: 'CTO proposes $800M investment in AI-powered automation that would eliminate 12,000 positions over 3 years while increasing efficiency by 40%. Union contract expires in 6 months.',
+                speakers: [
+                    { exec: 'cto', text: 'The AI platform can automate <strong>60% of quality control</strong>, <strong>80% of inventory management</strong>, and <strong>45% of customer service</strong>. ROI projections show <span class="positive">$340M annual savings</span> starting year 3. Our competitors are already 18 months ahead on this transformation.' },
+                    { exec: 'chro', text: 'We\'re talking about <span class="critical">12,000 employees</span> — 15% of our workforce. Average tenure is 11 years. Severance alone would cost <strong>$400M</strong>. Union will fight this aggressively. A strike could cost <span class="critical">$50M per week</span> in lost production.' },
+                    { exec: 'cfo', text: 'The math is compelling: <strong>$800M investment</strong> plus <strong>$400M severance</strong> = $1.2B total. Against <strong>$340M annual savings</strong>, we break even in 3.5 years. NPV over 10 years is <span class="positive">+$1.8B</span>. But short-term, Q3 earnings will miss by 25%.' },
+                    { exec: 'clo', text: 'WARN Act requires <strong>60-day notice</strong> for mass layoffs. Union contract has <span class="highlight">technology change clauses</span> requiring negotiation. Age discrimination risk is high — average affected employee is 47 years old. Expect at least <strong>$50M in legal costs</strong>.' },
+                    { exec: 'cso', text: 'There\'s a middle path: <span class="positive">phased automation over 5 years</span> with aggressive retraining. We convert 40% of affected workers to AI oversight roles. Slower savings but avoids union conflict and preserves institutional knowledge.' }
+                ],
+                decisions: [
+                    { type: 'bold', title: 'Full Automation — 3-Year Plan', desc: 'Proceed with complete implementation. Generous severance + job placement services for affected employees.', result: { badge: 'warning', title: 'Transformation Begins', text: 'Union called 3-week strike costing $150M. Public backlash significant. However, 18 months later, efficiency gains exceeded projections. Competitors struggling to catch up.', metrics: [{ value: '-12,000', label: 'Positions', up: false }, { value: '+42%', label: 'Efficiency', up: true }, { value: '-12%', label: 'ESG Score', up: false }] } },
+                    { type: 'safe', title: 'Phased Approach — 5-Year Transition', desc: 'Slower rollout with retraining program. Convert 5,000 workers to new roles, natural attrition handles rest.', result: { badge: 'success', title: 'Balanced Transformation', text: 'Union accepted plan with retraining guarantees. No strike. ESG investors praised approach. Efficiency gains slower but workforce morale preserved. Featured in Harvard Business Review.', metrics: [{ value: '-5,000', label: 'Net Reduction', up: false }, { value: '+28%', label: 'Efficiency', up: true }, { value: '+8%', label: 'ESG Score', up: true }] } },
+                    { type: 'risk', title: 'Delay Decision — Renegotiate Union Contract First', desc: 'Postpone automation announcement until new union contract secured with flexibility clauses.', result: { badge: 'warning', title: 'Opportunity Cost', text: 'Union negotiations extended 8 months. Competitor launched similar platform first, capturing market narrative. When automation finally announced, it was seen as "catching up" not "leading."', metrics: [{ value: '+$0', label: 'Savings (Year 1)', up: false }, { value: '-8%', label: 'Market Position', up: false }, { value: 'Stable', label: 'Union Relations', up: true }] } }
+                ]
+            }
+        ];
+
+        function startGame() {
+            state.company = document.getElementById('companyInput').value || 'Global Foods International';
+            document.getElementById('authOverlay').classList.add('hidden');
+            renderExecutives();
+            runScenario();
+        }
+
+        function renderExecutives() {
+            document.getElementById('execList').innerHTML = executives.map(e => `
+                <div class="exec-item" id="exec-${e.id}">
+                    <div class="exec-avatar" style="background:${e.color}22;color:${e.color}">${e.init}</div>
+                    <div class="exec-info">
+                        <div class="exec-name">${e.name}</div>
+                        <div class="exec-role">${e.role}</div>
+                    </div>
+                    <div class="exec-status"></div>
+                </div>
+            `).join('');
+        }
+
+        async function runScenario() {
+            const s = scenarios[state.scenario];
+            const chat = document.getElementById('chatMessages');
+            chat.innerHTML = '';
+            document.getElementById('decisionsContainer').style.display = 'none';
+            document.getElementById('chatTitle').textContent = s.title;
+            document.getElementById('chatMeta').textContent = s.type === 'critical' ? 'Emergency Session' : 'Strategic Planning';
+
+            // System alert
+            await addMessage('system', null, `
+                <div class="system-alert">
+                    <div class="alert-badge ${s.type}">${s.type === 'critical' ? 'Urgent' : 'Strategic'}</div>
+                    <div class="alert-title">${s.title}</div>
+                    <div class="alert-desc">${s.brief}</div>
+                </div>
+            `);
+
+            await sleep(1000);
+
+            // Executive responses with typing
+            for (const speaker of s.speakers) {
+                const exec = executives.find(e => e.id === speaker.exec);
+                setExecSpeaking(exec.id);
+                await showTyping(exec);
+                await addMessage('exec', exec, speaker.text);
+                clearExecSpeaking();
+                await sleep(800);
+            }
+
+            // Show decisions
+            document.getElementById('decisionsContainer').style.display = 'block';
+            document.getElementById('decisionsGrid').innerHTML = s.decisions.map((d, i) => `
+                <button class="decision-btn ${d.type}" onclick="makeDecision(${i})">
+                    <div class="decision-header">
+                        <span class="decision-title">${d.title}</span>
+                        <span class="decision-tag">${d.type === 'safe' ? 'Conservative' : d.type === 'bold' ? 'Aggressive' : 'High Risk'}</span>
+                    </div>
+                    <div class="decision-desc">${d.desc}</div>
+                </button>
+            `).join('');
+        }
+
+        function setExecSpeaking(id) {
+            document.querySelectorAll('.exec-item').forEach(el => el.classList.remove('speaking'));
+            document.getElementById('exec-' + id)?.classList.add('speaking');
+        }
+
+        function clearExecSpeaking() {
+            document.querySelectorAll('.exec-item').forEach(el => el.classList.remove('speaking'));
+        }
+
+        async function showTyping(exec) {
+            const chat = document.getElementById('chatMessages');
+            const typing = document.createElement('div');
+            typing.className = 'message';
+            typing.innerHTML = `
+                <div class="message-avatar" style="background:${exec.color}22;color:${exec.color}">${exec.init}</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-name">${exec.name}</span>
+                        <span class="message-time">typing...</span>
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            chat.appendChild(typing);
+            chat.scrollTop = chat.scrollHeight;
+            await sleep(1500 + Math.random() * 1000);
+            typing.remove();
+        }
+
+        async function addMessage(type, exec, content) {
+            const chat = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            const msg = document.createElement('div');
+            msg.className = 'message' + (type === 'system' ? ' system' : '');
+            
+            if (type === 'system') {
+                msg.innerHTML = content;
+            } else {
+                msg.innerHTML = `
+                    <div class="message-avatar" style="background:${exec.color}22;color:${exec.color}">${exec.init}</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-name">${exec.name}</span>
+                            <span class="message-time">${time}</span>
+                        </div>
+                        <div class="message-text">${content}</div>
+                    </div>
+                `;
+            }
+            
+            chat.appendChild(msg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function makeDecision(idx) {
+            const s = scenarios[state.scenario];
+            const d = s.decisions[idx];
+            const r = d.result;
+
+            // Update scores
+            if (d.type === 'safe') { state.board = Math.min(100, state.board + 5); state.esg = Math.min(100, state.esg + 3); }
+            else if (d.type === 'bold') { state.board = Math.max(30, state.board - 5); state.risk = Math.min(80, state.risk + 10); }
+            else { state.board = Math.max(30, state.board - 10); state.risk = Math.min(80, state.risk + 15); }
+            updateScores();
+
+            // Add to history
+            addHistory(d.title, d.type === 'safe' ? '+' : '-');
+
+            // Show result
+            document.getElementById('resultBadge').textContent = r.badge === 'success' ? 'Success' : 'Caution';
+            document.getElementById('resultBadge').className = 'result-badge ' + r.badge;
+            document.getElementById('resultTitle').textContent = r.title;
+            document.getElementById('resultText').textContent = r.text;
+            document.getElementById('resultMetrics').innerHTML = r.metrics.map(m => `
+                <div class="result-metric">
+                    <div class="result-metric-value ${m.up ? 'up' : 'down'}">${m.value}</div>
+                    <div class="result-metric-label">${m.label}</div>
+                </div>
+            `).join('');
+            document.getElementById('resultOverlay').classList.add('active');
+        }
+
+        function continueGame() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            state.scenario = (state.scenario + 1) % scenarios.length;
+            runScenario();
+        }
+
+        function updateScores() {
+            updateRing('boardRing', state.board, 'boardValue');
+            updateRing('esgRing', state.esg, 'esgValue');
+            updateRing('riskRing', state.risk, 'riskValue', true);
+        }
+
+        function updateRing(ringId, value, valueId, inverse = false) {
+            const circumference = 125.6;
+            const offset = circumference - (value / 100) * circumference;
+            const ring = document.getElementById(ringId);
+            ring.style.strokeDashoffset = offset;
+            document.getElementById(valueId).textContent = value;
+            
+            ring.classList.remove('green', 'amber', 'red');
+            if (inverse) {
+                if (value < 40) ring.classList.add('green');
+                else if (value < 60) ring.classList.add('amber');
+                else ring.classList.add('red');
+            } else {
+                if (value >= 70) ring.classList.add('green');
+                else if (value >= 50) ring.classList.add('amber');
+                else ring.classList.add('red');
+            }
+        }
+
+        function addHistory(title, impact) {
+            const list = document.getElementById('historyList');
+            const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            list.innerHTML = `
+                <div class="history-item">
+                    <div class="history-header">
+                        <span class="history-title">${title.substring(0, 30)}...</span>
+                        <span class="history-impact ${impact === '+' ? 'positive' : 'negative'}">${impact === '+' ? '↑' : '↓'}</span>
+                    </div>
+                    <div class="history-time">${time}</div>
+                </div>
+            ` + list.innerHTML;
+        }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        setInterval(() => {
+            document.getElementById('chatTime').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }, 1000);
+    </script>
+</body>
+</html>
+

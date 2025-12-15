@@ -1,0 +1,343 @@
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  BookOpen,
+  Clock,
+  Shuffle,
+  Play,
+  Filter,
+  Zap,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+const topics = [
+  { id: 'ethics', name: 'Ethics', questions: 120, accuracy: 82 },
+  { id: 'quant', name: 'Quantitative Methods', questions: 95, accuracy: 68 },
+  { id: 'economics', name: 'Economics', questions: 85, accuracy: 71 },
+  { id: 'fra', name: 'Financial Reporting', questions: 150, accuracy: 58 },
+  { id: 'corporate', name: 'Corporate Issuers', questions: 70, accuracy: 75 },
+  { id: 'equity', name: 'Equity Investments', questions: 110, accuracy: 65 },
+  { id: 'fixed-income', name: 'Fixed Income', questions: 100, accuracy: 52 },
+  { id: 'derivatives', name: 'Derivatives', questions: 80, accuracy: 48 },
+  { id: 'alts', name: 'Alternative Investments', questions: 45, accuracy: 70 },
+  { id: 'pm', name: 'Portfolio Management', questions: 90, accuracy: 62 },
+];
+
+const quizModes = [
+  {
+    id: 'practice',
+    name: 'Practice Mode',
+    description: 'No time limit, see explanations after each question',
+    icon: BookOpen,
+    color: 'from-indigo-600 to-violet-600',
+  },
+  {
+    id: 'timed',
+    name: 'Timed Mode',
+    description: '90 seconds per question, simulates exam pressure',
+    icon: Clock,
+    color: 'from-amber-600 to-orange-600',
+  },
+  {
+    id: 'exam',
+    name: 'Exam Simulation',
+    description: 'Full exam conditions with continuous timer',
+    icon: Zap,
+    color: 'from-red-600 to-rose-600',
+  },
+];
+
+export default function QuizPage() {
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [selectedMode, setSelectedMode] = useState('practice');
+  const [questionCount, setQuestionCount] = useState('10');
+
+  const toggleTopic = (topicId: string) => {
+    setSelectedTopics((prev) =>
+      prev.includes(topicId)
+        ? prev.filter((id) => id !== topicId)
+        : [...prev, topicId]
+    );
+  };
+
+  const selectAllTopics = () => {
+    if (selectedTopics.length === topics.length) {
+      setSelectedTopics([]);
+    } else {
+      setSelectedTopics(topics.map((t) => t.id));
+    }
+  };
+
+  const startQuiz = () => {
+    // In a real app, this would navigate to the quiz with selected options
+    window.location.href = `/quiz/session?topics=${selectedTopics.join(',')}&mode=${selectedMode}&count=${questionCount}`;
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Header */}
+      <div>
+        <motion.h1
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-3xl font-bold text-white"
+        >
+          Practice Quiz
+        </motion.h1>
+        <p className="text-slate-400 mt-1">
+          Select topics and mode to start your practice session
+        </p>
+      </div>
+
+      {/* Quiz Mode Selection */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <h2 className="text-lg font-semibold text-white mb-4">Select Mode</h2>
+        <div className="grid md:grid-cols-3 gap-4">
+          {quizModes.map((mode) => {
+            const Icon = mode.icon;
+            const isSelected = selectedMode === mode.id;
+            return (
+              <Card
+                key={mode.id}
+                className={`cursor-pointer transition-all ${
+                  isSelected
+                    ? 'border-indigo-500 bg-indigo-500/10'
+                    : 'hover:border-slate-600'
+                }`}
+                onClick={() => setSelectedMode(mode.id)}
+              >
+                <CardContent className="p-5">
+                  <div
+                    className={`inline-flex p-2.5 rounded-xl bg-gradient-to-br ${mode.color} mb-3`}
+                  >
+                    <Icon className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-white mb-1">{mode.name}</h3>
+                  <p className="text-sm text-slate-400">{mode.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* Topic Selection */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">Select Topics</h2>
+          <Button variant="ghost" size="sm" onClick={selectAllTopics}>
+            {selectedTopics.length === topics.length ? 'Deselect All' : 'Select All'}
+          </Button>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {topics.map((topic, index) => {
+            const isSelected = selectedTopics.includes(topic.id);
+            return (
+              <motion.div
+                key={topic.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.25 + index * 0.03 }}
+              >
+                <Card
+                  className={`cursor-pointer transition-all ${
+                    isSelected
+                      ? 'border-indigo-500 bg-indigo-500/10'
+                      : 'hover:border-slate-600'
+                  }`}
+                  onClick={() => toggleTopic(topic.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                            isSelected
+                              ? 'bg-indigo-500 border-indigo-500'
+                              : 'border-slate-600'
+                          }`}
+                        >
+                          {isSelected && (
+                            <motion.svg
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="w-3 h-3 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={3}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </motion.svg>
+                          )}
+                        </div>
+                        <span className="font-medium text-white">{topic.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-slate-500">
+                          {topic.questions} Qs
+                        </span>
+                        <Badge
+                          variant={
+                            topic.accuracy >= 70
+                              ? 'success'
+                              : topic.accuracy >= 50
+                              ? 'warning'
+                              : 'destructive'
+                          }
+                        >
+                          {topic.accuracy}%
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* Quiz Options */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Filter className="h-5 w-5 text-indigo-400" />
+              Quiz Options
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Number of Questions
+                </label>
+                <Select value={questionCount} onValueChange={setQuestionCount}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 Questions</SelectItem>
+                    <SelectItem value="20">20 Questions</SelectItem>
+                    <SelectItem value="30">30 Questions</SelectItem>
+                    <SelectItem value="50">50 Questions</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Difficulty
+                </label>
+                <Select defaultValue="all">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Difficulties</SelectItem>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Start Button */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-800">
+              <Button
+                size="lg"
+                className="flex-1"
+                onClick={startQuiz}
+                disabled={selectedTopics.length === 0}
+              >
+                <Play className="h-5 w-5 mr-2" />
+                Start Quiz ({selectedTopics.length} topic{selectedTopics.length !== 1 ? 's' : ''})
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  setSelectedTopics(topics.map((t) => t.id));
+                  setSelectedMode('practice');
+                }}
+              >
+                <Shuffle className="h-5 w-5 mr-2" />
+                Quick Random Quiz
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Recent Quizzes */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Recent Quizzes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[
+                { topics: 'Ethics, Quant', score: 80, questions: 20, time: '2h ago' },
+                { topics: 'Fixed Income', score: 65, questions: 15, time: '5h ago' },
+                { topics: 'All Topics', score: 72, questions: 30, time: 'Yesterday' },
+              ].map((quiz, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700"
+                >
+                  <div>
+                    <p className="font-medium text-white">{quiz.topics}</p>
+                    <p className="text-sm text-slate-500">
+                      {quiz.questions} questions • {quiz.time}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      quiz.score >= 70 ? 'success' : quiz.score >= 50 ? 'warning' : 'destructive'
+                    }
+                  >
+                    {quiz.score}%
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}
+

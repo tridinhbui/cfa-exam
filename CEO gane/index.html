@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX EXECUTIVE OS | v4.7.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --obsidian: #0a0a0f;
+            --obsidian-light: #12121a;
+            --glass: rgba(20, 20, 30, 0.7);
+            --glass-border: rgba(255, 215, 0, 0.15);
+            --gold: #d4af37;
+            --gold-bright: #ffd700;
+            --gold-dim: #8b7355;
+            --text-primary: #e8e8e8;
+            --text-secondary: #888899;
+            --danger: #ff3b5c;
+            --warning: #ff9f1c;
+            --success: #00d4aa;
+            --info: #00b4d8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--obsidian);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Rain Effect */
+        .rain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(transparent, rgba(100, 150, 255, 0.3));
+            animation: rain-fall linear infinite;
+        }
+
+        @keyframes rain-fall {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* Lightning Effect */
+        .lightning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .lightning.flash {
+            animation: lightning-flash 0.15s ease-out;
+        }
+
+        @keyframes lightning-flash {
+            0%, 100% { opacity: 0; }
+            10%, 30% { opacity: 0.1; }
+            20% { opacity: 0.3; }
+        }
+
+        /* City Skyline Background */
+        .city-backdrop {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: 
+                linear-gradient(to top, var(--obsidian) 0%, transparent 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400'%3E%3Crect fill='%23080810' width='1200' height='400'/%3E%3Cg fill='%23101020'%3E%3Crect x='50' y='150' width='80' height='250'/%3E%3Crect x='140' y='200' width='60' height='200'/%3E%3Crect x='220' y='100' width='100' height='300'/%3E%3Crect x='340' y='180' width='70' height='220'/%3E%3Crect x='430' y='80' width='120' height='320'/%3E%3Crect x='570' y='150' width='90' height='250'/%3E%3Crect x='680' y='50' width='80' height='350'/%3E%3Crect x='780' y='120' width='110' height='280'/%3E%3Crect x='910' y='170' width='85' height='230'/%3E%3Crect x='1010' y='90' width='100' height='310'/%3E%3Crect x='1120' y='140' width='70' height='260'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: bottom;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        /* Main Container */
+        .apex-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        /* Boot Screen */
+        .boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--obsidian);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .boot-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .boot-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: logo-fade 2s ease forwards 0.5s;
+        }
+
+        @keyframes logo-fade {
+            to { opacity: 1; }
+        }
+
+        .boot-progress {
+            width: 400px;
+            height: 4px;
+            background: var(--obsidian-light);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .boot-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
+            border-radius: 2px;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 20px var(--gold);
+        }
+
+        .boot-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            height: 60px;
+            width: 500px;
+            text-align: left;
+        }
+
+        .boot-line {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: line-appear 0.3s ease forwards;
+        }
+
+        @keyframes line-appear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Authentication Screen */
+        .auth-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .auth-screen.active {
+            display: flex;
+        }
+
+        .auth-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 60px 80px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 10px;
+            letter-spacing: 4px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 0.95rem;
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+        }
+
+        .auth-field {
+            margin-bottom: 30px;
+        }
+
+        .auth-label {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--gold-dim);
+            margin-bottom: 12px;
+            letter-spacing: 3px;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 18px 24px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .auth-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .auth-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .auth-select {
+            width: 100%;
+            padding: 18px 24px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d4af37'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 24px;
+        }
+
+        .auth-select:focus {
+            border-color: var(--gold);
+        }
+
+        .auth-select option {
+            background: var(--obsidian);
+            color: var(--text-primary);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            border: none;
+            border-radius: 10px;
+            color: var(--obsidian);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .auth-btn:hover::before {
+            left: 100%;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Game Screen */
+        .game-screen {
+            display: none;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        /* Header */
+        .apex-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .apex-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .apex-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .apex-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-trend {
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-trend.up { color: var(--success); }
+        .stat-trend.down { color: var(--danger); }
+        .stat-trend.neutral { color: var(--warning); }
+
+        .stat-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .stat-bar-fill.healthy { background: linear-gradient(90deg, var(--success), #00ffcc); }
+        .stat-bar-fill.warning { background: linear-gradient(90deg, var(--warning), #ffcc00); }
+        .stat-bar-fill.critical { background: linear-gradient(90deg, var(--danger), #ff6b6b); }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        /* Scenario Panel */
+        .scenario-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 35px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scenario-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .priority-badge {
+            padding: 8px 16px;
+            background: rgba(255, 59, 92, 0.2);
+            border: 1px solid var(--danger);
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--danger);
+            letter-spacing: 2px;
+            animation: pulse-badge 2s ease infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 59, 92, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 59, 92, 0.6); }
+        }
+
+        .scenario-timestamp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .scenario-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .scenario-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .scenario-content strong {
+            color: var(--gold);
+        }
+
+        /* Analysis Panel */
+        .analysis-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .analysis-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--gold);
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analysis-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: pulse-dot 1.5s ease infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .analysis-text {
+            flex: 1;
+        }
+
+        .analysis-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .analysis-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .analysis-value.danger { color: var(--danger); }
+        .analysis-value.warning { color: var(--warning); }
+        .analysis-value.success { color: var(--success); }
+
+        /* Decision Buttons */
+        .decisions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .decision-btn {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .decision-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .decision-btn.conservative::before { background: var(--info); }
+        .decision-btn.aggressive::before { background: var(--warning); }
+        .decision-btn.machiavellian::before { background: #7b68ee; }
+        .decision-btn.override::before { background: var(--gold); }
+
+        .decision-btn:hover {
+            transform: translateX(10px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .decision-btn:hover::before {
+            width: 8px;
+        }
+
+        .decision-glow {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .decision-btn.conservative .decision-glow {
+            background: rgba(0, 180, 216, 0.2);
+            color: var(--info);
+            box-shadow: 0 0 20px rgba(0, 180, 216, 0.3);
+        }
+
+        .decision-btn.aggressive .decision-glow {
+            background: rgba(255, 159, 28, 0.2);
+            color: var(--warning);
+            box-shadow: 0 0 20px rgba(255, 159, 28, 0.3);
+        }
+
+        .decision-btn.machiavellian .decision-glow {
+            background: rgba(123, 104, 238, 0.2);
+            color: #7b68ee;
+            box-shadow: 0 0 20px rgba(123, 104, 238, 0.3);
+        }
+
+        .decision-btn.override .decision-glow {
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .decision-content {
+            flex: 1;
+        }
+
+        .decision-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .decision-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Side Panel */
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .info-card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        /* Live Ticker */
+        .ticker-container {
+            overflow: hidden;
+        }
+
+        .ticker-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .ticker-item:last-child { border-bottom: none; }
+
+        .ticker-symbol {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .ticker-price {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .ticker-change {
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .ticker-change.up {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--success);
+        }
+
+        .ticker-change.down {
+            background: rgba(255, 59, 92, 0.15);
+            color: var(--danger);
+        }
+
+        /* Notifications Feed */
+        .notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slide-in 0.5s ease;
+        }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .notification-item:last-child { border-bottom: none; }
+
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .notification-dot.urgent { background: var(--danger); }
+        .notification-dot.warning { background: var(--warning); }
+        .notification-dot.info { background: var(--info); }
+
+        .notification-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        /* Execution Modal */
+        .execution-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .execution-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .execution-modal {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 60px 80px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .execution-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--gold);
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+        }
+
+        .execution-spinner {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 40px;
+            border: 3px solid rgba(212, 175, 55, 0.2);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .execution-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .execution-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .execution-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        /* Override Input Modal */
+        .override-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .override-modal.active {
+            display: flex;
+        }
+
+        .override-panel {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 50px;
+            width: 600px;
+        }
+
+        .override-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--gold);
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+
+        .override-input {
+            width: 100%;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            resize: vertical;
+            min-height: 120px;
+            outline: none;
+        }
+
+        .override-input:focus {
+            border-color: var(--gold);
+        }
+
+        .override-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .override-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .override-btn.confirm {
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            color: var(--obsidian);
+        }
+
+        .override-btn.cancel {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .override-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Turn Counter */
+        .turn-counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard { grid-template-columns: repeat(2, 1fr); }
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .auth-panel { padding: 40px; }
+            .scenario-panel { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Rain Effect -->
+    <div class="rain-container" id="rainContainer"></div>
+    
+    <!-- Lightning Effect -->
+    <div class="lightning" id="lightning"></div>
+    
+    <!-- City Backdrop -->
+    <div class="city-backdrop"></div>
+
+    <!-- Boot Screen -->
+    <div class="boot-screen" id="bootScreen">
+        <div class="boot-logo">APEX EXECUTIVE OS</div>
+        <div class="boot-progress">
+            <div class="boot-progress-bar" id="bootProgressBar"></div>
+        </div>
+        <div class="boot-text" id="bootText"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="apex-container">
+        <!-- Authentication Screen -->
+        <div class="auth-screen" id="authScreen">
+            <div class="auth-panel">
+                <div class="auth-title">EXECUTIVE AUTHENTICATION</div>
+                <div class="auth-subtitle">BIOMETRIC VERIFICATION COMPLETE • LEVEL 5 CLEARANCE</div>
+                
+                <div class="auth-field">
+                    <label class="auth-label">CORPORATION NAME</label>
+                    <input type="text" class="auth-input" id="companyName" placeholder="Enter your company name...">
+                </div>
+                
+                <div class="auth-field">
+                    <label class="auth-label">INDUSTRY SECTOR</label>
+                    <select class="auth-select" id="industrySector">
+                        <option value="">Select your industry...</option>
+                        <option value="Technology & AI">Technology & AI</option>
+                        <option value="Finance & Banking">Finance & Banking</option>
+                        <option value="Energy & Utilities">Energy & Utilities</option>
+                        <option value="Healthcare & Pharma">Healthcare & Pharma</option>
+                        <option value="Manufacturing & Industrial">Manufacturing & Industrial</option>
+                        <option value="Aerospace & Defense">Aerospace & Defense</option>
+                        <option value="Retail & Consumer">Retail & Consumer</option>
+                        <option value="Media & Entertainment">Media & Entertainment</option>
+                        <option value="Real Estate & Infrastructure">Real Estate & Infrastructure</option>
+                        <option value="Telecommunications">Telecommunications</option>
+                    </select>
+                </div>
+                
+                <button class="auth-btn" id="authBtn">INITIALIZE COMMAND CENTER</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <!-- Header -->
+            <header class="apex-header">
+                <div class="apex-logo">
+                    <div class="apex-logo-icon">◆</div>
+                    <span>APEX EXECUTIVE OS</span>
+                </div>
+                <div class="apex-time" id="currentTime"></div>
+            </header>
+
+            <!-- Dashboard -->
+            <div class="dashboard" id="dashboard">
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-label">STOCK PRICE</div>
+                    <div class="stat-value" id="stockPrice">$247.82</div>
+                    <div class="stat-trend up" id="stockTrend">▲ +2.4% Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏛️</div>
+                    <div class="stat-label">BOARD APPROVAL</div>
+                    <div class="stat-value" id="boardApproval">78%</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill healthy" id="boardBar" style="width: 78%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-label">GLOBAL OPERATIONS</div>
+                    <div class="stat-value" id="opsStatus">STABLE</div>
+                    <div class="stat-trend neutral" id="opsTrend">● All systems nominal</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🧠</div>
+                    <div class="stat-label">AI STRESS PREDICTION</div>
+                    <div class="stat-value" id="stressLevel">LOW</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill healthy" id="stressBar" style="width: 25%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="main-grid">
+                <!-- Scenario Panel -->
+                <div class="scenario-panel" id="scenarioPanel">
+                    <div class="scenario-header">
+                        <span class="priority-badge" id="priorityBadge">PRIORITY ONE</span>
+                        <span class="scenario-timestamp" id="scenarioTime"></span>
+                    </div>
+                    <h2 class="scenario-title" id="scenarioTitle">AWAITING INITIALIZATION...</h2>
+                    <div class="scenario-content" id="scenarioContent">
+                        Complete authentication to access your executive command center.
+                    </div>
+
+                    <!-- Analysis Panel -->
+                    <div class="analysis-panel" id="analysisPanel" style="display: none;">
+                        <div class="analysis-title">PREMIUM INSIGHT ENGINE</div>
+                        <div id="analysisItems"></div>
+                    </div>
+
+                    <!-- Decisions -->
+                    <div class="decisions-container" id="decisionsContainer" style="display: none;"></div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="side-panel">
+                    <!-- Live Ticker -->
+                    <div class="info-card">
+                        <div class="info-card-title">MARKET PULSE</div>
+                        <div class="ticker-container" id="tickerContainer"></div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="info-card">
+                        <div class="info-card-title">LIVE INTELLIGENCE FEED</div>
+                        <div id="notificationsContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="turn-counter" id="turnCounter"></div>
+        </div>
+    </div>
+
+    <!-- Execution Overlay -->
+    <div class="execution-overlay" id="executionOverlay">
+        <div class="execution-modal">
+            <div class="execution-title" id="executionTitle">EXECUTING DIRECTIVE</div>
+            <div class="execution-spinner"></div>
+            <div class="execution-status" id="executionStatus">Propagating to global systems...</div>
+            <div class="execution-progress">
+                <div class="execution-progress-bar" id="executionProgressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Override Modal -->
+    <div class="override-modal" id="overrideModal">
+        <div class="override-panel">
+            <div class="override-title">EXECUTIVE OVERRIDE</div>
+            <textarea class="override-input" id="overrideInput" placeholder="Enter your custom directive..."></textarea>
+            <div class="override-actions">
+                <button class="override-btn cancel" id="overrideCancel">CANCEL</button>
+                <button class="override-btn confirm" id="overrideConfirm">EXECUTE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const gameState = {
+            company: '',
+            industry: '',
+            stockPrice: 247.82,
+            boardApproval: 78,
+            operationsStatus: 'STABLE',
+            stressLevel: 'LOW',
+            turn: 0,
+            scenarios: []
+        };
+
+        // Scenarios Database
+        const scenarioTemplates = [
+            {
+                title: "HOSTILE TAKEOVER ATTEMPT",
+                content: `Outside, thunder rumbles across the rain-soaked skyline. Your glass desk pulses with <strong>crimson haptic feedback</strong> as an encrypted transmission materializes.
+
+A rival conglomerate has acquired 12% of your outstanding shares in pre-market trading. Their intent is clear: hostile acquisition. The holographic stock ticker shows unusual volume, numbers cascading in <strong>warning amber</strong>.
+
+Your Chief Strategy Officer appears on the secure line: "They're moving fast. We have 48 hours before they file their intent with the SEC."`,
+                analysis: [
+                    { icon: "📊", label: "Market Sentiment Scan", value: "Hostile — Shorting activity up 340%", class: "danger" },
+                    { icon: "🎯", label: "Predicted Acquisition Premium", value: "$412 per share (65% above current)", class: "warning" },
+                    { icon: "⚖️", label: "Legal Defense Success Rate", value: "67% with poison pill strategy", class: "success" }
+                ],
+                options: [
+                    { type: "conservative", letter: "A", title: "ACTIVATE POISON PILL DEFENSE", desc: "Deploy shareholder rights plan to dilute hostile stake. Safe but may anger some investors." },
+                    { type: "aggressive", letter: "B", title: "COUNTER-ACQUISITION STRIKE", desc: "Launch your own takeover bid for their core subsidiary. High risk, high reward." },
+                    { type: "machiavellian", letter: "C", title: "ORCHESTRATE INFORMATION LEAK", desc: "Discreetly release damaging intel about the aggressor to financial press." }
+                ]
+            },
+            {
+                title: "CATASTROPHIC DATA BREACH",
+                content: `The city lights flicker through sheets of rain as your neural interface buzzes with <strong>emergency frequency</strong>. A <strong>CRITICAL ALERT</strong> cascades across every screen in your office.
+
+Cybersecurity has detected an active intrusion. 47 million customer records compromised. The breach vector: a trusted third-party vendor. Your CISO's hologram materializes, face grave: "They're still inside. We can contain or go dark."
+
+Media outlets are already circling. The first notification appears: <strong>"Bloomberg: Breaking News Pending"</strong>`,
+                analysis: [
+                    { icon: "🌐", label: "Social Media Velocity", value: "1.2M mentions/hour — Trending #1 in 12 countries", class: "danger" },
+                    { icon: "💰", label: "Projected Stock Impact", value: "-14% to -22% at market open", class: "danger" },
+                    { icon: "⏱️", label: "Regulatory Disclosure Window", value: "4 hours remaining (GDPR/SEC)", class: "warning" }
+                ],
+                options: [
+                    { type: "conservative", letter: "A", title: "FULL TRANSPARENCY PROTOCOL", desc: "Immediate public disclosure. Accept short-term damage for long-term trust." },
+                    { type: "aggressive", letter: "B", title: "CONTAIN AND COUNTERSTRIKE", desc: "Isolate breach, deploy offensive cyber ops to trace attackers. Delay disclosure." },
+                    { type: "machiavellian", letter: "C", title: "CONTROLLED NARRATIVE RELEASE", desc: "Leak a smaller 'decoy breach' to media while fixing the real one." }
+                ]
+            },
+            {
+                title: "GEOPOLITICAL SUPPLY CHAIN CRISIS",
+                content: `Lightning illuminates the Singapore Strait on your global operations display. A <strong>GEOPOLITICAL ALERT</strong> pulses in the corner of your vision.
+
+Tensions in the South China Sea have escalated. Your primary semiconductor supplier's shipping lanes are now contested waters. 73% of your Q4 production depends on these chips.
+
+Your COO's encrypted message appears: "Alternative routes add 6 weeks and $340M. Some competitors are already pivoting. The window is closing."`,
+                analysis: [
+                    { icon: "🛳️", label: "Supply Chain Disruption Model", value: "87% probability of 8+ week delay", class: "danger" },
+                    { icon: "📈", label: "Competitor Response Analysis", value: "3 rivals securing alternative sources NOW", class: "warning" },
+                    { icon: "💵", label: "Revenue at Risk (Q4)", value: "$2.1 billion in committed orders", class: "danger" }
+                ],
+                options: [
+                    { type: "conservative", letter: "A", title: "DIVERSIFY IMMEDIATELY", desc: "Pay premium for alternative suppliers. Absorb costs to protect delivery timeline." },
+                    { type: "aggressive", letter: "B", title: "ACQUIRE THE SUPPLIER", desc: "Launch emergency M&A to vertically integrate. Control your own destiny." },
+                    { type: "machiavellian", letter: "C", title: "COORDINATE WITH COMPETITORS", desc: "Secretly align with rivals to collectively pressure the geopolitical situation." }
+                ]
+            },
+            {
+                title: "EXECUTIVE SCANDAL ERUPTION",
+                content: `Rain streaks down the floor-to-ceiling windows as your personal AI assistant interrupts with an <strong>URGENT CLASSIFICATION</strong>.
+
+Your CFO has been photographed in compromising circumstances with a foreign intelligence operative. The images are authentic. An anonymous source is shopping the story to major outlets with a deadline: 6 hours.
+
+Board members are already calling. The General Counsel appears: "If this breaks before we act, the SEC will assume the worst about our financials."`,
+                analysis: [
+                    { icon: "📰", label: "Media Trajectory Prediction", value: "Front page in 89% of simulations", class: "danger" },
+                    { icon: "🏦", label: "Institutional Investor Sentiment", value: "Flight risk: $4.2B in managed positions", class: "danger" },
+                    { icon: "⚖️", label: "Legal Exposure Assessment", value: "Moderate — contingent on disclosure timing", class: "warning" }
+                ],
+                options: [
+                    { type: "conservative", letter: "A", title: "IMMEDIATE TERMINATION", desc: "Fire the CFO publicly before story breaks. Distance the company completely." },
+                    { type: "aggressive", letter: "B", title: "COUNTER-INTELLIGENCE OPERATION", desc: "Deploy private investigators to discredit the source. Suppress the story." },
+                    { type: "machiavellian", letter: "C", title: "NEGOTIATE AND CONTROL", desc: "Meet with the source. Offer something they want more than the story." }
+                ]
+            },
+            {
+                title: "AI ETHICS CONTROVERSY",
+                content: `Your neural display flashes with cascading social media alerts as rain hammers against the reinforced glass. A <strong>VIRAL THRESHOLD</strong> has been breached.
+
+Your company's flagship AI product has been caught in a bias scandal. Advocacy groups have published damning research showing discriminatory outputs affecting millions of users. Congressional hearings are being scheduled.
+
+The VP of Ethics & AI Governance appears via hologram: "We knew about the edge cases. The question is — did leadership know?"`,
+                analysis: [
+                    { icon: "📱", label: "Viral Velocity Index", value: "8.7/10 — Peak outrage in ~18 hours", class: "danger" },
+                    { icon: "🏛️", label: "Regulatory Response Probability", value: "94% chance of formal investigation", class: "warning" },
+                    { icon: "💼", label: "Enterprise Client Risk", value: "12 major contracts in jeopardy ($890M ARR)", class: "danger" }
+                ],
+                options: [
+                    { type: "conservative", letter: "A", title: "FULL AUDIT & MORATORIUM", desc: "Pause the product, commission third-party audit. Accept revenue hit for credibility." },
+                    { type: "aggressive", letter: "B", title: "TECHNICAL REBUTTAL CAMPAIGN", desc: "Challenge the methodology publicly. Deploy your own research to counter narrative." },
+                    { type: "machiavellian", letter: "C", title: "REDIRECT THE CONVERSATION", desc: "Announce major philanthropic AI ethics initiative. Change the story." }
+                ]
+            }
+        ];
+
+        // Boot Sequence
+        const bootMessages = [
+            "Initializing quantum-encrypted executive interface...",
+            "Loading neural prediction algorithms...",
+            "Establishing secure satellite uplinks...",
+            "Syncing global market data feeds...",
+            "Calibrating sentiment analysis engines...",
+            "Rendering holographic dashboard...",
+            "System ready. Awaiting authentication."
+        ];
+
+        // Rain Effect
+        function createRain() {
+            const container = document.getElementById('rainContainer');
+            const numDrops = 100;
+            
+            for (let i = 0; i < numDrops; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'rain-drop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.height = Math.random() * 20 + 10 + 'px';
+                drop.style.animationDuration = Math.random() * 0.5 + 0.5 + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(drop);
+            }
+        }
+
+        // Lightning Effect
+        function triggerLightning() {
+            const lightning = document.getElementById('lightning');
+            lightning.classList.add('flash');
+            setTimeout(() => lightning.classList.remove('flash'), 150);
+            
+            // Random interval for next lightning
+            setTimeout(triggerLightning, Math.random() * 15000 + 10000);
+        }
+
+        // Update Time
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false 
+            });
+            const dateStr = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('currentTime').textContent = `${dateStr} | ${timeStr}`;
+        }
+
+        // Boot Sequence Animation
+        async function runBootSequence() {
+            const progressBar = document.getElementById('bootProgressBar');
+            const bootText = document.getElementById('bootText');
+            
+            for (let i = 0; i < bootMessages.length; i++) {
+                const progress = ((i + 1) / bootMessages.length) * 100;
+                progressBar.style.width = progress + '%';
+                
+                const line = document.createElement('div');
+                line.className = 'boot-line';
+                line.textContent = `> ${bootMessages[i]}`;
+                line.style.animationDelay = '0s';
+                
+                // Remove old lines if too many
+                if (bootText.children.length >= 3) {
+                    bootText.removeChild(bootText.firstChild);
+                }
+                
+                bootText.appendChild(line);
+                await new Promise(r => setTimeout(r, 600));
+            }
+            
+            await new Promise(r => setTimeout(r, 500));
+            document.getElementById('bootScreen').classList.add('hidden');
+            document.getElementById('authScreen').classList.add('active');
+        }
+
+        // Initialize Ticker
+        function initializeTicker() {
+            const tickers = [
+                { symbol: gameState.company?.substring(0, 4).toUpperCase() || 'APEX', price: gameState.stockPrice, change: '+2.4%', up: true },
+                { symbol: 'SPX', price: 4892.31, change: '+0.8%', up: true },
+                { symbol: 'DJI', price: 38654.42, change: '-0.3%', up: false },
+                { symbol: 'NASDAQ', price: 15628.95, change: '+1.2%', up: true },
+                { symbol: 'VIX', price: 14.82, change: '-5.1%', up: false }
+            ];
+
+            const container = document.getElementById('tickerContainer');
+            container.innerHTML = tickers.map(t => `
+                <div class="ticker-item">
+                    <span class="ticker-symbol">${t.symbol}</span>
+                    <span class="ticker-price">$${t.price.toFixed(2)}</span>
+                    <span class="ticker-change ${t.up ? 'up' : 'down'}">${t.change}</span>
+                </div>
+            `).join('');
+        }
+
+        // Add Notification
+        function addNotification(text, type = 'info') {
+            const container = document.getElementById('notificationsContainer');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification-item';
+            notification.innerHTML = `
+                <div class="notification-dot ${type}"></div>
+                <div>
+                    <div class="notification-text">${text}</div>
+                    <div class="notification-time">${timeStr}</div>
+                </div>
+            `;
+            
+            container.insertBefore(notification, container.firstChild);
+            
+            // Keep only last 5 notifications
+            while (container.children.length > 5) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        // Generate Scenario
+        function generateScenario() {
+            gameState.turn++;
+            const template = scenarioTemplates[Math.floor(Math.random() * scenarioTemplates.length)];
+            
+            // Update timestamp
+            const now = new Date();
+            document.getElementById('scenarioTime').textContent = now.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Update scenario content
+            document.getElementById('scenarioTitle').textContent = template.title;
+            document.getElementById('scenarioContent').innerHTML = template.content
+                .replace(/\[COMPANY\]/g, gameState.company)
+                .replace(/\[INDUSTRY\]/g, gameState.industry);
+
+            // Render analysis
+            const analysisPanel = document.getElementById('analysisPanel');
+            const analysisItems = document.getElementById('analysisItems');
+            analysisItems.innerHTML = template.analysis.map(a => `
+                <div class="analysis-item">
+                    <div class="analysis-icon">${a.icon}</div>
+                    <div class="analysis-text">
+                        <div class="analysis-label">${a.label}</div>
+                        <div class="analysis-value ${a.class}">${a.value}</div>
+                    </div>
+                </div>
+            `).join('');
+            analysisPanel.style.display = 'block';
+
+            // Render decisions
+            const decisionsContainer = document.getElementById('decisionsContainer');
+            decisionsContainer.innerHTML = template.options.map(o => `
+                <div class="decision-btn ${o.type}" onclick="executeDecision('${o.type}', '${o.title}')">
+                    <div class="decision-glow">${o.letter}</div>
+                    <div class="decision-content">
+                        <div class="decision-title">${o.title}</div>
+                        <div class="decision-desc">${o.desc}</div>
+                    </div>
+                </div>
+            `).join('') + `
+                <div class="decision-btn override" onclick="showOverrideModal()">
+                    <div class="decision-glow">⌘</div>
+                    <div class="decision-content">
+                        <div class="decision-title">EXECUTIVE OVERRIDE</div>
+                        <div class="decision-desc">Input a custom directive not listed above.</div>
+                    </div>
+                </div>
+            `;
+            decisionsContainer.style.display = 'flex';
+
+            // Update turn counter
+            document.getElementById('turnCounter').textContent = `QUARTER ${gameState.turn} | FISCAL YEAR 2025`;
+
+            // Add notification
+            addNotification(`New priority alert: ${template.title}`, 'urgent');
+        }
+
+        // Execute Decision
+        async function executeDecision(type, title) {
+            const overlay = document.getElementById('executionOverlay');
+            const progressBar = document.getElementById('executionProgressBar');
+            const statusText = document.getElementById('executionStatus');
+            
+            overlay.classList.add('active');
+            
+            const statuses = [
+                "Propagating directive to regional offices...",
+                "Updating compliance matrices...",
+                "Notifying board members...",
+                "Executing market orders...",
+                "Synchronizing global operations...",
+                "Finalizing execution..."
+            ];
+
+            for (let i = 0; i <= 100; i += 2) {
+                progressBar.style.width = i + '%';
+                if (i % 20 === 0) {
+                    statusText.textContent = statuses[Math.floor(i / 20)];
+                }
+                await new Promise(r => setTimeout(r, 50));
+            }
+
+            await new Promise(r => setTimeout(r, 500));
+            overlay.classList.remove('active');
+            progressBar.style.width = '0%';
+
+            // Calculate outcome
+            const outcomes = calculateOutcome(type);
+            updateDashboard(outcomes);
+            
+            // Add result notification
+            addNotification(`Decision executed: ${title}`, outcomes.success ? 'info' : 'warning');
+            
+            // Generate next scenario after delay
+            setTimeout(() => {
+                triggerLightning();
+                setTimeout(generateScenario, 500);
+            }, 2000);
+        }
+
+        // Calculate Outcome
+        function calculateOutcome(type) {
+            let stockChange = 0;
+            let boardChange = 0;
+            let success = true;
+
+            switch(type) {
+                case 'conservative':
+                    stockChange = (Math.random() * 10) - 3; // -3 to +7
+                    boardChange = (Math.random() * 15) - 2; // -2 to +13
+                    break;
+                case 'aggressive':
+                    stockChange = (Math.random() * 30) - 12; // -12 to +18
+                    boardChange = (Math.random() * 20) - 10; // -10 to +10
+                    break;
+                case 'machiavellian':
+                    stockChange = (Math.random() * 25) - 8; // -8 to +17
+                    boardChange = (Math.random() * 30) - 15; // -15 to +15
+                    success = Math.random() > 0.3;
+                    break;
+            }
+
+            return { stockChange, boardChange, success };
+        }
+
+        // Update Dashboard
+        function updateDashboard(outcomes) {
+            gameState.stockPrice += outcomes.stockChange;
+            gameState.boardApproval = Math.max(0, Math.min(100, gameState.boardApproval + outcomes.boardChange));
+
+            // Update stock
+            document.getElementById('stockPrice').textContent = `$${gameState.stockPrice.toFixed(2)}`;
+            const trendEl = document.getElementById('stockTrend');
+            if (outcomes.stockChange > 0) {
+                trendEl.className = 'stat-trend up';
+                trendEl.textContent = `▲ +${outcomes.stockChange.toFixed(1)}% Today`;
+            } else {
+                trendEl.className = 'stat-trend down';
+                trendEl.textContent = `▼ ${outcomes.stockChange.toFixed(1)}% Today`;
+            }
+
+            // Update board approval
+            document.getElementById('boardApproval').textContent = `${Math.round(gameState.boardApproval)}%`;
+            const boardBar = document.getElementById('boardBar');
+            boardBar.style.width = gameState.boardApproval + '%';
+            if (gameState.boardApproval > 60) {
+                boardBar.className = 'stat-bar-fill healthy';
+            } else if (gameState.boardApproval > 35) {
+                boardBar.className = 'stat-bar-fill warning';
+            } else {
+                boardBar.className = 'stat-bar-fill critical';
+            }
+
+            // Update stress level
+            const stress = 100 - gameState.boardApproval;
+            const stressBar = document.getElementById('stressBar');
+            stressBar.style.width = stress + '%';
+            if (stress < 40) {
+                document.getElementById('stressLevel').textContent = 'LOW';
+                stressBar.className = 'stat-bar-fill healthy';
+            } else if (stress < 70) {
+                document.getElementById('stressLevel').textContent = 'MODERATE';
+                stressBar.className = 'stat-bar-fill warning';
+            } else {
+                document.getElementById('stressLevel').textContent = 'HIGH';
+                stressBar.className = 'stat-bar-fill critical';
+            }
+
+            // Update operations status based on metrics
+            if (gameState.stockPrice < 150 || gameState.boardApproval < 30) {
+                document.getElementById('opsStatus').textContent = 'CRITICAL';
+                document.getElementById('opsTrend').className = 'stat-trend down';
+                document.getElementById('opsTrend').textContent = '⚠ Multiple systems at risk';
+            } else if (gameState.stockPrice < 200 || gameState.boardApproval < 50) {
+                document.getElementById('opsStatus').textContent = 'UNSTABLE';
+                document.getElementById('opsTrend').className = 'stat-trend neutral';
+                document.getElementById('opsTrend').textContent = '● Monitoring elevated';
+            } else {
+                document.getElementById('opsStatus').textContent = 'STABLE';
+                document.getElementById('opsTrend').className = 'stat-trend neutral';
+                document.getElementById('opsTrend').textContent = '● All systems nominal';
+            }
+
+            initializeTicker();
+        }
+
+        // Override Modal
+        function showOverrideModal() {
+            document.getElementById('overrideModal').classList.add('active');
+            document.getElementById('overrideInput').focus();
+        }
+
+        document.getElementById('overrideCancel').addEventListener('click', () => {
+            document.getElementById('overrideModal').classList.remove('active');
+            document.getElementById('overrideInput').value = '';
+        });
+
+        document.getElementById('overrideConfirm').addEventListener('click', () => {
+            const input = document.getElementById('overrideInput').value.trim();
+            if (input) {
+                document.getElementById('overrideModal').classList.remove('active');
+                document.getElementById('overrideInput').value = '';
+                executeDecision('machiavellian', 'CUSTOM DIRECTIVE: ' + input.substring(0, 30) + '...');
+            }
+        });
+
+        // Authentication
+        document.getElementById('authBtn').addEventListener('click', () => {
+            const company = document.getElementById('companyName').value.trim();
+            const industry = document.getElementById('industrySector').value;
+
+            if (!company || !industry) {
+                alert('Please complete all fields to proceed.');
+                return;
+            }
+
+            gameState.company = company;
+            gameState.industry = industry;
+
+            document.getElementById('authScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            
+            initializeTicker();
+            addNotification(`Welcome, CEO of ${company}. Command center online.`, 'info');
+            
+            setTimeout(() => {
+                triggerLightning();
+                setTimeout(generateScenario, 500);
+            }, 1000);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createRain();
+            setTimeout(triggerLightning, 5000);
+            setInterval(updateTime, 1000);
+            updateTime();
+            runBootSequence();
+        });
+    </script>
+</body>
+</html>
+

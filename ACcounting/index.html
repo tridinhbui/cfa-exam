@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting System Simulator | MISA + SAP FI/CO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="sap-fiori-theme.css">
+    <link rel="stylesheet" href="chatbot-styles.css">
+</head>
+<body>
+    <!-- Mode Selector Overlay -->
+    <div id="modeSelector" class="mode-selector">
+        <div class="mode-selector-content">
+            <h1>Accounting System Simulator</h1>
+            <p>Select operating mode</p>
+            <div class="mode-cards">
+                <div class="mode-card misa-card" onclick="selectMode('MISA')">
+                    <h2>MISA Mode</h2>
+                    <p>AMIS / SME.NET</p>
+                    <ul>
+                        <li>VAS Vietnam Standard</li>
+                        <li>Cash Receipt/Payment, Stock In/Out</li>
+                        <li>Receivables, Fixed Assets, Tools</li>
+                        <li>VAT Tax Reports</li>
+                    </ul>
+                </div>
+                <div class="mode-card sap-card" onclick="selectMode('SAP')">
+                    <h2>SAP Mode</h2>
+                    <p>FI/CO Integration</p>
+                    <ul>
+                        <li>FI-GL, AP, AR, Asset</li>
+                        <li>CO-OM, CCA, PA</li>
+                        <li>MM → FI Integration</li>
+                        <li>SD → FI Integration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo" id="logoDisplay">
+                    <span class="logo-text">MISA Simulator</span>
+                </div>
+                <div class="company-info">
+                    <span id="companyName">Demo Company Ltd.</span>
+                    <span class="divider">|</span>
+                    <span id="fiscalPeriod">Period: 12/2024</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <!-- Company Switcher (Training/Production) -->
+                <div id="companySwitcherPlaceholder"></div>
+                <div class="mode-badge" id="modeBadge">MISA</div>
+                <button class="btn-switch-mode" onclick="showModeSelector()">Switch Mode</button>
+                <div class="user-info">
+                    <span>General Accountant</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <div class="app-container">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar" id="sidebar">
+                <!-- MISA Navigation -->
+                <nav class="nav-menu misa-nav" id="misaNav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">TRANSACTIONS</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('cash')">Cash Management</li>
+                            <li class="nav-item" onclick="navigate('bank')">Bank Deposits</li>
+                            <li class="nav-item" onclick="navigate('purchase')">Purchasing</li>
+                            <li class="nav-item" onclick="navigate('sales')">Sales</li>
+                            <li class="nav-item" onclick="navigate('inventory')">Inventory</li>
+                            <li class="nav-item" onclick="navigate('fixedAssets')">Fixed Assets</li>
+                            <li class="nav-item" onclick="navigate('tools')">Tools & Supplies</li>
+                            <li class="nav-item" onclick="navigate('salary')">Payroll</li>
+                            <li class="nav-item" onclick="navigate('generalLedger')">General Ledger</li>
+                        </ul>
+                    </div>
+                    <div class="nav-section">
+                        <div class="nav-section-title">REPORTS</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('reportFinancial')">Financial Reports</li>
+                            <li class="nav-item" onclick="navigate('reportTax')">Tax Reports</li>
+                            <li class="nav-item" onclick="navigate('reportManagement')">Management Reports</li>
+                        </ul>
+                    </div>
+                    <div class="nav-section">
+                        <div class="nav-section-title">MASTER DATA</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('chartOfAccounts')">Chart of Accounts</li>
+                            <li class="nav-item" onclick="navigate('partners')">Business Partners</li>
+                            <li class="nav-item" onclick="navigate('items')">Materials & Products</li>
+                        </ul>
+                    </div>
+                    <div class="nav-section production-only">
+                        <div class="nav-section-title">ADMINISTRATION</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('periodControl')">Period Control</li>
+                            <li class="nav-item" onclick="navigate('auditTrail')">Audit Trail</li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- SAP Navigation -->
+                <nav class="nav-menu sap-nav hidden" id="sapNav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">FI - FINANCIAL ACCOUNTING</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('fi-gl')">FI-GL General Ledger</li>
+                            <li class="nav-item" onclick="navigate('fi-ap')">FI-AP Accounts Payable</li>
+                            <li class="nav-item" onclick="navigate('fi-ar')">FI-AR Accounts Receivable</li>
+                            <li class="nav-item" onclick="navigate('fi-asset')">FI-Asset Fixed Assets</li>
+                            <li class="nav-item" onclick="navigate('fi-bank')">FI-Bank Accounting</li>
+                        </ul>
+                    </div>
+                    <div class="nav-section">
+                        <div class="nav-section-title">CO - CONTROLLING</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('co-om')">CO-OM Overhead</li>
+                            <li class="nav-item" onclick="navigate('co-cca')">CO-CCA Cost Centers</li>
+                            <li class="nav-item" onclick="navigate('co-pa')">CO-PA Profitability</li>
+                            <li class="nav-item" onclick="navigate('co-pc')">CO-PC Product Costing</li>
+                        </ul>
+                    </div>
+                    <div class="nav-section">
+                        <div class="nav-section-title">INTEGRATION</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('mm-fi')">MM → FI (GR/IR)</li>
+                            <li class="nav-item" onclick="navigate('sd-fi')">SD → FI (Billing)</li>
+                        </ul>
+                    </div>
+                    <div class="nav-section">
+                        <div class="nav-section-title">TRANSACTIONS</div>
+                        <ul class="nav-list">
+                            <li class="nav-item" onclick="navigate('tcode')">T-Code Entry</li>
+                            <li class="nav-item" onclick="navigate('sapReports')">Reports</li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="main-content" id="mainContent">
+                <!-- Dashboard - Default View -->
+                <div class="content-view active" id="dashboardView">
+                    <div class="page-header">
+                        <h2>Dashboard</h2>
+                        <div class="breadcrumb">Home</div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <span class="stat-label">Cash</span>
+                                <span class="stat-value" id="cashBalance">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <span class="stat-label">Bank</span>
+                                <span class="stat-value" id="bankBalance">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <span class="stat-label">Receivables</span>
+                                <span class="stat-value" id="receivableBalance">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <span class="stat-label">Payables</span>
+                                <span class="stat-value" id="payableBalance">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="action-grid" id="quickActionsGrid">
+                            <!-- Populated by JS based on mode -->
+                        </div>
+                    </div>
+
+                    <div class="recent-transactions">
+                        <h3>Recent Documents</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doc No.</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentDocsTable">
+                                <tr class="empty-row">
+                                    <td colspan="6">No documents yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Cash Module View -->
+                <div class="content-view" id="cashView">
+                    <div class="page-header">
+                        <h2>Cash Management</h2>
+                        <div class="breadcrumb">Transactions › Cash Management</div>
+                    </div>
+                    
+                    <div class="module-toolbar">
+                        <button class="btn btn-primary" onclick="openForm('cashReceipt')">Cash Receipt</button>
+                        <button class="btn btn-primary" onclick="openForm('cashPayment')">Cash Payment</button>
+                        <button class="btn btn-secondary" onclick="showReport('cashBook')">Cash Book</button>
+                    </div>
+
+                    <div class="data-section">
+                        <h3>Document List</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doc No.</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Partner</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cashDocsTable">
+                                <tr class="empty-row">
+                                    <td colspan="7">No documents</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Inventory Module View -->
+                <div class="content-view" id="inventoryView">
+                    <div class="page-header">
+                        <h2>Inventory</h2>
+                        <div class="breadcrumb">Transactions › Inventory</div>
+                    </div>
+                    
+                    <div class="module-toolbar">
+                        <button class="btn btn-primary" onclick="openForm('stockIn')">Goods Receipt</button>
+                        <button class="btn btn-primary" onclick="openForm('stockOut')">Goods Issue</button>
+                        <button class="btn btn-secondary" onclick="showReport('stockCard')">Stock Card</button>
+                        <button class="btn btn-secondary" onclick="showReport('inventoryReport')">Inventory Report</button>
+                    </div>
+
+                    <div class="data-section">
+                        <h3>Stock Movement List</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doc No.</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Warehouse</th>
+                                    <th>Description</th>
+                                    <th>Total Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryDocsTable">
+                                <tr class="empty-row">
+                                    <td colspan="7">No documents</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- General Ledger View -->
+                <div class="content-view" id="generalLedgerView">
+                    <div class="page-header">
+                        <h2>General Ledger</h2>
+                        <div class="breadcrumb">Transactions › General Ledger</div>
+                    </div>
+                    
+                    <div class="module-toolbar">
+                        <button class="btn btn-primary" onclick="openForm('journalEntry')">Journal Entry</button>
+                        <button class="btn btn-secondary" onclick="showReport('generalJournal')">General Journal</button>
+                        <button class="btn btn-secondary" onclick="showReport('ledger')">Ledger</button>
+                    </div>
+
+                    <div class="data-section">
+                        <h3>General Journal</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Doc No.</th>
+                                    <th>Description</th>
+                                    <th>Debit Acc</th>
+                                    <th>Credit Acc</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="journalTable">
+                                <tr class="empty-row">
+                                    <td colspan="6">No entries</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Chart of Accounts View -->
+                <div class="content-view" id="chartOfAccountsView">
+                    <div class="page-header">
+                        <h2>Chart of Accounts</h2>
+                        <div class="breadcrumb">Master Data › Chart of Accounts</div>
+                    </div>
+                    
+                    <div class="module-toolbar">
+                        <button class="btn btn-primary" onclick="openForm('addAccount')">Add Account</button>
+                    </div>
+
+                    <div class="data-section">
+                        <table class="data-table" id="coaTable">
+                            <thead>
+                                <tr>
+                                    <th>Account</th>
+                                    <th>Account Name</th>
+                                    <th>Type</th>
+                                    <th>Nature</th>
+                                    <th>Debit Bal.</th>
+                                    <th>Credit Bal.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coaTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Partners View -->
+                <div class="content-view" id="partnersView">
+                    <div class="page-header">
+                        <h2>Business Partners</h2>
+                        <div class="breadcrumb">Master Data › Business Partners</div>
+                    </div>
+                    
+                    <div class="module-toolbar">
+                        <button class="btn btn-primary" onclick="openForm('addPartner')">Add Partner</button>
+                    </div>
+
+                    <div class="data-section">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Address</th>
+                                    <th>Tax ID</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partnersTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Items View -->
+                <div class="content-view" id="itemsView">
+                    <div class="page-header">
+                        <h2>Materials & Products</h2>
+                        <div class="breadcrumb">Master Data › Materials & Products</div>
+                    </div>
+                    
+                    <div class="module-toolbar">
+                        <button class="btn btn-primary" onclick="openForm('addItem')">Add Material</button>
+                    </div>
+
+                    <div class="data-section">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>UoM</th>
+                                    <th>Group</th>
+                                    <th>Stock Acc</th>
+                                    <th>On Hand</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Period Control View (Production Only) -->
+                <div class="content-view" id="periodControlView">
+                    <div class="page-header">
+                        <h2>Period Control</h2>
+                        <div class="breadcrumb">Administration › Period Control</div>
+                    </div>
+                    
+                    <div class="production-notice" id="periodControlNotice">
+                        <strong>Note:</strong> Period control is only available in Production Company mode.
+                    </div>
+                    
+                    <div class="data-section">
+                        <h3>Fiscal Periods</h3>
+                        <p class="section-desc">Lock periods to prevent backdated postings. Locked periods cannot receive new transactions.</p>
+                        
+                        <table class="data-table" id="periodControlTable">
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Status</th>
+                                    <th>Documents</th>
+                                    <th>Last Activity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="periodsTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Audit Trail View (Production Only) -->
+                <div class="content-view" id="auditTrailView">
+                    <div class="page-header">
+                        <h2>Audit Trail</h2>
+                        <div class="breadcrumb">Administration › Audit Trail</div>
+                    </div>
+                    
+                    <div class="production-notice" id="auditTrailNotice">
+                        <strong>Note:</strong> Audit trail is only tracked in Production Company mode.
+                    </div>
+                    
+                    <div class="module-toolbar">
+                        <input type="text" id="auditSearchInput" placeholder="Search audit log..." class="search-input">
+                        <select id="auditFilterAction" class="filter-select">
+                            <option value="">All Actions</option>
+                            <option value="POST">Postings</option>
+                            <option value="LOCK_PERIOD">Period Lock</option>
+                            <option value="UNLOCK_PERIOD">Period Unlock</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="refreshAuditLog()">Refresh</button>
+                        <button class="btn btn-secondary" onclick="exportAuditLog()">Export</button>
+                    </div>
+                    
+                    <div class="data-section">
+                        <table class="data-table" id="auditLogTable">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Action</th>
+                                    <th>Document</th>
+                                    <th>User</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogTableBody">
+                                <tr class="empty-row">
+                                    <td colspan="5">No audit entries</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Financial Reports View -->
+                <div class="content-view" id="reportFinancialView">
+                    <div class="page-header">
+                        <h2>Financial Reports</h2>
+                        <div class="breadcrumb">Reports › Financial Reports</div>
+                    </div>
+                    
+                    <div class="report-grid">
+                        <div class="report-card" onclick="generateReport('balanceSheet')">
+                            <h4>Balance Sheet</h4>
+                            <p>Statement of Financial Position</p>
+                        </div>
+                        <div class="report-card" onclick="generateReport('incomeStatement')">
+                            <h4>Income Statement</h4>
+                            <p>Profit & Loss Report</p>
+                        </div>
+                        <div class="report-card" onclick="generateReport('cashFlow')">
+                            <h4>Cash Flow Statement</h4>
+                            <p>Statement of Cash Flows</p>
+                        </div>
+                        <div class="report-card" onclick="generateReport('trialBalance')">
+                            <h4>Trial Balance</h4>
+                            <p>Account Balance Summary</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAP FI-GL View -->
+                <div class="content-view" id="fi-glView">
+                    <div class="page-header">
+                        <h2>FI-GL General Ledger</h2>
+                        <div class="breadcrumb">FI › General Ledger</div>
+                    </div>
+                    
+                    <div class="sap-toolbar">
+                        <div class="tcode-group">
+                            <label>T-Code:</label>
+                            <input type="text" id="tcodeInput" placeholder="Enter T-Code" onkeypress="handleTCode(event)">
+                            <button class="btn btn-sap" onclick="executeTCode()">Execute</button>
+                        </div>
+                    </div>
+
+                    <div class="sap-transactions">
+                        <h3>Common Transactions</h3>
+                        <div class="tcode-grid">
+                            <div class="tcode-card" onclick="runTCode('FB50')">
+                                <span class="tcode">FB50</span>
+                                <span class="desc">G/L Account Posting</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FB01')">
+                                <span class="tcode">FB01</span>
+                                <span class="desc">Post Document</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FB03')">
+                                <span class="tcode">FB03</span>
+                                <span class="desc">Display Document</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FS10N')">
+                                <span class="tcode">FS10N</span>
+                                <span class="desc">G/L Balance Display</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FAGLL03')">
+                                <span class="tcode">FAGLL03</span>
+                                <span class="desc">G/L Line Items</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAP FI-AP View -->
+                <div class="content-view" id="fi-apView">
+                    <div class="page-header">
+                        <h2>FI-AP Accounts Payable</h2>
+                        <div class="breadcrumb">FI › Accounts Payable</div>
+                    </div>
+                    
+                    <div class="sap-transactions">
+                        <h3>Vendor Transactions</h3>
+                        <div class="tcode-grid">
+                            <div class="tcode-card" onclick="runTCode('FB60')">
+                                <span class="tcode">FB60</span>
+                                <span class="desc">Enter Vendor Invoice</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('F-53')">
+                                <span class="tcode">F-53</span>
+                                <span class="desc">Vendor Payment</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('F110')">
+                                <span class="tcode">F110</span>
+                                <span class="desc">Payment Run</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FBL1N')">
+                                <span class="tcode">FBL1N</span>
+                                <span class="desc">Vendor Line Items</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FK10N')">
+                                <span class="tcode">FK10N</span>
+                                <span class="desc">Vendor Balance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAP FI-AR View -->
+                <div class="content-view" id="fi-arView">
+                    <div class="page-header">
+                        <h2>FI-AR Accounts Receivable</h2>
+                        <div class="breadcrumb">FI › Accounts Receivable</div>
+                    </div>
+                    
+                    <div class="sap-transactions">
+                        <h3>Customer Transactions</h3>
+                        <div class="tcode-grid">
+                            <div class="tcode-card" onclick="runTCode('FB70')">
+                                <span class="tcode">FB70</span>
+                                <span class="desc">Enter Customer Invoice</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('F-28')">
+                                <span class="tcode">F-28</span>
+                                <span class="desc">Incoming Payment</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FBL5N')">
+                                <span class="tcode">FBL5N</span>
+                                <span class="desc">Customer Line Items</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('FD10N')">
+                                <span class="tcode">FD10N</span>
+                                <span class="desc">Customer Balance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAP FI-Asset View -->
+                <div class="content-view" id="fi-assetView">
+                    <div class="page-header">
+                        <h2>FI-Asset Fixed Assets</h2>
+                        <div class="breadcrumb">FI › Fixed Assets</div>
+                    </div>
+                    
+                    <div class="sap-transactions">
+                        <h3>Asset Transactions</h3>
+                        <div class="tcode-grid">
+                            <div class="tcode-card" onclick="runTCode('AS01')">
+                                <span class="tcode">AS01</span>
+                                <span class="desc">Create Asset</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('F-90')">
+                                <span class="tcode">F-90</span>
+                                <span class="desc">Asset Acquisition</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('AFAB')">
+                                <span class="tcode">AFAB</span>
+                                <span class="desc">Depreciation Run</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('AW01N')">
+                                <span class="tcode">AW01N</span>
+                                <span class="desc">Asset Explorer</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('S_ALR_87012936')">
+                                <span class="tcode">Report</span>
+                                <span class="desc">Asset Balances</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAP MM-FI Integration View -->
+                <div class="content-view" id="mm-fiView">
+                    <div class="page-header">
+                        <h2>MM → FI Integration</h2>
+                        <div class="breadcrumb">Integration › MM → FI</div>
+                    </div>
+                    
+                    <div class="integration-flow">
+                        <h3>Goods Receipt / Invoice Receipt Flow</h3>
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-box mm">
+                                    <span class="module-tag">MM</span>
+                                    <strong>MIGO</strong>
+                                    <p>Goods Receipt</p>
+                                </div>
+                                <div class="flow-arrow">→</div>
+                                <div class="flow-box fi">
+                                    <span class="module-tag">FI</span>
+                                    <strong>Auto Posting</strong>
+                                    <p>Dr: Stock / Cr: GR/IR</p>
+                                </div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-box mm">
+                                    <span class="module-tag">MM</span>
+                                    <strong>MIRO</strong>
+                                    <p>Invoice Verification</p>
+                                </div>
+                                <div class="flow-arrow">→</div>
+                                <div class="flow-box fi">
+                                    <span class="module-tag">FI</span>
+                                    <strong>Auto Posting</strong>
+                                    <p>Dr: GR/IR / Cr: Vendor</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sap-transactions">
+                        <h3>Related Transactions</h3>
+                        <div class="tcode-grid">
+                            <div class="tcode-card" onclick="runTCode('MIGO')">
+                                <span class="tcode">MIGO</span>
+                                <span class="desc">Goods Movement</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('MIRO')">
+                                <span class="tcode">MIRO</span>
+                                <span class="desc">Enter Invoice</span>
+                            </div>
+                            <div class="tcode-card" onclick="runTCode('MR11')">
+                                <span class="tcode">MR11</span>
+                                <span class="desc">GR/IR Maintenance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Output View -->
+                <div class="content-view" id="reportOutputView">
+                    <div class="page-header">
+                        <h2 id="reportTitle">Report</h2>
+                        <div class="breadcrumb" id="reportBreadcrumb">Report</div>
+                    </div>
+                    
+                    <div class="report-toolbar">
+                        <button class="btn btn-secondary" onclick="printReport()">Print</button>
+                        <button class="btn btn-secondary" onclick="exportExcel()">Export Excel</button>
+                    </div>
+
+                    <div class="report-container" id="reportContainer">
+                        <!-- Report content populated by JS -->
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Status Bar -->
+        <footer class="status-bar">
+            <div class="status-left">
+                <span id="statusMessage">Ready</span>
+            </div>
+            <div class="status-right">
+                <span id="currentDateTime"></span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal Forms Container -->
+    <div id="modalOverlay" class="modal-overlay hidden">
+        <div class="modal" id="modalContent">
+            <!-- Modal content populated by JS -->
+        </div>
+    </div>
+
+    <!-- Transaction Result Modal -->
+    <div id="resultModal" class="modal-overlay hidden">
+        <div class="modal result-modal">
+            <div class="modal-header">
+                <h3 id="resultTitle">Posting Result</h3>
+                <button class="modal-close" onclick="closeResultModal()">×</button>
+            </div>
+            <div class="modal-body" id="resultContent">
+                <!-- Result content -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeResultModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Console/Log Panel -->
+    <div id="consolePanel" class="console-panel hidden">
+        <div class="console-header">
+            <span>System Log</span>
+            <button onclick="toggleConsole()">−</button>
+        </div>
+        <div class="console-body" id="consoleBody">
+            <!-- Log entries -->
+        </div>
+    </div>
+
+    <!-- Core Infrastructure -->
+    <script src="event-bus.js"></script>
+    <script src="company-context.js"></script>
+    
+    <!-- Accounting Engine -->
+    <script src="accounting-engine.js"></script>
+    <script src="misa-module.js"></script>
+    <script src="sap-module.js"></script>
+    
+    <!-- UI Forms -->
+    <script src="forms.js"></script>
+    <script src="sap-forms.js"></script>
+    
+    <!-- Learning System -->
+    <script src="fs-impact.js"></script>
+    <script src="learning-engine.js"></script>
+    
+    <!-- Application -->
+    <script src="app.js"></script>
+    <script src="chatbot-assistant.js"></script>
+</body>
+</html>

@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing CEO — Strategic Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fafafa;
+            --surface: #ffffff;
+            --surface-2: #f5f5f5;
+            --border: #e5e5e5;
+            --border-dark: #d4d4d4;
+            --text: #171717;
+            --text-2: #525252;
+            --text-3: #a3a3a3;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --warning: #ca8a04;
+            --warning-light: #fefce8;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            background: var(--text);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .metric-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 32px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            background: var(--surface-2);
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+
+        .metric-row:hover {
+            background: var(--border);
+        }
+
+        .metric-name {
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        .metric-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .metric-value.positive { color: var(--success); }
+        .metric-value.negative { color: var(--danger); }
+        .metric-value.warning { color: var(--warning); }
+
+        .progress-section {
+            margin-top: auto;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--surface-2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--text);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Main */
+        .main {
+            padding: 32px 40px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--text-3);
+        }
+
+        .timestamp {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text-3);
+            text-align: right;
+        }
+
+        /* Participants */
+        .participants {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .participant {
+            flex: 1;
+            padding: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .participant.active {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .participant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .participant-status {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+
+        .participant-role {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        /* Report Card */
+        .report-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .report-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .report-badge.critical {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .report-badge.warning {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .report-id {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .report-body {
+            padding: 24px;
+        }
+
+        .report-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Technical Spec */
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .spec-item {
+            background: var(--surface);
+            padding: 16px;
+        }
+
+        .spec-label {
+            font-size: 11px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .spec-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .spec-value.critical { color: var(--danger); }
+        .spec-value.warning { color: var(--warning); }
+
+        /* Dialogue */
+        .dialogue-section {
+            margin-bottom: 28px;
+        }
+
+        .dialogue-item {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            background: var(--surface-2);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--border-dark);
+        }
+
+        .dialogue-item.tech { border-left-color: var(--accent); }
+        .dialogue-item.ops { border-left-color: var(--warning); }
+        .dialogue-item.legal { border-left-color: var(--success); }
+
+        .dialogue-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-2);
+            flex-shrink: 0;
+        }
+
+        .dialogue-content {
+            flex: 1;
+        }
+
+        .dialogue-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .dialogue-text {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.7;
+        }
+
+        .dialogue-text strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* Decisions */
+        .decisions-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .decision-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .decision-card:hover {
+            border-color: var(--border-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .decision-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .decision-card.safe::before { background: var(--accent); }
+        .decision-card.risk::before { background: var(--warning); }
+        .decision-card.balanced::before { background: var(--success); }
+
+        .decision-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .decision-tag {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .decision-card.safe .decision-tag {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .decision-card.risk .decision-tag {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .decision-card.balanced .decision-tag {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .decision-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .decision-desc {
+            font-size: 13px;
+            color: var(--text-2);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .decision-impacts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .impact-item {
+            text-align: center;
+        }
+
+        .impact-label {
+            font-size: 10px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .impact-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .impact-value.up { color: var(--success); }
+        .impact-value.down { color: var(--danger); }
+        .impact-value.neutral { color: var(--warning); }
+
+        /* Right Panel */
+        .right-panel {
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            padding: 24px 20px;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .panel-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            background: var(--danger-light);
+            color: var(--danger);
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .activity-item {
+            padding: 14px 16px;
+            background: var(--surface-2);
+            border-radius: 10px;
+            transition: background 0.15s;
+        }
+
+        .activity-item:hover {
+            background: var(--border);
+        }
+
+        .activity-text {
+            font-size: 13px;
+            color: var(--text-2);
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--text-3);
+        }
+
+        /* Auth */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .auth-overlay.hidden { display: none; }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px;
+            width: 420px;
+        }
+
+        .auth-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            font-size: 14px;
+            color: var(--text-3);
+            margin-bottom: 36px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-2);
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--surface);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--text);
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a3a3a3'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+        }
+
+        .form-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--text);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: opacity 0.15s;
+        }
+
+        .form-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Result Modal */
+        .result-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .result-overlay.active { display: flex; }
+
+        .result-modal {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 40px;
+            width: 480px;
+            text-align: center;
+        }
+
+        .result-status {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .result-status.success {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .result-status.warning {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .result-text {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .result-metrics {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 24px;
+            background: var(--surface-2);
+            border-radius: 12px;
+            margin-bottom: 28px;
+        }
+
+        .result-metric {
+            text-align: center;
+        }
+
+        .result-metric-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .result-metric-value.up { color: var(--success); }
+        .result-metric-value.down { color: var(--danger); }
+
+        .result-metric-label {
+            font-size: 11px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .result-btn {
+            padding: 14px 32px;
+            background: var(--text);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h1 class="auth-title">Manufacturing CEO</h1>
+            <p class="auth-subtitle">Hệ thống mô phỏng quản trị sản xuất công nghiệp</p>
+            <div class="form-group">
+                <label class="form-label">Tên nhà máy / Tập đoàn</label>
+                <input type="text" class="form-input" id="companyInput" placeholder="VD: Vinfast Manufacturing">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Lĩnh vực sản xuất</label>
+                <select class="form-select" id="industrySelect">
+                    <option value="">Chọn lĩnh vực...</option>
+                    <option value="auto">Sản xuất Ô tô & Phụ tùng</option>
+                    <option value="electronics">Điện tử & Linh kiện</option>
+                    <option value="textile">Dệt may & Da giày</option>
+                    <option value="food">Chế biến Thực phẩm</option>
+                    <option value="steel">Thép & Kim loại</option>
+                    <option value="plastic">Nhựa & Bao bì</option>
+                </select>
+            </div>
+            <button class="form-btn" onclick="startGame()">Khởi động hệ thống</button>
+        </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-mark">M</div>
+                <span>Manufacturing CEO</span>
+            </div>
+
+            <div class="section-label">Chỉ số vận hành</div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <span class="metric-name">Biên lợi nhuận</span>
+                    <span class="metric-value" id="marginValue">12.4%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">Công suất nhà máy</span>
+                    <span class="metric-value" id="capacityValue">78%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">Tỷ lệ phế phẩm</span>
+                    <span class="metric-value warning" id="defectValue">2.3%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">Nhân sự</span>
+                    <span class="metric-value" id="headcountValue">4,850</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">Hài lòng NV</span>
+                    <span class="metric-value positive" id="esatValue">72%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">Đánh giá ESG</span>
+                    <span class="metric-value" id="esgValue">B+</span>
+                </div>
+            </div>
+
+            <div class="section-label">Chuỗi cung ứng</div>
+            <div class="metric-list">
+                <div class="metric-row">
+                    <span class="metric-name">Tồn kho nguyên liệu</span>
+                    <span class="metric-value warning" id="inventoryValue">14 ngày</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">Lead time TB</span>
+                    <span class="metric-value" id="leadtimeValue">21 ngày</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">Đơn hàng chờ</span>
+                    <span class="metric-value" id="backlogValue">12,400</span>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="section-label">Tiến độ quý</div>
+                <div class="progress-label">
+                    <span>Q4 2025</span>
+                    <span id="quarterProgress">Tuần 3/12</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="quarterFill" style="width: 25%"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+            <div class="header">
+                <div>
+                    <h1 class="page-title" id="companyName">Manufacturing Dashboard</h1>
+                    <p class="page-subtitle">Quản trị chiến lược sản xuất</p>
+                </div>
+                <div class="timestamp" id="timestamp"></div>
+            </div>
+
+            <!-- Participants -->
+            <div class="participants" id="participants"></div>
+
+            <!-- Report Card -->
+            <div class="report-card" id="reportCard"></div>
+        </main>
+
+        <!-- Right Panel -->
+        <aside class="right-panel">
+            <div class="panel-header">
+                <span class="panel-title">Hoạt động</span>
+                <span class="panel-badge" id="activityBadge">Live</span>
+            </div>
+            <div class="activity-list" id="activityList"></div>
+        </aside>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-modal">
+            <div class="result-status" id="resultStatus">Đã thực thi</div>
+            <h3 class="result-title" id="resultTitle">Kết quả</h3>
+            <p class="result-text" id="resultText"></p>
+            <div class="result-metrics" id="resultMetrics"></div>
+            <button class="result-btn" onclick="continueGame()">Tiếp tục</button>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            company: '',
+            industry: '',
+            margin: 12.4,
+            capacity: 78,
+            defect: 2.3,
+            headcount: 4850,
+            esat: 72,
+            esg: 'B+',
+            inventory: 14,
+            leadtime: 21,
+            backlog: 12400,
+            week: 3,
+            currentScenario: 0
+        };
+
+        const people = [
+            { id: 'tech', name: 'Nguyễn Văn Kỹ', role: 'Giám đốc Kỹ thuật', initials: 'NK' },
+            { id: 'ops', name: 'Trần Thị Vận', role: 'Giám đốc Vận hành', initials: 'TV' },
+            { id: 'legal', name: 'Lê Minh Đạo', role: 'Giám đốc Pháp chế', initials: 'LĐ' }
+        ];
+
+        const scenarios = [
+            {
+                badge: 'Khẩn cấp',
+                badgeClass: 'critical',
+                id: 'INC-2847',
+                title: 'Lỗi hàng loạt trên dây chuyền lắp ráp',
+                specs: [
+                    { label: 'Dây chuyền', value: 'Assembly Line #3' },
+                    { label: 'Sản phẩm', value: 'Module B-420' },
+                    { label: 'Tỷ lệ lỗi', value: '7.2%', critical: true },
+                    { label: 'SL bị ảnh hưởng', value: '8,400 units', critical: true },
+                    { label: 'Nguyên nhân', value: 'Calibration sensor', warning: true },
+                    { label: 'Downtime', value: '~16 giờ' }
+                ],
+                dialogues: [
+                    { type: 'tech', person: 0, text: 'Sensor calibration trên robot hàn bị lệch <strong>0.3mm</strong> — vượt tolerance cho phép. Cần dừng line để re-calibrate toàn bộ 12 robot, ước tính <strong>16 giờ</strong>. Nếu tiếp tục chạy, tỷ lệ lỗi sẽ tăng lên <strong>12-15%</strong>.' },
+                    { type: 'ops', person: 1, text: 'Đơn hàng Toyota cần giao trong <strong>72 giờ</strong> — nếu dừng line, chúng ta sẽ trễ và bị phạt <strong>$180,000</strong>. Có thể chạy song song Line #2 với overtime, nhưng chi phí tăng <strong>40%</strong>.' },
+                    { type: 'legal', person: 2, text: 'Nếu sản phẩm lỗi đến tay khách hàng và xảy ra recall, chi phí có thể lên đến <strong>$2-5 triệu</strong>, chưa kể thiệt hại uy tín. Đánh giá ESG cũng sẽ bị ảnh hưởng nếu có báo cáo chất lượng tiêu cực.' }
+                ],
+                decisions: [
+                    {
+                        type: 'safe',
+                        title: 'Dừng sản xuất — Re-calibrate toàn bộ',
+                        desc: 'Tạm dừng Line #3 trong 16 giờ để calibrate lại tất cả robot. Chấp nhận trễ đơn hàng và penalty.',
+                        impacts: [
+                            { label: 'Chi phí', value: '-$180K', class: 'down' },
+                            { label: 'Chất lượng', value: '99.8%', class: 'up' },
+                            { label: 'ESG', value: 'A', class: 'up' }
+                        ],
+                        result: {
+                            status: 'success',
+                            title: 'Chất lượng được đảm bảo',
+                            text: 'Ông Kỹ báo cáo calibration hoàn tất. Tỷ lệ lỗi giảm về 0.2%. Toyota chấp nhận delay với cam kết chất lượng cao hơn.',
+                            metrics: [
+                                { value: '-$180K', label: 'Penalty', up: false },
+                                { value: '0.2%', label: 'Defect rate', up: true },
+                                { value: '+5%', label: 'Trust score', up: true }
+                            ]
+                        }
+                    },
+                    {
+                        type: 'risk',
+                        title: 'Tiếp tục chạy — Kiểm tra thủ công 100%',
+                        desc: 'Duy trì sản xuất, bổ sung 20 QC inspector kiểm tra 100% output. Chấp nhận rủi ro lọt lỗi.',
+                        impacts: [
+                            { label: 'Chi phí QC', value: '+$45K', class: 'down' },
+                            { label: 'Rủi ro', value: 'Cao', class: 'neutral' },
+                            { label: 'Giao hàng', value: 'Đúng hạn', class: 'up' }
+                        ],
+                        result: {
+                            status: 'warning',
+                            title: 'Rủi ro được chấp nhận',
+                            text: 'Đơn hàng giao đúng hẹn. Tuy nhiên, 2 tuần sau Toyota phát hiện 12 unit lỗi trong lô hàng. Yêu cầu giải trình và audit.',
+                            metrics: [
+                                { value: '$0', label: 'Penalty', up: true },
+                                { value: '12 units', label: 'Lọt lỗi', up: false },
+                                { value: '-8%', label: 'Trust score', up: false }
+                            ]
+                        }
+                    },
+                    {
+                        type: 'balanced',
+                        title: 'Hybrid — Calibrate từng cụm, rotate line',
+                        desc: 'Calibrate 4 robot/đợt trong khi 8 robot còn lại vẫn chạy. Giảm output 30% nhưng không dừng hoàn toàn.',
+                        impacts: [
+                            { label: 'Output', value: '-30%', class: 'neutral' },
+                            { label: 'Delay', value: '~8 giờ', class: 'neutral' },
+                            { label: 'Chi phí', value: '-$60K', class: 'down' }
+                        ],
+                        result: {
+                            status: 'success',
+                            title: 'Cân bằng hiệu quả',
+                            text: 'Giải pháp rotate cho phép vừa calibrate vừa duy trì sản xuất. Trễ 8 giờ được Toyota chấp nhận với discount 2%.',
+                            metrics: [
+                                { value: '-$60K', label: 'Chi phí', up: false },
+                                { value: '0.5%', label: 'Defect rate', up: true },
+                                { value: 'B+', label: 'ESG giữ nguyên', up: true }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                badge: 'Chiến lược',
+                badgeClass: 'warning',
+                id: 'STR-1205',
+                title: 'Đề xuất tự động hóa dây chuyền đóng gói',
+                specs: [
+                    { label: 'Khu vực', value: 'Packaging Zone A-C' },
+                    { label: 'Đầu tư', value: '$2.8M' },
+                    { label: 'ROI dự kiến', value: '18 tháng' },
+                    { label: 'Nhân sự hiện tại', value: '120 người', warning: true },
+                    { label: 'Sau tự động hóa', value: '35 người', critical: true },
+                    { label: 'Năng suất tăng', value: '+65%' }
+                ],
+                dialogues: [
+                    { type: 'tech', person: 0, text: 'Hệ thống robot đóng gói mới có thể tăng output <strong>65%</strong> và giảm lỗi đóng gói từ 1.2% xuống <strong>0.1%</strong>. Đầu tư $2.8M, hoàn vốn trong 18 tháng. Về mặt kỹ thuật, đây là bước tiến cần thiết.' },
+                    { type: 'ops', person: 1, text: '85 công nhân sẽ bị ảnh hưởng trực tiếp. Nhiều người đã làm việc <strong>10-15 năm</strong>. Công đoàn đang theo dõi sát — nếu không xử lý khéo, có thể xảy ra <strong>đình công</strong> hoặc phản ứng tiêu cực.' },
+                    { type: 'legal', person: 2, text: 'Theo luật lao động, cần thông báo trước <strong>45 ngày</strong> và có gói hỗ trợ thỏa đáng. Nếu xử lý không đúng quy trình, rủi ro kiện tụng và ảnh hưởng ESG rating — các quỹ đầu tư ESG đang theo dõi chúng ta.' }
+                ],
+                decisions: [
+                    {
+                        type: 'safe',
+                        title: 'Tự động hóa từng bước — Đào tạo lại 100%',
+                        desc: 'Triển khai trong 24 tháng, cam kết đào tạo lại hoặc chuyển đổi vị trí cho toàn bộ 85 nhân viên. Không sa thải.',
+                        impacts: [
+                            { label: 'Chi phí thêm', value: '+$800K', class: 'down' },
+                            { label: 'Hài lòng NV', value: '+15%', class: 'up' },
+                            { label: 'ESG', value: 'A', class: 'up' }
+                        ],
+                        result: {
+                            status: 'success',
+                            title: 'Nhân viên là ưu tiên',
+                            text: 'Chương trình đào tạo lại được triển khai. 60 người chuyển sang vận hành robot, 25 người chuyển bộ phận khác. Công đoàn hài lòng, ESG tăng điểm.',
+                            metrics: [
+                                { value: '+$800K', label: 'Chi phí đào tạo', up: false },
+                                { value: '0', label: 'Sa thải', up: true },
+                                { value: 'A', label: 'ESG Rating', up: true }
+                            ]
+                        }
+                    },
+                    {
+                        type: 'risk',
+                        title: 'Tự động hóa nhanh — Gói thôi việc 6 tháng',
+                        desc: 'Triển khai trong 8 tháng. Gói thôi việc 6 tháng lương cho 85 nhân viên. Tối ưu chi phí dài hạn.',
+                        impacts: [
+                            { label: 'Margin', value: '+4.2%', class: 'up' },
+                            { label: 'Hài lòng NV', value: '-20%', class: 'down' },
+                            { label: 'ESG', value: 'C+', class: 'down' }
+                        ],
+                        result: {
+                            status: 'warning',
+                            title: 'Hiệu quả với cái giá',
+                            text: 'Tự động hóa hoàn thành đúng tiến độ. Tuy nhiên, tin tức về sa thải lan truyền. Một số ứng viên tốt từ chối offer vì lo ngại văn hóa công ty.',
+                            metrics: [
+                                { value: '+4.2%', label: 'Margin', up: true },
+                                { value: '-20%', label: 'E-SAT', up: false },
+                                { value: 'C+', label: 'ESG Rating', up: false }
+                            ]
+                        }
+                    },
+                    {
+                        type: 'balanced',
+                        title: 'Spin-off đội đóng gói thành đơn vị dịch vụ',
+                        desc: 'Thành lập công ty con chuyên dịch vụ đóng gói, chuyển 85 nhân viên sang. Nhà máy thuê lại dịch vụ từ công ty con.',
+                        impacts: [
+                            { label: 'Đầu tư', value: '+$400K', class: 'down' },
+                            { label: 'Việc làm', value: 'Giữ nguyên', class: 'up' },
+                            { label: 'ESG', value: 'A-', class: 'up' }
+                        ],
+                        result: {
+                            status: 'success',
+                            title: 'Mô hình sáng tạo',
+                            text: 'Công ty con "PackPro Services" ra đời. 85 nhân viên có việc làm mới, thậm chí có cơ hội thăng tiến. Nhà máy vẫn tự động hóa theo kế hoạch.',
+                            metrics: [
+                                { value: '85', label: 'Việc làm giữ', up: true },
+                                { value: '+1', label: 'Công ty con', up: true },
+                                { value: 'A-', label: 'ESG Rating', up: true }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ];
+
+        function startGame() {
+            state.company = document.getElementById('companyInput').value || 'Vinfast Manufacturing';
+            state.industry = document.getElementById('industrySelect').value || 'auto';
+            document.getElementById('companyName').textContent = state.company;
+            document.getElementById('authOverlay').classList.add('hidden');
+            addActivity('Hệ thống quản trị đã khởi động');
+            renderScene();
+        }
+
+        function renderScene() {
+            const s = scenarios[state.currentScenario];
+            
+            // Participants
+            document.getElementById('participants').innerHTML = people.map((p, i) => `
+                <div class="participant ${i === 0 ? 'active' : ''}">
+                    <div class="participant-header">
+                        <span class="participant-name">${p.name}</span>
+                        <span class="participant-status"></span>
+                    </div>
+                    <div class="participant-role">${p.role}</div>
+                </div>
+            `).join('');
+
+            // Report Card
+            document.getElementById('reportCard').innerHTML = `
+                <div class="report-header">
+                    <span class="report-badge ${s.badgeClass}">${s.badge}</span>
+                    <span class="report-id">${s.id}</span>
+                </div>
+                <div class="report-body">
+                    <h2 class="report-title">${s.title}</h2>
+                    
+                    <div class="spec-grid">
+                        ${s.specs.map(spec => `
+                            <div class="spec-item">
+                                <div class="spec-label">${spec.label}</div>
+                                <div class="spec-value ${spec.critical ? 'critical' : ''} ${spec.warning ? 'warning' : ''}">${spec.value}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="dialogue-section">
+                        ${s.dialogues.map(d => `
+                            <div class="dialogue-item ${d.type}">
+                                <div class="dialogue-avatar">${people[d.person].initials}</div>
+                                <div class="dialogue-content">
+                                    <div class="dialogue-name">${people[d.person].name}</div>
+                                    <div class="dialogue-text">${d.text}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="decisions-header">Quyết định của CEO</div>
+                    ${s.decisions.map((d, i) => `
+                        <div class="decision-card ${d.type}" onclick="makeDecision(${i})">
+                            <div class="decision-header">
+                                <div>
+                                    <div class="decision-title">${d.title}</div>
+                                </div>
+                                <span class="decision-tag">${d.type === 'safe' ? 'An toàn' : d.type === 'risk' ? 'Rủi ro' : 'Cân bằng'}</span>
+                            </div>
+                            <div class="decision-desc">${d.desc}</div>
+                            <div class="decision-impacts">
+                                ${d.impacts.map(imp => `
+                                    <div class="impact-item">
+                                        <div class="impact-label">${imp.label}</div>
+                                        <div class="impact-value ${imp.class}">${imp.value}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            updateTimestamp();
+        }
+
+        function makeDecision(index) {
+            const s = scenarios[state.currentScenario];
+            const d = s.decisions[index];
+            const r = d.result;
+
+            document.getElementById('resultStatus').textContent = r.status === 'success' ? 'Thực thi thành công' : 'Cần theo dõi';
+            document.getElementById('resultStatus').className = `result-status ${r.status}`;
+            document.getElementById('resultTitle').textContent = r.title;
+            document.getElementById('resultText').textContent = r.text;
+            document.getElementById('resultMetrics').innerHTML = r.metrics.map(m => `
+                <div class="result-metric">
+                    <div class="result-metric-value ${m.up ? 'up' : 'down'}">${m.value}</div>
+                    <div class="result-metric-label">${m.label}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('resultOverlay').classList.add('active');
+            addActivity(`CEO quyết định: ${d.title}`);
+        }
+
+        function continueGame() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            state.currentScenario = (state.currentScenario + 1) % scenarios.length;
+            state.week++;
+            document.getElementById('quarterProgress').textContent = `Tuần ${state.week}/12`;
+            document.getElementById('quarterFill').style.width = `${(state.week / 12) * 100}%`;
+            renderScene();
+        }
+
+        function addActivity(text) {
+            const list = document.getElementById('activityList');
+            const now = new Date();
+            const time = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            list.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-text">${text}</div>
+                    <div class="activity-time">${time}</div>
+                </div>
+            ` + list.innerHTML;
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestamp').textContent = now.toLocaleDateString('vi-VN', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }) + '\n' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        setInterval(updateTimestamp, 1000);
+    </script>
+</body>
+</html>
+

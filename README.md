@@ -1,36 +1,207 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CFA Practice Platform
 
-## Getting Started
+A comprehensive AI-powered CFA exam preparation platform built with Next.js, featuring MCQ quizzes, Item Sets, Essay practice, and personalized study plans.
 
-First, run the development server:
+![CFA Practice Platform](https://via.placeholder.com/1200x600/1e293b/818cf8?text=CFA+Practice+Platform)
 
+## 🎯 Features
+
+### Core Features
+
+- **Quiz Engine** - Practice MCQ questions by topic with timed modes
+  - Topic selection
+  - Randomized questions
+  - Timed mode (Practice/Timed/Exam)
+  - Instant explanations with formulas
+  - Score tracking
+
+- **Item Set Simulator** - Level II vignette-style questions
+  - Load vignette content
+  - 3-6 questions per case
+  - Long reading format
+  - Time countdown
+  - Auto navigation
+
+- **Essay Practice (Level III)** - Constructed response with AI scoring
+  - Text input interface
+  - AI scoring based on CFA rubric
+  - Model answer comparison
+  - Missing points feedback
+  - Copy prevention
+
+- **AI Explanations** - Powered by OpenAI
+  - Detailed answer explanations
+  - Mistake category diagnosis
+  - Suggested readings & LOS
+  - Formula & reasoning
+
+- **Analytics Dashboard**
+  - Topic performance tracking
+  - Accuracy by question type
+  - Error classification
+  - Personalized recommendations
+
+- **Study Plan**
+  - 12-week roadmap
+  - Weekly tasks
+  - Exam countdown
+  - Progress tracking
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 16, React 19, TypeScript
+- **Styling**: Tailwind CSS, Framer Motion
+- **UI Components**: Radix UI, Lucide Icons
+- **State Management**: Zustand
+- **Database**: PostgreSQL (Prisma ORM)
+- **AI**: OpenAI API
+- **Charts**: Recharts
+
+## 📦 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- PostgreSQL database
+- OpenAI API key
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd CFA
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env` with your configuration:
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/cfa_practice?schema=public"
 
-## Learn More
+# NextAuth
+NEXTAUTH_SECRET="your-super-secret-key-here"
+NEXTAUTH_URL="http://localhost:3000"
 
-To learn more about Next.js, take a look at the following resources:
+# OpenAI API
+OPENAI_API_KEY="sk-your-openai-api-key"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Set up the database:
+```bash
+npx prisma db push
+npx prisma generate
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Run the development server:
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📁 Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── (dashboard)/       # Dashboard layout routes
+│   │   ├── analytics/     # Analytics page
+│   │   ├── dashboard/     # Main dashboard
+│   │   ├── essays/        # Essay practice
+│   │   ├── item-sets/     # Item set simulator
+│   │   ├── quiz/          # Quiz engine
+│   │   └── study-plan/    # Study planner
+│   ├── globals.css        # Global styles
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Landing page
+├── components/
+│   ├── analytics/         # Analytics components
+│   ├── essay/             # Essay components
+│   ├── item-set/          # Item set components
+│   ├── layout/            # Layout components
+│   ├── quiz/              # Quiz components
+│   ├── study-plan/        # Study plan components
+│   └── ui/                # Reusable UI components
+├── lib/
+│   ├── openai.ts          # OpenAI integration
+│   ├── prisma.ts          # Prisma client
+│   └── utils.ts           # Utility functions
+├── store/
+│   ├── quiz-store.ts      # Quiz state management
+│   └── user-store.ts      # User state management
+└── prisma/
+    └── schema.prisma      # Database schema
+```
+
+## 🎨 Design System
+
+The platform uses a modern dark theme with:
+- **Primary**: Indigo/Violet gradients
+- **Background**: Slate 950
+- **Cards**: Semi-transparent with backdrop blur
+- **Typography**: Outfit font family
+- **Animations**: Smooth Framer Motion transitions
+
+## 📊 Database Schema
+
+Key models:
+- `User` - User accounts and subscriptions
+- `Topic` - CFA curriculum topics
+- `Question` - MCQ questions
+- `ItemSet` - Vignette-based questions
+- `EssayQuestion` - Constructed response questions
+- `QuizAttempt` - Quiz session tracking
+- `TopicPerformance` - Analytics data
+- `StudyPlan` - Personalized study plans
+
+## 🔒 Subscription Model
+
+- **Free Tier**: 30 questions per day
+- **Premium Monthly**: Unlimited access
+- **Premium Yearly**: Discounted unlimited access
+- **Add-on modules**: Level II/III specific content
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Connect to Vercel
+3. Set environment variables
+4. Deploy
+
+### Docker
+
+```bash
+docker build -t cfa-practice .
+docker run -p 3000:3000 cfa-practice
+```
+
+## 📝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+## ⚠️ Disclaimer
+
+This platform is not affiliated with CFA Institute. "CFA" and "Chartered Financial Analyst" are registered trademarks owned by CFA Institute.
+
+---
+
+Built with ❤️ for CFA candidates worldwide.
