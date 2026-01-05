@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HeroAnalytics } from '@/components/hero-analytics';
+import { MissionChat } from '@/components/mission-chat';
+import { CyclingBadge } from '@/components/cycling-badge';
 
 const features = [
   {
@@ -259,7 +261,8 @@ export default function LandingPage() {
               <p className="text-sm font-bold text-indigo-400 tracking-widest uppercase mb-4">Our Mission</p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
                 Making CFA® Prep <br />
-                <span className="text-indigo-400 leading-relaxed">Accessible</span> & <span className="text-violet-400">Engaging</span>
+                <span className="text-indigo-400 leading-relaxed">Accessible</span> &
+                <CyclingBadge />
               </h2>
               <p className="text-lg text-slate-400 mb-8 leading-relaxed">
                 Here's the deal: when prep feels overwhelming, candidates give up. When they give up,
@@ -280,6 +283,7 @@ export default function LandingPage() {
 
             </motion.div>
 
+            {/* Mission Visual - Replaced with Chat UI */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -287,8 +291,7 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-indigo-500/10 blur-[80px] rounded-full" />
-              <img src="/mission-image.jpg" alt="Our Mission" className="relative w-full h-auto rounded-3xl border border-white/10 shadow-2xl transition-transform duration-500 hover:scale-[1.02]" />
+              <MissionChat />
             </motion.div>
           </div>
         </div>
