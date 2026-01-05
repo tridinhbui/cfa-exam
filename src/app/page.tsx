@@ -334,42 +334,47 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {levels.map((level, index) => (
-              <motion.div
-                key={level.level}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.15 }}
-              >
-                <div className="h-full group relative p-1 rounded-3xl bg-gradient-to-b from-white/10 to-white/5 hover:from-indigo-500/50 hover:to-violet-500/50 transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl" />
-                  <div className="relative h-full bg-slate-950 rounded-[22px] p-8 overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
-                      <div className={`w-24 h-24 rounded-full bg-${level.color === 'level1' ? 'violet' : level.color === 'level2' ? 'indigo' : 'fuchsia'}-500/10 blur-2xl`} />
-                    </div>
+            {levels.map((level, index) => {
+              const badgeColors = {
+                level1: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+                level2: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+                level3: "bg-amber-500/10 text-amber-400 border-amber-500/20"
+              }[level.color];
 
-                    <Badge variant="outline" className={`mb-6 border-${level.color === 'level1' ? 'violet' : level.color === 'level2' ? 'indigo' : 'fuchsia'}-500/30 text-${level.color === 'level1' ? 'violet' : level.color === 'level2' ? 'indigo' : 'fuchsia'}-300`}>
-                      {level.level}
-                    </Badge>
+              return (
+                <motion.div
+                  key={level.level}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="group"
+                >
+                  <div className="h-full relative p-8 rounded-3xl bg-slate-900/40 border border-white/5 backdrop-blur-sm transition-all duration-300 group-hover:bg-slate-900/60 group-hover:border-white/10 group-hover:-translate-y-1 flex flex-col">
+                    <div className="flex justify-start mb-6">
+                      <Badge className={`${badgeColors} border px-3 py-1 font-medium rounded-full text-xs`}>
+                        {level.level}
+                      </Badge>
+                    </div>
 
                     <h3 className="text-2xl font-bold text-white mb-4">
                       CFA {level.level}
                     </h3>
-                    <p className="text-slate-400 text-sm mb-8 leading-relaxed line-clamp-3">
+
+                    <p className="text-slate-400 text-sm mb-10 leading-relaxed flex-grow">
                       {level.topics}
                     </p>
 
-                    <Link href="/dashboard" className="block mt-auto">
-                      <Button variant="ghost" className="w-full justify-between hover:bg-white/5 text-slate-300 hover:text-white group-hover:translate-x-1 transition-all duration-300">
-                        Start Studying
+                    <Link href="/dashboard" className="block w-full">
+                      <Button variant="outline" className="w-full h-12 border-white/10 hover:border-white/20 hover:bg-white/5 text-white font-medium flex items-center justify-center gap-2 rounded-xl transition-all">
+                        Start {level.level}
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </Link>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
