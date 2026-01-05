@@ -7,7 +7,7 @@ import { CheckCircle2, ChevronDown, ChevronUp, Lightbulb, ArrowRight, HelpCircle
 export function MissionChat() {
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [showExplanation, setShowExplanation] = useState(false);
-    const [cursorPos, setCursorPos] = useState({ x: '70%', y: '80%', opacity: 0 });
+    const [cursorPos, setCursorPos] = useState({ x: '50%', y: '100%', opacity: 0 });
     const [isClicked, setIsClicked] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -31,12 +31,14 @@ export function MissionChat() {
             // 1. Reset
             setSelectedAnswer(null);
             setShowExplanation(false);
-            setCursorPos({ x: '80%', y: '90%', opacity: 0 });
-            smoothScrollTo(0);
+            setCursorPos({ x: '50%', y: '95%', opacity: 0 });
+            if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTop = 0;
+            }
 
             // 2. Approach Option B
             await wait(1500);
-            setCursorPos({ x: '50%', y: '56%', opacity: 1 });
+            setCursorPos({ x: '50%', y: '55%', opacity: 1 });
 
             await wait(1200);
             setIsClicked(true);
@@ -45,13 +47,13 @@ export function MissionChat() {
 
             // Move to scrollbar area
             await wait(800);
-            setCursorPos({ x: '94%', y: '56%', opacity: 1 });
+            setCursorPos({ x: '92%', y: '55%', opacity: 1 });
 
             // 3. Scroll and Approach Explanation Reveal
             await wait(800);
             smoothScrollTo(180);
             await wait(1500);
-            setCursorPos({ x: '50%', y: '68%', opacity: 1 });
+            setCursorPos({ x: '50%', y: '75%', opacity: 1 });
 
             await wait(1200);
             setIsClicked(true);
@@ -60,12 +62,12 @@ export function MissionChat() {
 
             // Move to scrollbar area again
             await wait(800);
-            setCursorPos({ x: '94%', y: '68%', opacity: 1 });
+            setCursorPos({ x: '92%', y: '75%', opacity: 1 });
 
             // 4. Scroll to see explanation
             await wait(800);
             smoothScrollTo(500);
-            await wait(1000);
+            await wait(1500);
             setCursorPos(prev => ({ ...prev, opacity: 0 }));
 
             // 5. Loop reset
@@ -121,13 +123,13 @@ export function MissionChat() {
                                 <div
                                     key={opt.id}
                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-500 flex items-start gap-4 ${isSelected
-                                            ? (isCorrect ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-rose-500/10 border-rose-500')
-                                            : 'bg-slate-900/40 border-white/5'
+                                        ? (isCorrect ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-rose-500/10 border-rose-500')
+                                        : 'bg-slate-900/40 border-white/5'
                                         }`}
                                 >
                                     <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 font-bold transition-colors duration-500 ${isSelected
-                                            ? (isCorrect ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white')
-                                            : 'bg-slate-800 text-slate-400'
+                                        ? (isCorrect ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white')
+                                        : 'bg-slate-800 text-slate-400'
                                         }`}>
                                         {isSelected && isCorrect ? <CheckCircle2 className="h-5 w-5" /> : opt.id}
                                     </div>
@@ -211,10 +213,10 @@ export function MissionChat() {
                 }}
                 transition={{
                     duration: 0.8,
-                    ease: "easeInOut",
+                    ease: [0.23, 1, 0.32, 1],
                     scale: { duration: 0.2 }
                 }}
-                className="absolute z-50 pointer-events-none drop-shadow-2xl"
+                className="absolute z-50 pointer-events-none drop-shadow-2xl translate-x-[-50%] translate-y-[-50%]"
             >
                 <MousePointer2 className="w-6 h-6 text-white fill-indigo-500" />
                 <AnimatePresence>
