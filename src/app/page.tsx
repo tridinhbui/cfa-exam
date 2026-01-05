@@ -417,6 +417,7 @@ export default function LandingPage() {
                 <FeatureCard
                   title="MCQ Practice"
                   description="Thousands of practice questions organized by topic with detailed explanations."
+                  icon={BookOpen}
                   className="md:col-span-2"
                   delay={0}
                 >
@@ -427,6 +428,7 @@ export default function LandingPage() {
                 <FeatureCard
                   title="Smart Analytics"
                   description="Track your progress and identify weak areas instantly."
+                  icon={BarChart3}
                   className="md:col-span-1"
                   delay={0.1}
                 >
@@ -437,6 +439,7 @@ export default function LandingPage() {
                 <FeatureCard
                   title="Item Set Simulator"
                   description="Practice Level II style vignettes with real exam-like conditions."
+                  icon={FileText}
                   className="md:col-span-1 md:row-span-2"
                   delay={0.2}
                 >
@@ -447,6 +450,7 @@ export default function LandingPage() {
                 <FeatureCard
                   title="Dynamic Study Planner"
                   description="3-month structured roadmap tailored to your exam date."
+                  icon={Calendar}
                   className="md:col-span-2"
                   delay={0.3}
                 >
@@ -457,6 +461,7 @@ export default function LandingPage() {
                 <FeatureCard
                   title="Essay Grading"
                   description="AI-powered scoring for Level III constructed responses."
+                  icon={GraduationCap}
                   className="md:col-span-1"
                   delay={0.4}
                 >
@@ -467,6 +472,7 @@ export default function LandingPage() {
                 <FeatureCard
                   title="AI Explanations"
                   description="Get instant, personalized explanations for any concept."
+                  icon={Sparkles}
                   className="md:col-span-1"
                   delay={0.5}
                 >
