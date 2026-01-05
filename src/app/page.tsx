@@ -139,7 +139,7 @@ export default function LandingPage() {
               className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-8"
             >
               Who Says CFA® Prep <br className="hidden sm:block" />
-              Can't be <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 animate-pulse-glow">Engaging?</span>
+              Can't be <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400">Engaging?</span>
             </motion.h1>
 
             <motion.p
@@ -188,16 +188,25 @@ export default function LandingPage() {
             <div className="absolute -inset-4 bg-indigo-500/20 blur-3xl -z-10 rounded-[3rem]" />
           </motion.div>
 
-          {/* Trusted By Section */}
-          <div className="mt-32 pt-16 border-t border-white/5">
-            <p className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-8">Trusted by candidates from top firms</p>
-            <div className="flex flex-wrap justify-center items-center gap-12 sm:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-              {/* Placeholder Logos - Using text for now to simulate visual weight */}
-              <span className="text-xl font-bold text-white font-serif">Goldman Sachs</span>
-              <span className="text-xl font-bold text-white font-serif">J.P. Morgan</span>
-              <span className="text-xl font-bold text-white font-serif">Morgan Stanley</span>
-              <span className="text-xl font-bold text-white font-serif">BlackRock</span>
-              <span className="text-xl font-bold text-white font-serif">Bloomberg</span>
+          {/* Proof/Features Row */}
+          <div className="mt-24 pt-12 border-t border-white/5">
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="h-6 w-6 text-emerald-400" />
+                <span className="text-slate-400 font-medium">Free 30 Questions Daily</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Clock className="h-6 w-6 text-amber-400" />
+                <span className="text-slate-400 font-medium">Real Exam Timing</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Target className="h-6 w-6 text-indigo-400" />
+                <span className="text-slate-400 font-medium">LOS Aligned</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Users className="h-6 w-6 text-violet-400" />
+                <span className="text-slate-400 font-medium">50,000+ Users</span>
+              </div>
             </div>
           </div>
         </div>
@@ -244,9 +253,7 @@ export default function LandingPage() {
               <p className="text-sm font-bold text-indigo-400 tracking-widest uppercase mb-4">Our Mission</p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
                 Making CFA® Prep <br />
-                <span className="relative inline-block mt-2">
-                  <span className="relative z-10 px-4 py-1 bg-indigo-600/20 text-indigo-300 rounded-lg border border-indigo-500/30">Accessible</span>
-                </span> & <span className="text-violet-400">Engaging</span>
+                <span className="text-indigo-400 leading-relaxed">Accessible</span> & <span className="text-violet-400">Engaging</span>
               </h2>
               <p className="text-lg text-slate-400 mb-8 leading-relaxed">
                 Here's the deal: when prep feels overwhelming, candidates give up. When they give up,
