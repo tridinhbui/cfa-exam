@@ -188,16 +188,25 @@ export default function LandingPage() {
             <div className="absolute -inset-4 bg-indigo-500/20 blur-3xl -z-10 rounded-[3rem]" />
           </motion.div>
 
-          {/* Trusted By Section */}
-          <div className="mt-32 pt-16 border-t border-white/5">
-            <p className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-8">Trusted by candidates from top firms</p>
-            <div className="flex flex-wrap justify-center items-center gap-12 sm:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-              {/* Placeholder Logos - Using text for now to simulate visual weight */}
-              <span className="text-xl font-bold text-white font-serif">Goldman Sachs</span>
-              <span className="text-xl font-bold text-white font-serif">J.P. Morgan</span>
-              <span className="text-xl font-bold text-white font-serif">Morgan Stanley</span>
-              <span className="text-xl font-bold text-white font-serif">BlackRock</span>
-              <span className="text-xl font-bold text-white font-serif">Bloomberg</span>
+          {/* Proof Highlights Row */}
+          <div className="mt-24 pt-12 border-t border-white/5">
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="h-6 w-6 text-emerald-400" />
+                <span className="text-slate-400 font-medium whitespace-nowrap">Free 30 Questions Daily</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Clock className="h-6 w-6 text-amber-400" />
+                <span className="text-slate-400 font-medium whitespace-nowrap">Real Exam Timing</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Target className="h-6 w-6 text-indigo-400" />
+                <span className="text-slate-400 font-medium whitespace-nowrap">LOS Aligned</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Users className="h-6 w-6 text-violet-400" />
+                <span className="text-slate-400 font-medium whitespace-nowrap">50,000+ Users</span>
+              </div>
             </div>
           </div>
         </div>
