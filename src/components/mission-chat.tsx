@@ -67,11 +67,11 @@ export function MissionChat() {
             // 4. Scroll to see explanation
             await wait(800);
             smoothScrollTo(500);
-            await wait(1500);
+            await wait(1200); // Wait for scroll to finish
             setCursorPos(prev => ({ ...prev, opacity: 0 }));
 
-            // 5. Loop reset
-            timeoutId = setTimeout(runAnimation, 6000);
+            // 5. Loop reset (2 seconds after scroll)
+            timeoutId = setTimeout(runAnimation, 2000);
         };
 
         const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -162,7 +162,7 @@ export function MissionChat() {
 
                                 <div className="w-full h-12 rounded-xl border border-white/10 bg-white/5 text-slate-300 text-sm font-medium flex items-center justify-center gap-2">
                                     <Lightbulb className="h-4 w-4 text-amber-400" />
-                                    Explanation RevealING...
+                                    {showExplanation ? 'Explanation Revealed' : 'Show Explanation'}
                                 </div>
 
                                 <AnimatePresence>
