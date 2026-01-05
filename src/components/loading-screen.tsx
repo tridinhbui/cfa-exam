@@ -23,7 +23,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                 layoutId="brand-logo"
                 initial={{ opacity: 1 }}
                 animate={{ opacity: 1 }}
-                className="flex h-24 w-24 items-center justify-center rounded-3xl bg-transparent relative z-20 shadow-lg shadow-indigo-500/20"
+                className="flex h-24 w-24 items-center justify-center rounded-3xl bg-transparent relative z-20"
                 style={{ opacity: 1 }}
                 transition={{
                     duration: 0.8,

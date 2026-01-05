@@ -171,7 +171,7 @@ export default function LandingPage() {
           </nav>
 
           {/* Hero Section */}
-          <section className="relative pt-32 pb-20 lg:pt-48 overflow-hidden">
+          <section className="relative pt-16 pb-20 lg:pt-24 overflow-hidden">
             {/* Background decorations */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-500/20 rounded-[100%] blur-[120px] opacity-50 mix-blend-screen" />
