@@ -12,7 +12,6 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
         <motion.div
             className="fixed inset-0 z-50 flex flex-col items-center justify-center"
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
             {/* 
@@ -22,13 +21,16 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
       */}
             <motion.div
                 layoutId="brand-logo"
-                className="flex h-24 w-24 items-center justify-center rounded-3xl bg-transparent relative z-20"
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 1 }}
+                className="flex h-24 w-24 items-center justify-center rounded-3xl bg-transparent relative z-20 shadow-lg shadow-indigo-500/20"
+                style={{ opacity: 1 }}
                 transition={{
                     duration: 0.8,
                     ease: [0.4, 0, 0.2, 1]
                 }}
             >
-                <GraduationCap className="h-12 w-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                <GraduationCap className="h-12 w-12 text-white" />
             </motion.div>
 
             {/* Text Container - Fades out separately */}
