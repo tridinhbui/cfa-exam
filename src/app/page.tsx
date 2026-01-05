@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   GraduationCap,
@@ -22,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { HeroAnalytics } from '@/components/hero-analytics';
 import { MissionChat } from '@/components/mission-chat';
 import { CyclingBadge } from '@/components/cycling-badge';
+import { LoadingScreen } from '@/components/loading-screen';
 
 const features = [
   {
@@ -88,8 +90,22 @@ const levels = [
 ];
 
 export default function LandingPage() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading for the "premium" feel
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen">
+      <AnimatePresence mode="wait">
+        {isLoading && <LoadingScreen />}
+      </AnimatePresence>
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-slate-950/60 backdrop-blur-xl transition-all duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
