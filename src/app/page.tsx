@@ -95,7 +95,6 @@ export default function LandingPage() {
             <div className="hidden md:flex items-center gap-8">
               <Link href="#features" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Features</Link>
               <Link href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Pricing</Link>
-              <Link href="#testimonials" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Success Stories</Link>
             </div>
 
             <div className="flex items-center gap-4">
@@ -206,6 +205,34 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Stats Section from Image */}
+      <section className="relative py-12 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative group"
+              >
+                <div className="absolute -inset-px bg-gradient-to-r from-indigo-500/20 to-violet-500/20 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative h-full p-8 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm text-center transition-all duration-300 group-hover:bg-slate-900/60 group-hover:border-white/10 group-hover:-translate-y-1">
+                  <p className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400 mb-2">
+                    {stat.value}
+                  </p>
+                  <p className="text-sm font-medium text-slate-500 tracking-wide uppercase group-hover:text-slate-400 transition-colors">
+                    {stat.label}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Mission Section */}
       <section className="py-24 bg-slate-950/50 relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
@@ -229,30 +256,17 @@ export default function LandingPage() {
                 the grind into an exciting journey of professional growth.
               </p>
 
-              <div className="grid grid-cols-2 gap-6 mb-8">
-                <div>
-                  <h4 className="text-3xl font-bold text-white mb-1">92%</h4>
-                  <p className="text-sm text-slate-500">Pass Rate</p>
+              <div className="space-y-6 mb-10">
+                <div className="flex items-start gap-4">
+                  <div className="mt-1 h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+                  <p className="text-slate-400"><span className="text-slate-200 font-medium">Curated Content:</span> Rigorously reviewed by charterholders to ensure accuracy and relevance.</p>
                 </div>
-                <div>
-                  <h4 className="text-3xl font-bold text-white mb-1">50k+</h4>
-                  <p className="text-sm text-slate-500">Happy Users</p>
-                </div>
-                <div>
-                  <h4 className="text-3xl font-bold text-white mb-1">10k+</h4>
-                  <p className="text-sm text-slate-500">Questions</p>
-                </div>
-                <div>
-                  <h4 className="text-3xl font-bold text-white mb-1">24/7</h4>
-                  <p className="text-sm text-slate-500">AI Support</p>
+                <div className="flex items-start gap-4">
+                  <div className="mt-1 h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
+                  <p className="text-slate-400"><span className="text-slate-200 font-medium">Real Conditions:</span> Interface designed to mirror the actual computer-based testing environment.</p>
                 </div>
               </div>
 
-              <Link href="/dashboard">
-                <Button variant="secondary" className="hover:bg-indigo-500/20 hover:text-indigo-300 border-transparent hover:border-indigo-500/50 transition-all">
-                  Read Our Story
-                </Button>
-              </Link>
             </motion.div>
 
             <motion.div
