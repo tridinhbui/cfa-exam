@@ -126,10 +126,10 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center justify-center p-1 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-sm"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8 backdrop-blur-sm"
             >
-              <span className="bg-indigo-500/20 text-indigo-300 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-500/30 mr-3">NEW</span>
-              <span className="text-slate-300 text-sm pr-3">AI-Powered Item Set Simulator Available Now <ChevronRight className="inline h-4 w-4 ml-1" /></span>
+              <Sparkles className="h-4 w-4 text-indigo-400 mr-2" />
+              <span className="text-indigo-200 text-sm font-medium">AI-Powered CFA Preparation</span>
             </motion.div>
 
             <motion.h1
