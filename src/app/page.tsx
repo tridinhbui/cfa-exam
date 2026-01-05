@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { HeroAnalytics } from '@/components/hero-analytics';
 
 const features = [
   {
@@ -177,12 +178,9 @@ export default function LandingPage() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="relative mx-auto max-w-5xl"
           >
-            <div className="relative rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-sm p-2 shadow-2xl animate-float">
-              <div className="rounded-xl overflow-hidden bg-slate-950 aspect-[16/10] relative">
-                <img src="/hero-placeholder.svg" alt="App Interface" className="w-full h-full object-cover opacity-90" />
-
-                {/* Decorative Overlay Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+            <div className="relative rounded-3xl border border-white/10 bg-slate-900/50 backdrop-blur-sm p-3 shadow-2xl animate-float lg:aspect-[16/10]">
+              <div className="rounded-2xl overflow-hidden bg-slate-950 h-full relative">
+                <HeroAnalytics />
               </div>
             </div>
 
