@@ -17,7 +17,7 @@ export function CyclingBadge() {
 
     return (
         <motion.span
-            className="inline-block relative ml-3 px-4 py-1.5 bg-violet-600 text-white rounded-2xl text-2xl sm:text-3xl lg:text-4xl font-black shadow-xl shadow-violet-500/20 align-middle rotate-[-2deg] overflow-hidden min-w-[180px] text-center"
+            className="inline-block relative ml-3 px-4 py-1.5 bg-violet-600 text-white rounded-2xl text-2xl sm:text-3xl lg:text-4xl font-black shadow-xl shadow-violet-500/20 overflow-hidden min-w-[220px] text-center align-bottom"
         >
             <AnimatePresence mode="wait">
                 <motion.span
