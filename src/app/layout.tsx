@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import SmoothScroll from '../components/smooth-scroll';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -26,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${outfit.variable} ${jetbrainsMono.variable} font-sans`}>
-        {children}
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   );
