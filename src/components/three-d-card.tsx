@@ -60,7 +60,7 @@ export function ThreeDCard({
             ref={ref}
             onMouseMove={onMouseMove}
             onMouseLeave={onMouseLeave}
-            className={`relative ${className}`}
+            className={`${className || 'relative'}`}
             style={{
                 perspective: `${perspective}px`,
                 transformStyle: 'preserve-3d',

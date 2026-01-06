@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HeroAnalytics } from '@/components/hero-analytics';
+import { HeroQuiz } from '@/components/hero-quiz';
 import { MissionChat } from '@/components/mission-chat';
 import { CyclingBadge } from '@/components/cycling-badge';
 import { LoadingScreen } from '@/components/loading-screen';
@@ -157,6 +158,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="hidden md:flex items-center gap-8">
+                  <Link href="#mission" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Mission</Link>
                   <Link href="#features" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Features</Link>
                   <Link href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Pricing</Link>
                 </div>
@@ -244,17 +246,30 @@ export default function LandingPage() {
                 {/* Glowing background blob */}
                 <div className="absolute -inset-10 bg-indigo-500/20 blur-[60px] -z-10 rounded-full opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
 
-                {/* Floating 3D Dashboard Mockup */}
-                <div className="relative w-full aspect-[16/10] lg:aspect-[16/9] flex items-center justify-center">
+                {/* Stacked 3D Mockups */}
+                <div className="relative w-full aspect-[16/10] lg:aspect-[16/9]">
+                  {/* Layer 1: Dashboard (Nằm dưới) */}
                   <ThreeDCard
                     perspective={2000}
                     rotateX={15}
                     rotateY={20}
                     rotateZ={-5}
-                    scale={0.95}
-                    className="w-full h-full"
+                    scale={0.9}
+                    className="absolute inset-0 w-full h-full"
                   >
                     <HeroAnalytics />
+                  </ThreeDCard>
+
+                  {/* Layer 2: Quiz (Nằm trên - Dịch xuống dưới và sang phải một chút) */}
+                  <ThreeDCard
+                    perspective={2000}
+                    rotateX={15}
+                    rotateY={20}
+                    rotateZ={-5}
+                    scale={0.9}
+                    className="absolute inset-0 w-full h-full translate-x-8 translate-y-16 z-20"
+                  >
+                    <HeroQuiz />
                   </ThreeDCard>
                 </div>
               </motion.div>
@@ -312,7 +327,7 @@ export default function LandingPage() {
           </section>
 
           {/* Mission Section */}
-          <section className="py-24 bg-slate-950/50 relative overflow-hidden">
+          <section id="mission" className="py-24 bg-slate-950/50 relative overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="grid lg:grid-cols-2 gap-16 items-center">
                 <motion.div
