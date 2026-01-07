@@ -20,7 +20,7 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/auth-context';
 
 export function QuizResults() {
-  const { questions, answers, resetQuiz } = useQuizStore();
+  const { questions, answers, resetQuiz, timeSpent } = useQuizStore();
   const { user } = useAuth();
   const syncRef = useRef(false);
 
@@ -43,6 +43,7 @@ export function QuizResults() {
             userId: user.uid,
             correctAnswers: correctCount,
             totalQuestions: questions.length,
+            timeSpent: timeSpent,
             topics: Array.from(new Set(questions.map(q => q.topic.id))),
           }),
         });
@@ -52,7 +53,7 @@ export function QuizResults() {
     };
 
     syncResults();
-  }, [user, correctCount, questions]);
+  }, [user, correctCount, questions, timeSpent]);
   const totalQuestions = questions.length;
   const score = Math.round((correctCount / totalQuestions) * 100);
 

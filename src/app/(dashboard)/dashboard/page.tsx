@@ -90,6 +90,7 @@ export default function DashboardPage() {
     longestStreak: 0,
     questionsToday: 0,
     correctToday: 0,
+    timeSpentToday: 0,
     cfaLevel: 'Level I',
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -113,6 +114,14 @@ export default function DashboardPage() {
     };
     fetchStats();
   }, [user]);
+
+  const formatStudyTime = (seconds: number) => {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m`;
+    const hours = (seconds / 3600).toFixed(1);
+    return `${hours}h`;
+  };
 
   return (
     <div className="space-y-8">
@@ -177,8 +186,8 @@ export default function DashboardPage() {
         />
         <StatsCard
           title="Study Time"
-          value="2.5h"
-          subtitle="This week"
+          value={formatStudyTime(stats.timeSpentToday || 0)}
+          subtitle="Today"
           icon={Clock}
           color="amber"
           delay={0.2}

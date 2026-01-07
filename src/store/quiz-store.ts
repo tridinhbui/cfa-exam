@@ -34,6 +34,8 @@ interface QuizState {
   // Results
   isCompleted: boolean;
   showExplanation: boolean;
+  startTime: number | null;
+  timeSpent: number; // in seconds
 
   // Actions
   startQuiz: (questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM', timeLimit?: number) => void;
@@ -60,6 +62,8 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   isTimerRunning: false,
   isCompleted: false,
   showExplanation: false,
+  startTime: null,
+  timeSpent: 0,
 
   startQuiz: (questions, mode, timeLimit) => {
     const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM';
@@ -75,6 +79,8 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       isTimerRunning: upperMode !== 'PRACTICE',
       isCompleted: false,
       showExplanation: false,
+      startTime: Date.now(),
+      timeSpent: 0,
     });
   },
 
@@ -106,9 +112,12 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   },
 
   submitQuiz: () => {
+    const { startTime } = get();
+    const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
     set({
       isCompleted: true,
       isTimerRunning: false,
+      timeSpent,
     });
   },
 

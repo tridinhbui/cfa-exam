@@ -32,8 +32,36 @@ const bottomNavItems = [
   { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ];
 
+import { useAuth } from '@/context/auth-context';
+import { useState, useEffect } from 'react';
+
 export function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    currentStreak: 0,
+    questionsToday: 0,
+    correctToday: 0,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user) return;
+      try {
+        const res = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const data = await res.json();
+        if (!data.error) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch sidebar stats:', err);
+      }
+    };
+    fetchStats();
+  }, [user]);
+
+  const dailyGoal = 30;
+  const progressValue = Math.min((stats.questionsToday / dailyGoal) * 100, 100);
 
   return (
     <aside className="fixed left-0 top-16 bottom-0 w-64 border-r border-border bg-background hidden lg:block overflow-y-auto">
@@ -42,10 +70,12 @@ export function Sidebar() {
         <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-foreground">Daily Progress</span>
-            <span className="text-sm text-primary">12/30</span>
+            <span className="text-sm text-primary">{stats.questionsToday}/{dailyGoal}</span>
           </div>
-          <Progress value={40} className="h-2" />
-          <p className="text-xs text-muted-foreground mt-2">18 questions remaining today</p>
+          <Progress value={progressValue} className="h-2" />
+          <p className="text-xs text-muted-foreground mt-2">
+            {Math.max(0, dailyGoal - stats.questionsToday)} questions remaining today
+          </p>
         </div>
 
         {/* Quick Stats */}
@@ -55,14 +85,18 @@ export function Sidebar() {
               <Target className="h-4 w-4" />
               <span className="text-xs">Accuracy</span>
             </div>
-            <p className="text-lg font-bold text-foreground">68%</p>
+            <p className="text-lg font-bold text-foreground">
+              {stats.questionsToday > 0
+                ? `${Math.round((stats.correctToday / stats.questionsToday) * 100)}%`
+                : '0%'}
+            </p>
           </div>
           <div className="p-3 rounded-lg bg-card border border-border">
             <div className="flex items-center gap-2 text-amber-500 mb-1">
               <Clock className="h-4 w-4" />
               <span className="text-xs">Streak</span>
             </div>
-            <p className="text-lg font-bold text-foreground">5 days</p>
+            <p className="text-lg font-bold text-foreground">{stats.currentStreak} days</p>
           </div>
         </div>
 
