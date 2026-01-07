@@ -16,10 +16,10 @@
   * {
     @apply border-slate-800;
   }
-  
+
   body {
     @apply bg-slate-950 text-slate-50 antialiased;
-    background-image: 
+    background-image:
       radial-gradient(ellipse 80% 80% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
       radial-gradient(ellipse 50% 50% at 80% 50%, rgba(139, 92, 246, 0.08), transparent);
   }
@@ -63,13 +63,27 @@
 
 /* Animation classes */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+  }
 }
 
 .animate-float {
@@ -91,7 +105,7 @@
   .text-glow {
     text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
   }
-  
+
   .glass-card {
     @apply bg-slate-900/40 backdrop-blur-md border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300;
   }
