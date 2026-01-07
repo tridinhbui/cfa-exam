@@ -70,11 +70,11 @@ export default function StudyPlanPage() {
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold text-white"
+            className="text-3xl font-bold text-foreground"
           >
             Study Plan
           </motion.h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Your personalized 12-week roadmap to exam success
           </p>
         </div>
@@ -104,9 +104,9 @@ export default function StudyPlanPage() {
                   <Calendar className="h-6 w-6 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-amber-400/80">Exam Date</p>
-                  <p className="text-3xl font-bold text-white">{daysUntilExam} days</p>
-                  <p className="text-sm text-slate-400">Feb 20, 2025</p>
+                  <p className="text-sm text-amber-600 font-medium">Exam Date</p>
+                  <p className="text-3xl font-bold text-foreground">{daysUntilExam} days</p>
+                  <p className="text-sm text-muted-foreground">Feb 20, 2025</p>
                 </div>
               </div>
             </CardContent>
@@ -125,9 +125,9 @@ export default function StudyPlanPage() {
                   <Target className="h-6 w-6 text-indigo-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">Current Week</p>
-                  <p className="text-3xl font-bold text-white">Week {currentWeek}</p>
-                  <p className="text-sm text-slate-400">of {weeksUntilExam} weeks</p>
+                  <p className="text-sm text-muted-foreground">Current Week</p>
+                  <p className="text-3xl font-bold text-foreground">Week {currentWeek}</p>
+                  <p className="text-sm text-muted-foreground">of {weeksUntilExam} weeks</p>
                 </div>
               </div>
             </CardContent>
@@ -146,8 +146,8 @@ export default function StudyPlanPage() {
                   <TrendingUp className="h-6 w-6 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">Overall Progress</p>
-                  <p className="text-3xl font-bold text-white">35%</p>
+                  <p className="text-sm text-muted-foreground">Overall Progress</p>
+                  <p className="text-3xl font-bold text-foreground">35%</p>
                   <Progress value={35} className="mt-2 h-2" />
                 </div>
               </div>
@@ -190,23 +190,22 @@ export default function StudyPlanPage() {
               {milestones.map((milestone, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-xl bg-slate-800/50 border border-slate-700"
+                  className="p-4 rounded-xl bg-muted/50 border border-border"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="secondary">Week {milestone.week}</Badge>
                     <span
-                      className={`text-sm font-semibold ${
-                        milestone.current >= milestone.target
+                      className={`text-sm font-semibold ${milestone.current >= milestone.target
                           ? 'text-emerald-400'
                           : milestone.current > 0
-                          ? 'text-amber-400'
-                          : 'text-slate-500'
-                      }`}
+                            ? 'text-amber-400'
+                            : 'text-slate-500'
+                        }`}
                     >
                       {milestone.current}%
                     </span>
                   </div>
-                  <p className="text-white font-medium mb-2">{milestone.title}</p>
+                  <p className="text-foreground font-medium mb-2">{milestone.title}</p>
                   <Progress value={milestone.current} className="h-2" />
                 </div>
               ))}
@@ -241,11 +240,11 @@ export default function StudyPlanPage() {
                 <Clock className="h-6 w-6 text-indigo-400" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-white mb-1">
+                <h3 className="font-semibold text-foreground mb-1">
                   Study Tip of the Day
                 </h3>
-                <p className="text-slate-400 text-sm">
-                  Focus on weak topics first. Your analytics show you need more practice on 
+                <p className="text-muted-foreground text-sm">
+                  Focus on weak topics first. Your analytics show you need more practice on
                   Derivatives and Fixed Income. Consider spending extra time on these areas this week.
                 </p>
               </div>

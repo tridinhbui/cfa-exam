@@ -60,7 +60,7 @@ export function StudyCalendar({
 
   return (
     <Card>
-      <CardHeader className="border-b border-slate-800">
+      <CardHeader className="border-b border-border">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-indigo-400" />
@@ -74,7 +74,7 @@ export function StudyCalendar({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="font-semibold text-white min-w-[140px] text-center">
+            <span className="font-extrabold text-foreground min-w-[140px] text-center">
               {format(currentMonth, 'MMMM yyyy')}
             </span>
             <Button
@@ -93,7 +93,7 @@ export function StudyCalendar({
           {weekDays.map((day) => (
             <div
               key={day}
-              className="text-center text-xs font-medium text-slate-500 py-2"
+              className="text-center text-xs font-bold text-muted-foreground py-2"
             >
               {day}
             </div>
@@ -114,11 +114,11 @@ export function StudyCalendar({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.01 }}
                 className={cn(
-                  'min-h-[80px] p-2 rounded-lg border transition-all cursor-pointer hover:border-indigo-500/50',
+                  'min-h-[80px] p-2 rounded-lg border transition-all cursor-pointer hover:border-primary/50',
                   isCurrentMonth
-                    ? 'bg-slate-800/30 border-slate-800'
-                    : 'bg-slate-900/30 border-slate-900',
-                  isToday(day) && 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-950',
+                    ? 'bg-muted/30 border-border'
+                    : 'bg-muted/10 border-transparent opacity-50',
+                  isToday(day) && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
                   isExamDay && 'bg-red-500/10 border-red-500/50'
                 )}
                 onClick={() => dayTasks[0] && onTaskClick?.(dayTasks[0])}
@@ -126,10 +126,10 @@ export function StudyCalendar({
                 <div className="flex items-start justify-between">
                   <span
                     className={cn(
-                      'text-sm font-medium',
-                      isCurrentMonth ? 'text-slate-300' : 'text-slate-600',
-                      isToday(day) && 'text-indigo-400',
-                      isExamDay && 'text-red-400 font-bold'
+                      'text-sm font-bold',
+                      isCurrentMonth ? 'text-foreground' : 'text-muted-foreground',
+                      isToday(day) && 'text-primary',
+                      isExamDay && 'text-red-500 font-bold'
                     )}
                   >
                     {format(day, 'd')}
@@ -148,10 +148,10 @@ export function StudyCalendar({
                       <div
                         key={task.id}
                         className={cn(
-                          'flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded',
+                          'flex items-center gap-1 text-[10px] px-1.5 py-1 rounded font-bold shadow-sm',
                           task.isCompleted
-                            ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'bg-amber-500/20 text-amber-400'
+                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                            : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20'
                         )}
                       >
                         {task.isCompleted ? (
@@ -159,11 +159,11 @@ export function StudyCalendar({
                         ) : (
                           <Clock className="h-3 w-3" />
                         )}
-                        <span className="truncate">{task.topic}</span>
+                        <span className="truncate font-medium">{task.topic}</span>
                       </div>
                     ))}
                     {dayTasks.length > 2 && (
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-muted-foreground">
                         +{dayTasks.length - 2} more
                       </span>
                     )}
@@ -175,16 +175,16 @@ export function StudyCalendar({
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-800">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+        <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
             <div className="w-3 h-3 rounded bg-emerald-500/20" />
             <span>Completed</span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
             <div className="w-3 h-3 rounded bg-amber-500/20" />
             <span>Pending</span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
             <div className="w-3 h-3 rounded bg-red-500/20" />
             <span>Exam Day</span>
           </div>

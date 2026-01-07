@@ -78,20 +78,20 @@ export function StatsCard({
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-slate-400 mb-1">{title}</p>
-              <p className="text-3xl font-bold text-white">{value}</p>
+              <p className="text-sm text-muted-foreground mb-1">{title}</p>
+              <p className="text-3xl font-bold text-foreground">{value}</p>
               {subtitle && (
-                <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
+                <p className="text-xs text-muted-foreground/80 mt-1">{subtitle}</p>
               )}
               {trend && (
                 <p
                   className={cn(
-                    'text-sm mt-2 font-medium',
-                    trend.isPositive ? 'text-emerald-400' : 'text-red-400'
+                    'text-sm mt-2 font-bold',
+                    trend.isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
                   )}
                 >
                   {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%{' '}
-                  <span className="text-slate-500 font-normal">vs last week</span>
+                  <span className="text-muted-foreground/60 font-normal">vs last week</span>
                 </p>
               )}
             </div>
@@ -101,7 +101,7 @@ export function StatsCard({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </motion.div >
   );
 }
 

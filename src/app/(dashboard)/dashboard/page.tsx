@@ -92,34 +92,34 @@ export default function DashboardPage() {
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-extrabold text-white tracking-tight"
+            className="text-4xl font-extrabold text-foreground tracking-tight"
           >
             Welcome Back, {displayName} 👋
           </motion.h1>
-          <p className="text-slate-400 mt-2 text-lg">
+          <p className="text-muted-foreground mt-2 text-lg">
             It&apos;s <span className="text-indigo-400 font-semibold">87 days</span> until your Feb 2025 exam
           </p>
         </div>
 
         <div className="grid grid-cols-2 sm:flex items-center gap-3" data-onboarding="score-cards">
-          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-slate-900/40 border border-slate-800/50 min-w-[140px]">
+          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[140px]">
             <div className="flex items-center gap-2 mb-1">
               <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
                 <Flame className="h-4 w-4" />
               </div>
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Streak</span>
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Streak</span>
             </div>
-            <div className="text-2xl font-bold text-white">5 Days</div>
+            <div className="text-2xl font-bold text-foreground">5 Days</div>
           </div>
 
-          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-slate-900/40 border border-slate-800/50 min-w-[140px]">
+          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[140px]">
             <div className="flex items-center gap-2 mb-1">
               <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-500">
                 <Award className="h-4 w-4" />
               </div>
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Level</span>
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Level</span>
             </div>
-            <div className="text-2xl font-bold text-white">Level I</div>
+            <div className="text-2xl font-bold text-foreground">Level I</div>
           </div>
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               transition={{ delay: 0.4 + index * 0.1 }}
             >
               <Link href={action.href}>
-                <Card className="group relative overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all duration-300 bg-slate-900/40 border-slate-800/50 rounded-2xl">
+                <Card className="group relative overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all duration-300 bg-card border-border rounded-2xl">
                   {/* Subtle background gradient on hover */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
 
@@ -182,10 +182,10 @@ export default function DashboardPage() {
                     >
                       <Icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">
+                    <h3 className="text-xl font-bold text-foreground mb-2">
                       {action.title}
                     </h3>
-                    <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+                    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
                       {action.description}
                     </p>
                     <div className="flex items-center text-indigo-400 text-sm font-bold group-hover:translate-x-1 transition-transform">
@@ -203,8 +203,8 @@ export default function DashboardPage() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Performance Chart */}
         <div className="lg:col-span-2">
-          <Card className="h-full bg-slate-900/40 border-slate-800/50 rounded-2xl overflow-hidden">
-            <CardHeader className="border-b border-slate-800/50 p-6">
+          <Card className="h-full bg-card border-border rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-border p-6">
               <CardTitle className="text-xl font-bold flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-emerald-400" />
                 Performance Analytics
@@ -217,9 +217,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Focus Areas (Weak Topics) */}
-        <Card className="bg-slate-900/40 border-slate-800/50 rounded-2xl overflow-hidden flex flex-col">
-          <CardHeader className="border-b border-slate-800/50 p-6 text-sm">
-            <CardTitle className="text-xl font-bold flex items-center gap-3">
+        <Card className="bg-card border-border rounded-2xl overflow-hidden flex flex-col">
+          <CardHeader className="border-b border-border p-6 text-sm">
+            <CardTitle className="text-xl font-bold flex items-center gap-3 text-foreground">
               <div className="p-2 rounded-lg bg-red-500/10">
                 <Target className="h-5 w-5 text-red-400" />
               </div>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                 className="group cursor-default"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-bold text-white group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
+                  <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
                   <div className="flex items-center gap-3">
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full ${topic.trend > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
@@ -244,10 +244,10 @@ export default function DashboardPage() {
                     >
                       {topic.trend > 0 ? '↑' : '↓'} {Math.abs(topic.trend)}%
                     </span>
-                    <span className="text-slate-200 font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
+                    <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
                   </div>
                 </div>
-                <div className="relative h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${topic.accuracy}%` }}
@@ -273,10 +273,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <Card className="bg-slate-900/40 border-slate-800/50 rounded-2xl overflow-hidden">
-        <CardHeader className="border-b border-slate-800/50 p-6">
+      <Card className="bg-card border-border rounded-2xl overflow-hidden">
+        <CardHeader className="border-b border-border p-6 text-foreground">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold">Recent History</CardTitle>
+            <CardTitle className="text-xl font-bold text-foreground">Recent History</CardTitle>
             <Link href="/analytics">
               <Button variant="ghost" size="sm" className="text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/5 font-bold uppercase tracking-widest text-xs">
                 View Reports
@@ -293,17 +293,17 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 + index * 0.1 }}
-                className="group relative p-6 rounded-2xl bg-slate-950/40 border border-slate-800/50 hover:border-indigo-500/30 transition-all cursor-default"
+                className="group relative p-6 rounded-2xl bg-muted/40 border border-border hover:border-indigo-500/30 transition-all cursor-default"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <Badge className="bg-slate-800 text-slate-300 border-slate-700 uppercase font-extrabold text-[10px] tracking-widest px-2 py-0.5">
+                  <Badge className="bg-muted text-muted-foreground border-border uppercase font-extrabold text-[10px] tracking-widest px-2 py-0.5">
                     {activity.type}
                   </Badge>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase">{activity.date}</span>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{activity.date}</span>
                 </div>
-                <p className="font-bold text-white text-lg mb-4 truncate group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{activity.topic}</p>
+                <p className="font-bold text-foreground text-lg mb-4 truncate group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{activity.topic}</p>
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${activity.score}%` }}

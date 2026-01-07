@@ -97,9 +97,9 @@ export default function EssaysPage() {
   const completedEssays = essayQuestions.filter((e) => e.completed);
   const avgScore = completedEssays.length > 0
     ? Math.round(
-        completedEssays.reduce((sum, e) => sum + (e.score! / e.maxScore) * 100, 0) /
-          completedEssays.length
-      )
+      completedEssays.reduce((sum, e) => sum + (e.score! / e.maxScore) * 100, 0) /
+      completedEssays.length
+    )
     : 0;
 
   return (
@@ -119,11 +119,11 @@ export default function EssaysPage() {
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-bold text-white"
+          className="text-3xl font-bold text-foreground"
         >
           Essay Practice
         </motion.h1>
-        <p className="text-slate-400 mt-1">
+        <p className="text-muted-foreground mt-1">
           Practice constructed response questions with AI-powered scoring and feedback
         </p>
       </div>
@@ -142,8 +142,8 @@ export default function EssaysPage() {
                 <Target className="h-5 w-5 text-indigo-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{completedEssays.length}</p>
-                <p className="text-sm text-slate-400">Completed</p>
+                <p className="text-2xl font-bold text-foreground">{completedEssays.length}</p>
+                <p className="text-sm text-muted-foreground">Completed</p>
               </div>
             </div>
           </CardContent>
@@ -155,8 +155,8 @@ export default function EssaysPage() {
                 <Award className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{avgScore}%</p>
-                <p className="text-sm text-slate-400">Avg Score</p>
+                <p className="text-2xl font-bold text-foreground">{avgScore}%</p>
+                <p className="text-sm text-muted-foreground">Avg Score</p>
               </div>
             </div>
           </CardContent>
@@ -168,8 +168,8 @@ export default function EssaysPage() {
                 <Clock className="h-5 w-5 text-amber-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">75 min</p>
-                <p className="text-sm text-slate-400">Est. Time Left</p>
+                <p className="text-2xl font-bold text-foreground">75 min</p>
+                <p className="text-sm text-muted-foreground">Est. Time Left</p>
               </div>
             </div>
           </CardContent>
@@ -181,8 +181,8 @@ export default function EssaysPage() {
                 <Star className="h-5 w-5 text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">28</p>
-                <p className="text-sm text-slate-400">Total Points Earned</p>
+                <p className="text-2xl font-bold text-foreground">28</p>
+                <p className="text-sm text-muted-foreground">Total Points Earned</p>
               </div>
             </div>
           </CardContent>
@@ -199,8 +199,11 @@ export default function EssaysPage() {
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                <Input placeholder="Search essay questions..." className="pl-10" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground stroke-[3px]" />
+                <Input
+                  placeholder="Search essay questions..."
+                  className="pl-10 font-bold placeholder:font-bold"
+                />
               </div>
               <Select defaultValue="all">
                 <SelectTrigger className="w-full sm:w-[180px]">
@@ -246,10 +249,10 @@ export default function EssaysPage() {
                       <GraduationCap className="h-5 w-5 text-amber-400" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                         {essay.title}
                       </h3>
-                      <p className="text-sm text-slate-500">{essay.topic}</p>
+                      <p className="text-sm text-muted-foreground">{essay.topic}</p>
                     </div>
                   </div>
                   <Badge variant={difficultyColors[essay.difficulty as keyof typeof difficultyColors]}>
@@ -257,7 +260,7 @@ export default function EssaysPage() {
                   </Badge>
                 </div>
 
-                <div className="flex items-center gap-4 mb-4 text-sm text-slate-400">
+                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Award className="h-4 w-4" />
                     <span>Max {essay.maxScore} pts</span>
@@ -271,27 +274,27 @@ export default function EssaysPage() {
                 {essay.completed && essay.score !== null ? (
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-slate-400">Your Score</span>
-                      <span className="text-white">
+                      <span className="text-muted-foreground">Your Score</span>
+                      <span className="text-foreground">
                         <span
                           className={
                             (essay.score / essay.maxScore) * 100 >= 70
                               ? 'text-emerald-400'
                               : (essay.score / essay.maxScore) * 100 >= 50
-                              ? 'text-amber-400'
-                              : 'text-red-400'
+                                ? 'text-amber-400'
+                                : 'text-red-400'
                           }
                         >
                           {essay.score}
                         </span>
-                        <span className="text-slate-500">/{essay.maxScore}</span>
+                        <span className="text-muted-foreground/60">/{essay.maxScore}</span>
                       </span>
                     </div>
                     <Progress value={(essay.score / essay.maxScore) * 100} />
                   </div>
                 ) : (
-                  <div className="mb-4 p-3 rounded-lg bg-slate-800/50 border border-slate-700">
-                    <p className="text-sm text-slate-400">Not attempted yet</p>
+                  <div className="mb-4 p-3 rounded-lg bg-muted/50 border border-border">
+                    <p className="text-sm text-muted-foreground">Not attempted yet</p>
                   </div>
                 )}
 
@@ -317,14 +320,14 @@ export default function EssaysPage() {
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
               <div className="p-3 rounded-xl bg-indigo-500/20">
-                <Star className="h-6 w-6 text-indigo-400" />
+                <Clock className="h-6 w-6 text-indigo-400" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-white mb-1">
+                <h3 className="font-semibold text-foreground mb-1">
                   AI-Powered Essay Scoring
                 </h3>
-                <p className="text-slate-400 text-sm">
-                  Your essays are scored using advanced AI that evaluates based on CFA Institute 
+                <p className="text-muted-foreground text-sm">
+                  Your essays are scored using advanced AI that evaluates based on CFA Institute
                   rubrics. Get instant feedback on missing points, strengths, and improvement suggestions.
                 </p>
               </div>

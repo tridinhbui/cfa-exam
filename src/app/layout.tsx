@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import { AuthProvider } from '@/context/auth-context';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export default function RootLayout({
   children,
@@ -27,11 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.variable} ${jetbrainsMono.variable} font-sans`}>
-        <AuthProvider>
-          <SmoothScroll>{children}</SmoothScroll>
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <SmoothScroll>{children}</SmoothScroll>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

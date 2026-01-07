@@ -99,11 +99,11 @@ export default function ItemSetsPage() {
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-bold text-white"
+          className="text-3xl font-bold text-foreground"
         >
           Item Set Practice
         </motion.h1>
-        <p className="text-slate-400 mt-1">
+        <p className="text-muted-foreground mt-1">
           Master Level II vignette-style questions with real exam simulations
         </p>
       </div>
@@ -117,26 +117,26 @@ export default function ItemSetsPage() {
       >
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-white">3</p>
-            <p className="text-sm text-slate-400">Completed</p>
+            <p className="text-2xl font-bold text-foreground">3</p>
+            <p className="text-sm text-muted-foreground">Completed</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-white">83%</p>
-            <p className="text-sm text-slate-400">Avg Score</p>
+            <p className="text-2xl font-bold text-foreground">83%</p>
+            <p className="text-sm text-muted-foreground">Avg Score</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-white">3</p>
-            <p className="text-sm text-slate-400">Remaining</p>
+            <p className="text-2xl font-bold text-foreground">3</p>
+            <p className="text-sm text-muted-foreground">Remaining</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-white">54 min</p>
-            <p className="text-sm text-slate-400">Est. Time</p>
+            <p className="text-2xl font-bold text-foreground">54 min</p>
+            <p className="text-sm text-muted-foreground">Est. Time</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -151,8 +151,11 @@ export default function ItemSetsPage() {
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                <Input placeholder="Search item sets..." className="pl-10" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground stroke-[3px]" />
+                <Input
+                  placeholder="Search item sets..."
+                  className="pl-10 font-bold placeholder:font-bold"
+                />
               </div>
               <Select defaultValue="all">
                 <SelectTrigger className="w-full sm:w-[180px]">
@@ -199,10 +202,10 @@ export default function ItemSetsPage() {
                       <FileText className="h-5 w-5 text-purple-400" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                         {itemSet.title}
                       </h3>
-                      <p className="text-sm text-slate-500">{itemSet.topic}</p>
+                      <p className="text-sm text-muted-foreground">{itemSet.topic}</p>
                     </div>
                   </div>
                   <Badge variant={difficultyColors[itemSet.difficulty as keyof typeof difficultyColors]}>
@@ -210,7 +213,7 @@ export default function ItemSetsPage() {
                   </Badge>
                 </div>
 
-                <div className="flex items-center gap-4 mb-4 text-sm text-slate-400">
+                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <BookOpen className="h-4 w-4" />
                     <span>{itemSet.questions} questions</span>
@@ -224,14 +227,14 @@ export default function ItemSetsPage() {
                 {itemSet.completed ? (
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-slate-400">Your Score</span>
+                      <span className="text-muted-foreground">Your Score</span>
                       <span
                         className={
                           itemSet.score! >= 70
                             ? 'text-emerald-400'
                             : itemSet.score! >= 50
-                            ? 'text-amber-400'
-                            : 'text-red-400'
+                              ? 'text-amber-400'
+                              : 'text-red-400'
                         }
                       >
                         {itemSet.score}%
@@ -240,8 +243,8 @@ export default function ItemSetsPage() {
                     <Progress value={itemSet.score!} />
                   </div>
                 ) : (
-                  <div className="mb-4 p-3 rounded-lg bg-slate-800/50 border border-slate-700">
-                    <p className="text-sm text-slate-400">Not attempted yet</p>
+                  <div className="mb-4 p-3 rounded-lg bg-muted/50 border border-border">
+                    <p className="text-sm text-muted-foreground">Not attempted yet</p>
                   </div>
                 )}
 
