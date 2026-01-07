@@ -364,11 +364,7 @@ export default function LandingPage() {
                     <span className="text-indigo-400 leading-relaxed">Accessible</span> &
                     <CyclingBadge />
                   </h2>
-                  <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                    Here's the deal: when prep feels overwhelming, candidates give up. When they give up,
-                    they don't reach their potential. We knew there had to be a better way – one that turns
-                    the grind into an exciting journey of professional growth.
-                  </p>
+
 
                   <div className="space-y-6 mb-10">
                     <div className="flex items-start gap-4">
