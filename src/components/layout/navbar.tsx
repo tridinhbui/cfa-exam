@@ -14,6 +14,7 @@ import {
   User,
   LogOut,
   Crown,
+  Home,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -135,6 +136,12 @@ export function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border" />
+                <Link href="/">
+                  <DropdownMenuItem className="focus:bg-accent focus:text-accent-foreground cursor-pointer">
+                    <Home className="mr-2 h-4 w-4" />
+                    <span>Home</span>
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem className="focus:bg-accent focus:text-accent-foreground cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
