@@ -19,9 +19,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
             setLoading(false);
+
+            if (user) {
+                // Sync user with our database
+                try {
+                    await fetch('/api/user/sync', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            name: user.displayName,
+                            image: user.photoURL,
+                        }),
+                    });
+                } catch (error) {
+                    console.error('Failed to sync user:', error);
+                }
+            }
         });
 
         return () => unsubscribe();
