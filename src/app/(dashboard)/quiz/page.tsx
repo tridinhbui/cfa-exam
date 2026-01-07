@@ -62,6 +62,7 @@ export default function QuizPage() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState('practice');
   const [questionCount, setQuestionCount] = useState('10');
+  const [difficulty, setDifficulty] = useState('all');
 
   const toggleTopic = (topicId: string) => {
     setSelectedTopics((prev) =>
@@ -81,7 +82,7 @@ export default function QuizPage() {
 
   const startQuiz = () => {
     // In a real app, this would navigate to the quiz with selected options
-    window.location.href = `/quiz/session?topics=${selectedTopics.join(',')}&mode=${selectedMode}&count=${questionCount}`;
+    window.location.href = `/quiz/session?topics=${selectedTopics.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}`;
   };
 
   return (
@@ -115,8 +116,8 @@ export default function QuizPage() {
               <Card
                 key={mode.id}
                 className={`cursor-pointer transition-all ${isSelected
-                    ? 'border-primary bg-primary/10'
-                    : 'hover:border-border'
+                  ? 'border-primary bg-primary/10'
+                  : 'hover:border-border'
                   }`}
                 onClick={() => setSelectedMode(mode.id)}
               >
@@ -159,8 +160,8 @@ export default function QuizPage() {
               >
                 <Card
                   className={`cursor-pointer transition-all ${isSelected
-                      ? 'border-primary bg-primary/10'
-                      : 'hover:border-border'
+                    ? 'border-primary bg-primary/10'
+                    : 'hover:border-border'
                     }`}
                   onClick={() => toggleTopic(topic.id)}
                 >
@@ -169,8 +170,8 @@ export default function QuizPage() {
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${isSelected
-                              ? 'bg-primary border-primary'
-                              : 'border-border'
+                            ? 'bg-primary border-primary'
+                            : 'border-border'
                             }`}
                         >
                           {isSelected && (
@@ -253,7 +254,7 @@ export default function QuizPage() {
                 <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Difficulty
                 </label>
-                <Select defaultValue="all">
+                <Select value={difficulty} onValueChange={setDifficulty}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

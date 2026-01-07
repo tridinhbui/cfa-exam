@@ -37,14 +37,16 @@ export default function QuizSessionPage() {
 
   const searchParams = useSearchParams();
   const topics = searchParams.get('topics') || 'all';
-  const mode = (searchParams.get('mode') as 'PRACTICE' | 'TIMED' | 'EXAM') || 'PRACTICE';
+  const rawMode = searchParams.get('mode')?.toUpperCase() || 'PRACTICE';
+  const mode = (rawMode as 'PRACTICE' | 'TIMED' | 'EXAM');
   const count = searchParams.get('count') || '10';
+  const difficulty = searchParams.get('difficulty') || 'all';
 
   useEffect(() => {
     const fetchQuestions = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}`);
+        const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}&difficulty=${difficulty}`);
         const data = await response.json();
 
         if (data.error) throw new Error(data.error);
