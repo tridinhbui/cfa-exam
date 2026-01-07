@@ -45,14 +45,14 @@ export function QuizCard({
     >
       <Card className="overflow-hidden">
         {/* Question Header */}
-        <div className="bg-gradient-to-r from-indigo-600/10 to-violet-600/10 border-b border-slate-800 p-6">
+        <div className="bg-gradient-to-r from-indigo-500/5 to-violet-500/5 border-b border-border p-6">
           <div className="flex items-center justify-between mb-4">
             <Badge variant="default">
               Question {questionNumber} of {totalQuestions}
             </Badge>
             <Badge variant="secondary">{question.topic.name}</Badge>
           </div>
-          <p className="text-lg text-white leading-relaxed">{question.content}</p>
+          <p className="text-xl font-bold text-foreground leading-relaxed">{question.content}</p>
         </div>
 
         <CardContent className="p-6">
@@ -61,17 +61,17 @@ export function QuizCard({
             {options.map((option) => {
               const isSelected = selectedAnswer === option.label;
               const isCorrectAnswer = question.correctAnswer === option.label;
-              
-              let optionClass = 'border-slate-700 hover:border-indigo-500 hover:bg-slate-800';
-              
+
+              let optionClass = 'border-border hover:border-primary/50 hover:bg-muted/50';
+
               if (showResult) {
                 if (isCorrectAnswer) {
-                  optionClass = 'border-emerald-500 bg-emerald-500/10';
+                  optionClass = 'border-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10';
                 } else if (isSelected && !isCorrectAnswer) {
-                  optionClass = 'border-red-500 bg-red-500/10';
+                  optionClass = 'border-red-500 bg-red-500/5 dark:bg-red-500/10';
                 }
               } else if (isSelected) {
-                optionClass = 'border-indigo-500 bg-indigo-500/10';
+                optionClass = 'border-primary bg-primary/5 dark:bg-primary/10';
               }
 
               return (
@@ -93,10 +93,10 @@ export function QuizCard({
                       showResult && isCorrectAnswer
                         ? 'bg-emerald-500 text-white'
                         : showResult && isSelected && !isCorrectAnswer
-                        ? 'bg-red-500 text-white'
-                        : isSelected
-                        ? 'bg-indigo-500 text-white'
-                        : 'bg-slate-800 text-slate-300'
+                          ? 'bg-red-500 text-white'
+                          : isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground'
                     )}
                   >
                     {showResult && isCorrectAnswer ? (
@@ -107,7 +107,7 @@ export function QuizCard({
                       option.label
                     )}
                   </div>
-                  <p className="text-slate-200 pt-2">{option.value}</p>
+                  <p className="text-foreground pt-2 font-medium">{option.value}</p>
                 </motion.button>
               );
             })}
@@ -136,8 +136,8 @@ export function QuizCard({
                       <Check className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-emerald-400">Correct!</p>
-                      <p className="text-sm text-slate-400">Great job on this question.</p>
+                      <p className="font-bold text-emerald-600 dark:text-emerald-400">Correct!</p>
+                      <p className="text-sm text-muted-foreground font-medium">Great job on this question.</p>
                     </div>
                   </>
                 ) : (
@@ -146,8 +146,8 @@ export function QuizCard({
                       <X className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-red-400">Incorrect</p>
-                      <p className="text-sm text-slate-400">
+                      <p className="font-bold text-red-600 dark:text-red-400">Incorrect</p>
+                      <p className="text-sm text-muted-foreground font-medium">
                         The correct answer is {question.correctAnswer}.
                       </p>
                     </div>
@@ -170,20 +170,20 @@ export function QuizCard({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 rounded-xl bg-slate-800/50 border border-slate-700"
+                  className="p-4 rounded-xl bg-muted/50 border border-border"
                 >
                   <div className="flex items-center gap-2 mb-3">
-                    <HelpCircle className="h-5 w-5 text-indigo-400" />
-                    <h4 className="font-semibold text-white">Explanation</h4>
+                    <HelpCircle className="h-5 w-5 text-primary" />
+                    <h4 className="font-bold text-foreground">Explanation</h4>
                   </div>
-                  <p className="text-slate-300 leading-relaxed mb-4">
+                  <p className="text-muted-foreground leading-relaxed mb-4 font-medium">
                     {question.explanation}
                   </p>
-                  
+
                   {question.formula && (
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-700">
-                      <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Formula</p>
-                      <p className="text-indigo-300 font-mono">{question.formula}</p>
+                    <div className="p-3 rounded-lg bg-muted border border-border">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1 font-bold">Formula</p>
+                      <p className="text-primary font-mono font-bold">{question.formula}</p>
                     </div>
                   )}
                 </motion.div>
