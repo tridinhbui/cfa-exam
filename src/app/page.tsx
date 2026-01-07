@@ -187,7 +187,7 @@ export default function LandingPage() {
                       <Link href="/login">
                         <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/5">Sign In</Button>
                       </Link>
-                      <Link href="/dashboard">
+                      <Link href={user ? "/dashboard" : "/login"}>
                         <Button className="bg-white text-slate-900 hover:bg-slate-100 font-semibold shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-transform hover:scale-[1.02]">
                           Get Started
                         </Button>
@@ -246,7 +246,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.5, delay: 0.3 }}
                   className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
                 >
-                  <Link href="/dashboard">
+                  <Link href={user ? "/dashboard" : "/login"}>
                     <Button size="xl" className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all hover:scale-105 rounded-full">
                       Start Your Journey
                       <ArrowRight className="ml-2 h-5 w-5" />
@@ -548,7 +548,7 @@ export default function LandingPage() {
                           {level.topics}
                         </p>
 
-                        <Link href="/dashboard" className="block w-full">
+                        <Link href={user ? "/dashboard" : "/login"} className="block w-full">
                           <Button variant="outline" className="w-full h-12 border-white/10 hover:border-white/20 hover:bg-white/5 text-white font-medium flex items-center justify-center gap-2 rounded-xl transition-all">
                             Start {level.level}
                             <ChevronRight className="h-4 w-4" />
@@ -585,7 +585,7 @@ export default function LandingPage() {
                   Join thousands of successful candidates who trusted our AI-driven platform.
                   Start with 30 free questions today.
                 </p>
-                <Link href="/dashboard">
+                <Link href={user ? "/dashboard" : "/login"}>
                   <Button size="xl" className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold h-14 px-10 rounded-full shadow-2xl shadow-indigo-900/50 hover:scale-105 transition-transform">
                     Get Started for Free
                     <ArrowRight className="h-5 w-5 ml-2" />

@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { StatsCard } from '@/components/analytics/stats-card';
 import { PerformanceChart } from '@/components/analytics/performance-chart';
+import { useAuth } from '@/context/auth-context';
 
 // Mock data
 const weeklyData = [
@@ -81,6 +82,8 @@ const weakTopics = [
 ];
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const displayName = user?.displayName?.split(' ')[0] || 'Scholar';
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -91,7 +94,7 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-4xl font-extrabold text-white tracking-tight"
           >
-            Welcome Back 👋
+            Welcome Back, {displayName} 👋
           </motion.h1>
           <p className="text-slate-400 mt-2 text-lg">
             It&apos;s <span className="text-indigo-400 font-semibold">87 days</span> until your Feb 2025 exam
