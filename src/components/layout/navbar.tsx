@@ -50,6 +50,8 @@ export function Navbar() {
     router.push('/');
   };
 
+  const [imgError, setImgError] = useState(false);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -109,11 +111,13 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 transition-colors overflow-hidden border border-slate-700 ring-offset-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                  {user?.photoURL ? (
+                  {user?.photoURL && !imgError ? (
                     <img
                       src={user.photoURL}
                       alt={user.displayName || 'Profile'}
                       className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                      onError={() => setImgError(true)}
                     />
                   ) : (
                     <User className="h-5 w-5 text-slate-300" />
