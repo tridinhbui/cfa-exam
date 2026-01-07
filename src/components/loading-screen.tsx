@@ -33,18 +33,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                 <GraduationCap className="h-24 w-24 text-white" />
             </motion.div>
 
-            {/* Text Container - Fades out separately */}
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{
-                    opacity: isExiting ? 0 : 1,
-                    y: isExiting ? -10 : 0
-                }}
-                transition={{ duration: 0.5 }}
-                className="mt-12 text-center"
-            >
-                <p className="text-slate-400 text-xl font-medium tracking-widest uppercase">Aligning the stars...</p>
-            </motion.div>
+
         </motion.div>
     );
 }
