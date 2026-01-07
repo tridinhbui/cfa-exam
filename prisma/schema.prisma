@@ -21,8 +21,11 @@ model User {
   cfaLevel      CFALevel  @default(LEVEL_1)
   subscription  SubscriptionType @default(FREE)
   subscriptionEndsAt DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  currentStreak      Int       @default(0)
+  longestStreak      Int       @default(0)
+  lastActiveAt       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   // Relations
   quizAttempts      QuizAttempt[]

@@ -81,9 +81,39 @@ const weakTopics = [
   { name: 'Financial Reporting', accuracy: 58, trend: 8 },
 ];
 
+import { useState, useEffect } from 'react';
+
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [stats, setStats] = useState({
+    currentStreak: 0,
+    longestStreak: 0,
+    questionsToday: 0,
+    correctToday: 0,
+    cfaLevel: 'Level I',
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
   const displayName = user?.displayName?.split(' ')[0] || 'Scholar';
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user) return;
+      try {
+        const res = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const data = await res.json();
+        if (!data.error) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard stats:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, [user]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -102,14 +132,17 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 sm:flex items-center gap-3" data-onboarding="score-cards">
-          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[140px]">
+          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[160px]">
             <div className="flex items-center gap-2 mb-1">
               <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
                 <Flame className="h-4 w-4" />
               </div>
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Streak</span>
             </div>
-            <div className="text-2xl font-bold text-foreground">5 Days</div>
+            <div className="flex items-baseline gap-2">
+              <div className="text-2xl font-bold text-foreground">{stats.currentStreak} Days</div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase">Best: {stats.longestStreak}</div>
+            </div>
           </div>
 
           <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[140px]">
@@ -119,7 +152,7 @@ export default function DashboardPage() {
               </div>
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Level</span>
             </div>
-            <div className="text-2xl font-bold text-foreground">Level I</div>
+            <div className="text-2xl font-bold text-foreground">{stats.cfaLevel.replace('_', ' ')}</div>
           </div>
         </div>
       </div>
@@ -128,8 +161,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Questions Today"
-          value="12"
-          subtitle="18 remaining"
+          value={stats.questionsToday.toString()}
+          subtitle={`${stats.correctToday} correct`}
           icon={Target}
           color="indigo"
           delay={0}
