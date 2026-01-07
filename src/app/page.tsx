@@ -203,8 +203,8 @@ export default function LandingPage() {
                   transition={{ duration: 0.5, delay: 0.1 }}
                   className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-8"
                 >
-                  Who Says CFA® Prep <br className="hidden sm:block" />
-                  Can't be <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400">Engaging?</span>
+                  Study CFA® <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400">Smarter.</span> <br className="hidden sm:block" />
+                  Not Harder.
                 </motion.h1>
 
                 <motion.p
@@ -381,7 +381,7 @@ export default function LandingPage() {
               <div className="text-center mb-20">
                 <span className="text-indigo-400 font-semibold tracking-wider uppercase text-sm">Features</span>
                 <h2 className="text-4xl lg:text-5xl font-bold text-white mt-3 mb-6">
-                  Everything You Need to Pass
+                  Designed for CFA® Exam Success
                 </h2>
                 <p className="text-xl text-slate-400 max-w-2xl mx-auto">
                   Our comprehensive platform covers all CFA levels with AI-driven tools designed
