@@ -6,7 +6,8 @@ import {
     createUserWithEmailAndPassword,
     sendPasswordResetEmail,
     updatePassword,
-    confirmPasswordReset
+    confirmPasswordReset,
+    verifyPasswordResetCode
 } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -73,6 +74,15 @@ export const confirmReset = async (code: string, newPassword: string) => {
         await confirmPasswordReset(auth, code, newPassword);
     } catch (error) {
         console.error("Error confirming password reset", error);
+        throw error;
+    }
+};
+
+export const verifyResetCode = async (code: string) => {
+    try {
+        return await verifyPasswordResetCode(auth, code);
+    } catch (error) {
+        console.error("Error verifying reset code", error);
         throw error;
     }
 };
