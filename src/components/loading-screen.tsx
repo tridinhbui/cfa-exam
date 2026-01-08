@@ -37,7 +37,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                 }
             };
             requestAnimationFrame(update);
-        }, 3200);
+        }, 1700);
 
         return () => clearTimeout(morphTimer);
     }, []);
@@ -47,7 +47,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
             className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
             initial={{ opacity: 1 }}
             exit={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.7 }}
         >
             {/* Dynamic Shader Background from a.tsx */}
             <motion.div
@@ -74,7 +74,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 1 }}
                 transition={{
-                    duration: 0.8,
+                    duration: 0.7,
                     ease: [0.4, 0, 0.2, 1]
                 }}
             >

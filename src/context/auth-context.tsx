@@ -7,16 +7,21 @@ import { auth } from '@/lib/firebase';
 interface AuthContextType {
     user: User | null;
     loading: boolean;
+    preloaderSeen: boolean;
+    setPreloaderSeen: (seen: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
+    preloaderSeen: false,
+    setPreloaderSeen: () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [preloaderSeen, setPreloaderSeen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -48,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, preloaderSeen, setPreloaderSeen }}>
             {children}
         </AuthContext.Provider>
     );

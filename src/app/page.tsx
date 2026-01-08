@@ -135,14 +135,28 @@ const whyChooseUs = [
 type LoadingState = 'loading' | 'exiting' | 'complete';
 
 export default function LandingPage() {
+  const { user, preloaderSeen, setPreloaderSeen } = useAuth();
   const [loadingState, setLoadingState] = useState<LoadingState>('loading');
-  const { user } = useAuth();
 
   useEffect(() => {
-    const exitTimer = setTimeout(() => setLoadingState('exiting'), 5000);
-    const completeTimer = setTimeout(() => setLoadingState('complete'), 5800);
-    return () => { clearTimeout(exitTimer); clearTimeout(completeTimer); };
-  }, []);
+    // If preloader was already seen in this session (internal navigation), skip it
+    if (preloaderSeen) {
+      setLoadingState('complete');
+      return;
+    }
+
+    // Otherwise, show it and mark as seen
+    const exitTimer = setTimeout(() => setLoadingState('exiting'), 3280);
+    const completeTimer = setTimeout(() => {
+      setLoadingState('complete');
+      setPreloaderSeen(true);
+    }, 3980);
+
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(completeTimer);
+    };
+  }, [preloaderSeen, setPreloaderSeen]);
 
   return (
     <div className="min-h-screen relative">
@@ -176,7 +190,7 @@ export default function LandingPage() {
                       style={{ opacity: 1 }}
                       className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/20 ring-1 ring-white/10"
                       transition={{
-                        duration: 0.8,
+                        duration: 0.7,
                         ease: [0.4, 0, 0.2, 1]
                       }}
                     >
