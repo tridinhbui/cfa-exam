@@ -31,6 +31,7 @@ import { CyclingBadge } from '@/components/cycling-badge';
 import { LoadingScreen } from '@/components/loading-screen';
 import { ThreeDCard } from '@/components/three-d-card';
 import { Starfield } from '@/components/starfield';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { FeatureCard } from '@/components/features/feature-card';
 import { MockExam, MockAnalytics, MockPlanner, MockEssay, MockItemSet } from '@/components/features/mockups';
 import { PricingSection } from '@/components/pricing-section';
@@ -230,104 +231,59 @@ export default function LandingPage() {
           </nav>
 
           {/* Hero Section */}
-          <section className="relative pt-16 pb-20 lg:pt-24 overflow-hidden">
+          <section className="relative pt-10 overflow-hidden">
             {/* Background decorations */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-500/20 rounded-[100%] blur-[120px] opacity-50 mix-blend-screen" />
-              <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-violet-600/10 rounded-full blur-[100px] opacity-30" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-500/10 rounded-[100%] blur-[120px] opacity-30 mix-blend-screen" />
             </div>
 
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="text-center max-w-4xl mx-auto">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8 backdrop-blur-sm"
-                >
-                  <Sparkles className="h-4 w-4 text-indigo-400 mr-2" />
-                  <span className="text-indigo-200 text-sm font-medium">AI-Powered CFA Preparation</span>
-                </motion.div>
+              <ContainerScroll
+                titleComponent={
+                  <div className="text-center max-w-4xl mx-auto px-4">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8 backdrop-blur-sm"
+                    >
+                      <Sparkles className="h-4 w-4 text-indigo-400 mr-2" />
+                      <span className="text-indigo-200 text-sm font-medium">AI-Powered CFA Preparation</span>
+                    </motion.div>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-8"
-                >
-                  Study CFA® <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400">Smarter.</span> <br className="hidden sm:block" />
-                  Not Harder.
-                </motion.h1>
+                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-8">
+                      Study CFA® <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400">Smarter.</span> <br className="hidden sm:block" />
+                      Not Harder.
+                    </h1>
 
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="text-xl sm:text-2xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed"
-                >
-                  Master the curriculum with an intelligent platform that
-                  <span className="text-slate-200 font-medium"> adapts to your learning style</span>,
-                  closes knowledge gaps efficiently, and makes studying actually feel rewarding.
-                </motion.p>
+                    <p className="text-xl sm:text-2xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                      Master the curriculum with an intelligent platform that
+                      <span className="text-slate-200 font-medium"> adapts to your learning style</span>,
+                      closes knowledge gaps efficiently.
+                    </p>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
-                >
-                  <Link href={user ? "/dashboard" : "/login"}>
-                    <Button size="xl" className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all hover:scale-105 rounded-full">
-                      Get Started
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Button variant="outline" size="xl" className="h-14 px-8 text-lg border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/20 backdrop-blur-sm rounded-full">
-                    View Demo
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Floating Hero Image */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="relative mx-auto max-w-5xl perspective-[2000px] group"
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
+                      <Link href={user ? "/dashboard" : "/login"}>
+                        <Button size="xl" className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all hover:scale-105 rounded-full">
+                          Get Started
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </Link>
+                      <button
+                        onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="h-14 px-8 text-lg border border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/20 backdrop-blur-sm rounded-full transition-all"
+                      >
+                        View Demo
+                      </button>
+                    </div>
+                  </div>
+                }
               >
-                {/* Glowing background blob */}
-                <div className="absolute -inset-10 bg-indigo-500/20 blur-[60px] -z-10 rounded-full opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
-
-                {/* Stacked 3D Mockups */}
-                <div className="relative w-full aspect-[16/10] lg:aspect-[16/9]">
-                  {/* Layer 1: Dashboard (Nằm dưới) */}
-                  <ThreeDCard
-                    perspective={2000}
-                    rotateX={15}
-                    rotateY={20}
-                    rotateZ={-5}
-                    scale={0.9}
-                    className="absolute inset-0 w-full h-full"
-                  >
-                    <HeroAnalytics />
-                  </ThreeDCard>
-
-                  {/* Layer 2: Quiz (Nằm trên - Dịch xuống dưới và sang phải một chút) */}
-                  <ThreeDCard
-                    perspective={2000}
-                    rotateX={15}
-                    rotateY={20}
-                    rotateZ={-5}
-                    scale={0.9}
-                    className="absolute inset-0 w-full h-full translate-x-8 translate-y-16 z-20"
-                  >
-                    <HeroQuiz />
-                  </ThreeDCard>
-                </div>
-              </motion.div>
+                <HeroAnalytics />
+              </ContainerScroll>
 
               {/* Proof Highlights Row */}
-              <div className="mt-24 pt-12 border-t border-white/5">
+              <div className="mt-[-100px] mb-20 relative z-20">
                 <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="h-6 w-6 text-emerald-400" />
