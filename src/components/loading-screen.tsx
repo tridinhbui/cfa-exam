@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { GraduationCap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import LiquidCrystalLogo from './liquid-crystal-logo';
+import { PreloaderShaderBackground } from './preloader-background';
 
 interface LoadingScreenProps {
     isExiting: boolean;
@@ -48,13 +49,18 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
             exit={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
         >
-            {/* Separate background overlay that fades out */}
+            {/* Dynamic Shader Background from a.tsx */}
             <motion.div
-                className="absolute inset-0 bg-[#020617]"
-                initial={{ opacity: 1 }}
+                className="absolute inset-0 z-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-            />
+                transition={{ duration: 1, ease: "easeInOut" }}
+            >
+                <PreloaderShaderBackground />
+                {/* Minimal overlay for depth without losing clarity */}
+                <div className="absolute inset-0 bg-black/10" />
+            </motion.div>
 
             {/* 
                 Main Logo Flight Container
