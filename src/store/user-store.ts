@@ -6,7 +6,7 @@ interface User {
   email: string;
   name: string | null;
   cfaLevel: 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
-  subscription: 'FREE' | 'PREMIUM_MONTHLY' | 'PREMIUM_YEARLY';
+  subscription: 'FREE' | 'PRO';
 }
 
 interface UserState {
@@ -14,7 +14,7 @@ interface UserState {
   isLoading: boolean;
   dailyQuestionsUsed: number;
   lastQuestionDate: string | null;
-  
+
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   incrementDailyQuestions: () => void;
@@ -34,13 +34,13 @@ export const useUserStore = create<UserState>()(
       lastQuestionDate: null,
 
       setUser: (user) => set({ user, isLoading: false }),
-      
+
       setLoading: (loading) => set({ isLoading: loading }),
 
       incrementDailyQuestions: () => {
         const today = new Date().toDateString();
         const { lastQuestionDate, dailyQuestionsUsed } = get();
-        
+
         if (lastQuestionDate !== today) {
           set({ dailyQuestionsUsed: 1, lastQuestionDate: today });
         } else {
@@ -51,13 +51,13 @@ export const useUserStore = create<UserState>()(
       canAnswerQuestion: () => {
         const { user, dailyQuestionsUsed, lastQuestionDate } = get();
         const today = new Date().toDateString();
-        
+
         // Premium users have unlimited access
         if (user?.subscription !== 'FREE') return true;
-        
+
         // Reset count if new day
         if (lastQuestionDate !== today) return true;
-        
+
         return dailyQuestionsUsed < DAILY_FREE_LIMIT;
       },
 
@@ -69,10 +69,10 @@ export const useUserStore = create<UserState>()(
       getRemainingQuestions: () => {
         const { user, dailyQuestionsUsed, lastQuestionDate } = get();
         const today = new Date().toDateString();
-        
+
         if (user?.subscription !== 'FREE') return Infinity;
         if (lastQuestionDate !== today) return DAILY_FREE_LIMIT;
-        
+
         return Math.max(0, DAILY_FREE_LIMIT - dailyQuestionsUsed);
       },
     }),

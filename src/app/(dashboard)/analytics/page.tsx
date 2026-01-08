@@ -84,11 +84,11 @@ export default function AnalyticsPage() {
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold text-white"
+            className="text-3xl font-bold text-foreground"
           >
             Analytics
           </motion.h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Track your progress and identify areas for improvement
           </p>
         </div>
@@ -163,10 +163,10 @@ export default function AnalyticsPage() {
               {errorTypes.map((error) => (
                 <div key={error.type} className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">{error.type}</span>
+                    <span className="text-muted-foreground">{error.type}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-500">{error.count} errors</span>
-                      <span className="text-white font-medium">{error.percentage}%</span>
+                      <span className="text-muted-foreground/60">{error.count} errors</span>
+                      <span className="text-foreground font-medium">{error.percentage}%</span>
                     </div>
                   </div>
                   <Progress
@@ -175,8 +175,8 @@ export default function AnalyticsPage() {
                       error.percentage >= 30
                         ? 'from-red-600 to-rose-600'
                         : error.percentage >= 20
-                        ? 'from-amber-600 to-orange-600'
-                        : 'from-slate-600 to-slate-500'
+                          ? 'from-amber-600 to-orange-600'
+                          : 'from-slate-600 to-slate-500'
                     }
                   />
                 </div>
@@ -202,21 +202,20 @@ export default function AnalyticsPage() {
               {recommendations.map((rec, index) => (
                 <div
                   key={index}
-                  className={`p-4 rounded-xl border ${
-                    rec.priority === 'high'
-                      ? 'bg-red-500/10 border-red-500/30'
-                      : 'bg-slate-800/50 border-slate-700'
-                  }`}
+                  className={`p-4 rounded-xl border ${rec.priority === 'high'
+                    ? 'bg-red-500/10 border-red-500/20'
+                    : 'bg-muted/50 border-border'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-white">{rec.topic}</span>
+                    <span className="font-medium text-foreground">{rec.topic}</span>
                     <Badge
                       variant={rec.priority === 'high' ? 'destructive' : 'secondary'}
                     >
                       {rec.priority}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-400">{rec.message}</p>
+                  <p className="text-sm text-muted-foreground">{rec.message}</p>
                 </div>
               ))}
               <Link href="/quiz?topics=weak">
@@ -248,17 +247,16 @@ export default function AnalyticsPage() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.8 + idx * 0.05 }}
-                  className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-indigo-500/50 transition-all cursor-pointer"
+                  className="p-4 rounded-xl bg-muted/50 border border-border hover:border-indigo-500/50 transition-all cursor-pointer"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span
-                      className={`text-2xl font-bold ${
-                        topic.accuracy >= 70
-                          ? 'text-emerald-400'
-                          : topic.accuracy >= 50
+                      className={`text-2xl font-bold ${topic.accuracy >= 70
+                        ? 'text-emerald-400'
+                        : topic.accuracy >= 50
                           ? 'text-amber-400'
                           : 'text-red-400'
-                      }`}
+                        }`}
                     >
                       {topic.accuracy}%
                     </span>
@@ -266,7 +264,7 @@ export default function AnalyticsPage() {
                       {topic.attempts}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-300 font-medium truncate">
+                  <p className="text-sm text-muted-foreground font-medium truncate">
                     {topic.name}
                   </p>
                   <Progress
@@ -276,8 +274,8 @@ export default function AnalyticsPage() {
                       topic.accuracy >= 70
                         ? 'from-emerald-600 to-teal-600'
                         : topic.accuracy >= 50
-                        ? 'from-amber-600 to-orange-600'
-                        : 'from-red-600 to-rose-600'
+                          ? 'from-amber-600 to-orange-600'
+                          : 'from-red-600 to-rose-600'
                     }
                   />
                 </motion.div>

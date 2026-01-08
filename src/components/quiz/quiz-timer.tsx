@@ -8,13 +8,13 @@ import { useQuizStore } from '@/store/quiz-store';
 import { Button } from '@/components/ui/button';
 
 export function QuizTimer() {
-  const { 
-    timeRemaining, 
-    isTimerRunning, 
-    mode, 
-    tick, 
-    pauseTimer, 
-    resumeTimer 
+  const {
+    timeRemaining,
+    isTimerRunning,
+    mode,
+    tick,
+    pauseTimer,
+    resumeTimer
   } = useQuizStore();
 
   useEffect(() => {
@@ -41,8 +41,8 @@ export function QuizTimer() {
         isCritical
           ? 'bg-red-500/10 border-red-500/30'
           : isLowTime
-          ? 'bg-amber-500/10 border-amber-500/30'
-          : 'bg-slate-800/50 border-slate-700'
+            ? 'bg-amber-500/10 border-amber-500/30'
+            : 'bg-muted/50 border-border'
       )}
       animate={isCritical ? { scale: [1, 1.02, 1] } : {}}
       transition={{ repeat: Infinity, duration: 1 }}
@@ -53,18 +53,18 @@ export function QuizTimer() {
           isCritical
             ? 'text-red-400'
             : isLowTime
-            ? 'text-amber-400'
-            : 'text-slate-400'
+              ? 'text-amber-500'
+              : 'text-muted-foreground'
         )}
       />
       <span
         className={cn(
           'font-mono text-lg font-bold',
           isCritical
-            ? 'text-red-400'
+            ? 'text-red-600 dark:text-red-400'
             : isLowTime
-            ? 'text-amber-400'
-            : 'text-white'
+              ? 'text-amber-600 dark:text-amber-400'
+              : 'text-foreground'
         )}
       >
         {formatTime(timeRemaining)}

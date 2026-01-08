@@ -8,6 +8,7 @@ export interface QuizQuestion {
   optionC: string;
   correctAnswer: string;
   explanation: string;
+  difficulty: string;
   formula?: string | null;
   topic: {
     id: string;
@@ -20,20 +21,22 @@ interface QuizState {
   isActive: boolean;
   mode: 'PRACTICE' | 'TIMED' | 'EXAM';
   timeLimit: number | null;
-  
+
   // Questions
   questions: QuizQuestion[];
   currentIndex: number;
   answers: Record<string, string>;
-  
+
   // Timer
   timeRemaining: number;
   isTimerRunning: boolean;
-  
+
   // Results
   isCompleted: boolean;
   showExplanation: boolean;
-  
+  startTime: number | null;
+  timeSpent: number; // in seconds
+
   // Actions
   startQuiz: (questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM', timeLimit?: number) => void;
   setAnswer: (questionId: string, answer: string) => void;
@@ -59,20 +62,25 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   isTimerRunning: false,
   isCompleted: false,
   showExplanation: false,
+  startTime: null,
+  timeSpent: 0,
 
   startQuiz: (questions, mode, timeLimit) => {
+    const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM';
     const time = timeLimit ? timeLimit * 60 : questions.length * 90; // 90 seconds per question default
     set({
       isActive: true,
-      mode,
+      mode: upperMode,
       timeLimit: timeLimit || null,
       questions,
       currentIndex: 0,
       answers: {},
-      timeRemaining: mode === 'PRACTICE' ? 0 : time,
-      isTimerRunning: mode !== 'PRACTICE',
+      timeRemaining: upperMode === 'PRACTICE' ? 0 : time,
+      isTimerRunning: upperMode !== 'PRACTICE',
       isCompleted: false,
       showExplanation: false,
+      startTime: Date.now(),
+      timeSpent: 0,
     });
   },
 
@@ -104,9 +112,12 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   },
 
   submitQuiz: () => {
+    const { startTime } = get();
+    const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
     set({
       isCompleted: true,
       isTimerRunning: false,
+      timeSpent,
     });
   },
 

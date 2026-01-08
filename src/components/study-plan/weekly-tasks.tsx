@@ -34,26 +34,26 @@ interface WeeklyTasksProps {
 const taskTypeConfig = {
   quiz: {
     icon: BookOpen,
-    color: 'text-indigo-400',
+    color: 'text-indigo-600',
     bg: 'bg-indigo-500/10',
     label: 'Quiz',
   },
   'item-set': {
     icon: FileText,
-    color: 'text-purple-400',
+    color: 'text-purple-600',
     bg: 'bg-purple-500/10',
     label: 'Item Set',
   },
   essay: {
     icon: GraduationCap,
-    color: 'text-amber-400',
+    color: 'text-amber-600',
     bg: 'bg-amber-500/10',
     label: 'Essay',
   },
   review: {
     icon: Clock,
-    color: 'text-slate-400',
-    bg: 'bg-slate-500/10',
+    color: 'text-muted-foreground',
+    bg: 'bg-muted',
     label: 'Review',
   },
 };
@@ -70,11 +70,11 @@ export function WeeklyTasks({
 
   return (
     <Card>
-      <CardHeader className="border-b border-slate-800">
+      <CardHeader className="border-b border-border">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="mb-1">Week {weekNumber} Tasks</CardTitle>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted-foreground">
               {completedCount} of {tasks.length} completed • ~{totalTime} min total
             </p>
           </div>
@@ -87,7 +87,7 @@ export function WeeklyTasks({
         <Progress value={progress} className="mt-3" />
       </CardHeader>
       <CardContent className="p-0">
-        <ul className="divide-y divide-slate-800">
+        <ul className="divide-y divide-border">
           {tasks.map((task, index) => {
             const config = taskTypeConfig[task.type];
             const Icon = config.icon;
@@ -101,8 +101,8 @@ export function WeeklyTasks({
                 className={cn(
                   'flex items-center gap-4 p-4 transition-colors',
                   task.isCompleted
-                    ? 'bg-slate-800/20'
-                    : 'hover:bg-slate-800/30'
+                    ? 'bg-muted/30'
+                    : 'hover:bg-muted/50'
                 )}
               >
                 {/* Checkbox */}
@@ -112,7 +112,7 @@ export function WeeklyTasks({
                     'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
                     task.isCompleted
                       ? 'bg-emerald-500 border-emerald-500'
-                      : 'border-slate-600 hover:border-indigo-500'
+                      : 'border-border hover:border-primary'
                   )}
                 >
                   {task.isCompleted && <Check className="h-3 w-3 text-white" />}
@@ -129,13 +129,13 @@ export function WeeklyTasks({
                     className={cn(
                       'font-medium truncate',
                       task.isCompleted
-                        ? 'text-slate-500 line-through'
-                        : 'text-white'
+                        ? 'text-muted-foreground/60 line-through'
+                        : 'text-foreground'
                     )}
                   >
                     {task.topic}
                   </p>
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Badge variant="outline" className="text-[10px]">
                       {config.label}
                     </Badge>

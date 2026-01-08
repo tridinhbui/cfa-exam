@@ -16,13 +16,44 @@ import { Progress } from '@/components/ui/progress';
 import { cn, getGradeColor } from '@/lib/utils';
 import { useQuizStore } from '@/store/quiz-store';
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
+import { useAuth } from '@/context/auth-context';
 
 export function QuizResults() {
-  const { questions, answers, resetQuiz } = useQuizStore();
+  const { questions, answers, resetQuiz, timeSpent } = useQuizStore();
+  const { user } = useAuth();
+  const syncRef = useRef(false);
 
   const correctCount = questions.filter(
     (q) => answers[q.id] === q.correctAnswer
   ).length;
+
+  useEffect(() => {
+    const syncResults = async () => {
+      if (!user || syncRef.current) return;
+      syncRef.current = true;
+
+      try {
+        await fetch('/api/quiz/complete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user.uid,
+            correctAnswers: correctCount,
+            totalQuestions: questions.length,
+            timeSpent: timeSpent,
+            topics: Array.from(new Set(questions.map(q => q.topic.id))),
+          }),
+        });
+      } catch (error) {
+        console.error('Failed to sync quiz results:', error);
+      }
+    };
+
+    syncResults();
+  }, [user, correctCount, questions, timeSpent]);
   const totalQuestions = questions.length;
   const score = Math.round((correctCount / totalQuestions) * 100);
 
@@ -149,8 +180,8 @@ export function QuizResults() {
                           topicScore >= 70
                             ? 'success'
                             : topicScore >= 50
-                            ? 'warning'
-                            : 'destructive'
+                              ? 'warning'
+                              : 'destructive'
                         }
                       >
                         {stats.correct}/{stats.total}
@@ -166,8 +197,8 @@ export function QuizResults() {
                       topicScore >= 70
                         ? 'from-emerald-600 to-teal-600'
                         : topicScore >= 50
-                        ? 'from-amber-600 to-orange-600'
-                        : 'from-red-600 to-rose-600'
+                          ? 'from-amber-600 to-orange-600'
+                          : 'from-red-600 to-rose-600'
                     )}
                   />
                 </motion.div>

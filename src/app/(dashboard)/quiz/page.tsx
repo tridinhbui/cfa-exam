@@ -62,6 +62,7 @@ export default function QuizPage() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState('practice');
   const [questionCount, setQuestionCount] = useState('10');
+  const [difficulty, setDifficulty] = useState('all');
 
   const toggleTopic = (topicId: string) => {
     setSelectedTopics((prev) =>
@@ -81,7 +82,7 @@ export default function QuizPage() {
 
   const startQuiz = () => {
     // In a real app, this would navigate to the quiz with selected options
-    window.location.href = `/quiz/session?topics=${selectedTopics.join(',')}&mode=${selectedMode}&count=${questionCount}`;
+    window.location.href = `/quiz/session?topics=${selectedTopics.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}`;
   };
 
   return (
@@ -91,11 +92,11 @@ export default function QuizPage() {
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-bold text-white"
+          className="text-3xl font-bold text-foreground"
         >
           Practice Quiz
         </motion.h1>
-        <p className="text-slate-400 mt-1">
+        <p className="text-muted-foreground mt-1">
           Select topics and mode to start your practice session
         </p>
       </div>
@@ -106,7 +107,7 @@ export default function QuizPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Select Mode</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Select Mode</h2>
         <div className="grid md:grid-cols-3 gap-4">
           {quizModes.map((mode) => {
             const Icon = mode.icon;
@@ -114,11 +115,10 @@ export default function QuizPage() {
             return (
               <Card
                 key={mode.id}
-                className={`cursor-pointer transition-all ${
-                  isSelected
-                    ? 'border-indigo-500 bg-indigo-500/10'
-                    : 'hover:border-slate-600'
-                }`}
+                className={`cursor-pointer transition-all ${isSelected
+                  ? 'border-primary bg-primary/10'
+                  : 'hover:border-border'
+                  }`}
                 onClick={() => setSelectedMode(mode.id)}
               >
                 <CardContent className="p-5">
@@ -127,8 +127,8 @@ export default function QuizPage() {
                   >
                     <Icon className="h-5 w-5 text-white" />
                   </div>
-                  <h3 className="font-semibold text-white mb-1">{mode.name}</h3>
-                  <p className="text-sm text-slate-400">{mode.description}</p>
+                  <h3 className="font-semibold text-foreground mb-1">{mode.name}</h3>
+                  <p className="text-sm text-muted-foreground">{mode.description}</p>
                 </CardContent>
               </Card>
             );
@@ -143,7 +143,7 @@ export default function QuizPage() {
         transition={{ delay: 0.2 }}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Select Topics</h2>
+          <h2 className="text-lg font-semibold text-foreground">Select Topics</h2>
           <Button variant="ghost" size="sm" onClick={selectAllTopics}>
             {selectedTopics.length === topics.length ? 'Deselect All' : 'Select All'}
           </Button>
@@ -159,22 +159,20 @@ export default function QuizPage() {
                 transition={{ delay: 0.25 + index * 0.03 }}
               >
                 <Card
-                  className={`cursor-pointer transition-all ${
-                    isSelected
-                      ? 'border-indigo-500 bg-indigo-500/10'
-                      : 'hover:border-slate-600'
-                  }`}
+                  className={`cursor-pointer transition-all ${isSelected
+                    ? 'border-primary bg-primary/10'
+                    : 'hover:border-border'
+                    }`}
                   onClick={() => toggleTopic(topic.id)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                            isSelected
-                              ? 'bg-indigo-500 border-indigo-500'
-                              : 'border-slate-600'
-                          }`}
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${isSelected
+                            ? 'bg-primary border-primary'
+                            : 'border-border'
+                            }`}
                         >
                           {isSelected && (
                             <motion.svg
@@ -194,10 +192,10 @@ export default function QuizPage() {
                             </motion.svg>
                           )}
                         </div>
-                        <span className="font-medium text-white">{topic.name}</span>
+                        <span className="font-medium text-foreground">{topic.name}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-muted-foreground">
                           {topic.questions} Qs
                         </span>
                         <Badge
@@ -205,8 +203,8 @@ export default function QuizPage() {
                             topic.accuracy >= 70
                               ? 'success'
                               : topic.accuracy >= 50
-                              ? 'warning'
-                              : 'destructive'
+                                ? 'warning'
+                                : 'destructive'
                           }
                         >
                           {topic.accuracy}%
@@ -237,7 +235,7 @@ export default function QuizPage() {
           <CardContent className="space-y-6">
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Number of Questions
                 </label>
                 <Select value={questionCount} onValueChange={setQuestionCount}>
@@ -253,10 +251,10 @@ export default function QuizPage() {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Difficulty
                 </label>
-                <Select defaultValue="all">
+                <Select value={difficulty} onValueChange={setDifficulty}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -271,7 +269,7 @@ export default function QuizPage() {
             </div>
 
             {/* Start Button */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
               <Button
                 size="lg"
                 className="flex-1"
@@ -285,8 +283,8 @@ export default function QuizPage() {
                 variant="outline"
                 size="lg"
                 onClick={() => {
-                  setSelectedTopics(topics.map((t) => t.id));
-                  setSelectedMode('practice');
+                  const allTopicIds = topics.map((t) => t.id);
+                  window.location.href = `/quiz/session?topics=${allTopicIds.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}`;
                 }}
               >
                 <Shuffle className="h-5 w-5 mr-2" />
@@ -316,11 +314,11 @@ export default function QuizPage() {
               ].map((quiz, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700"
+                  className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
                 >
                   <div>
-                    <p className="font-medium text-white">{quiz.topics}</p>
-                    <p className="text-sm text-slate-500">
+                    <p className="font-medium text-foreground">{quiz.topics}</p>
+                    <p className="text-sm text-muted-foreground">
                       {quiz.questions} questions • {quiz.time}
                     </p>
                   </div>

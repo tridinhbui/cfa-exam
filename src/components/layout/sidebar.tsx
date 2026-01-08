@@ -32,37 +32,71 @@ const bottomNavItems = [
   { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ];
 
+import { useAuth } from '@/context/auth-context';
+import { useState, useEffect } from 'react';
+
 export function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    currentStreak: 0,
+    questionsToday: 0,
+    correctToday: 0,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user) return;
+      try {
+        const res = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const data = await res.json();
+        if (!data.error) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch sidebar stats:', err);
+      }
+    };
+    fetchStats();
+  }, [user]);
+
+  const dailyGoal = 30;
+  const progressValue = Math.min((stats.questionsToday / dailyGoal) * 100, 100);
 
   return (
-    <aside className="fixed left-0 top-16 bottom-0 w-64 border-r border-slate-800 bg-slate-950 hidden lg:block overflow-y-auto">
+    <aside className="fixed left-0 top-16 bottom-0 w-64 border-r border-border bg-background hidden lg:block overflow-y-auto">
       <div className="flex flex-col h-full p-4">
         {/* Daily Progress */}
-        <div className="mb-6 p-4 rounded-xl bg-gradient-to-br from-indigo-600/10 to-violet-600/10 border border-indigo-500/20">
+        <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-slate-300">Daily Progress</span>
-            <span className="text-sm text-indigo-400">12/30</span>
+            <span className="text-sm font-medium text-foreground">Daily Progress</span>
+            <span className="text-sm text-primary">{stats.questionsToday}/{dailyGoal}</span>
           </div>
-          <Progress value={40} className="h-2" />
-          <p className="text-xs text-slate-500 mt-2">18 questions remaining today</p>
+          <Progress value={progressValue} className="h-2" />
+          <p className="text-xs text-muted-foreground mt-2">
+            {Math.max(0, dailyGoal - stats.questionsToday)} questions remaining today
+          </p>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800">
-            <div className="flex items-center gap-2 text-emerald-400 mb-1">
+          <div className="p-3 rounded-lg bg-card border border-border">
+            <div className="flex items-center gap-2 text-emerald-500 mb-1">
               <Target className="h-4 w-4" />
               <span className="text-xs">Accuracy</span>
             </div>
-            <p className="text-lg font-bold text-white">68%</p>
+            <p className="text-lg font-bold text-foreground">
+              {stats.questionsToday > 0
+                ? `${Math.round((stats.correctToday / stats.questionsToday) * 100)}%`
+                : '0%'}
+            </p>
           </div>
-          <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800">
-            <div className="flex items-center gap-2 text-amber-400 mb-1">
+          <div className="p-3 rounded-lg bg-card border border-border">
+            <div className="flex items-center gap-2 text-amber-500 mb-1">
               <Clock className="h-4 w-4" />
               <span className="text-xs">Streak</span>
             </div>
-            <p className="text-lg font-bold text-white">5 days</p>
+            <p className="text-lg font-bold text-foreground">{stats.currentStreak} days</p>
           </div>
         </div>
 
@@ -71,7 +105,7 @@ export function Sidebar() {
           {mainNavItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
             const Icon = item.icon;
-            
+
             return (
               <Link key={item.href} href={item.href}>
                 <motion.div
@@ -79,7 +113,7 @@ export function Sidebar() {
                     'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
                     isActive
                       ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                   )}
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
@@ -93,24 +127,24 @@ export function Sidebar() {
         </nav>
 
         {/* Exam Countdown */}
-        <div className="my-4 p-4 rounded-xl bg-gradient-to-br from-amber-600/10 to-orange-600/10 border border-amber-500/20">
+        <div className="my-4 p-4 rounded-xl bg-orange-500/5 border border-orange-500/10">
           <div className="flex items-center gap-2 mb-2">
-            <Calendar className="h-4 w-4 text-amber-400" />
-            <span className="text-sm font-medium text-amber-300">Exam Countdown</span>
+            <Calendar className="h-4 w-4 text-orange-500" />
+            <span className="text-sm font-medium text-orange-600">Exam Countdown</span>
           </div>
-          <p className="text-2xl font-bold text-white">87 days</p>
-          <p className="text-xs text-slate-400 mt-1">February 2025 Exam</p>
+          <p className="text-2xl font-bold text-foreground">87 days</p>
+          <p className="text-xs text-muted-foreground mt-1">February 2025 Exam</p>
         </div>
 
         {/* Bottom Navigation */}
-        <div className="pt-4 border-t border-slate-800 space-y-1">
+        <div className="pt-4 border-t border-border space-y-1">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
-            
+
             return (
               <Link key={item.href} href={item.href}>
                 <motion.div
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-all"
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
                   whileHover={{ x: 4 }}
                 >
                   <Icon className="h-4 w-4" />

@@ -24,12 +24,12 @@ export function QuizProgress() {
               isCurrent && !isCompleted
                 ? 'bg-indigo-500 text-white ring-2 ring-indigo-500/50'
                 : isCorrect
-                ? 'bg-emerald-500 text-white'
-                : isWrong
-                ? 'bg-red-500 text-white'
-                : isAnswered
-                ? 'bg-slate-700 text-white'
-                : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                  ? 'bg-emerald-500 text-white'
+                  : isWrong
+                    ? 'bg-red-500 text-white'
+                    : isAnswered
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'
             )}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}

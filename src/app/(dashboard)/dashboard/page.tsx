@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { StatsCard } from '@/components/analytics/stats-card';
 import { PerformanceChart } from '@/components/analytics/performance-chart';
+import { useAuth } from '@/context/auth-context';
 
 // Mock data
 const weeklyData = [
@@ -80,41 +81,98 @@ const weakTopics = [
   { name: 'Financial Reporting', accuracy: 58, trend: 8 },
 ];
 
+import { useState, useEffect } from 'react';
+
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    name: '',
+    currentStreak: 0,
+    longestStreak: 0,
+    questionsToday: 0,
+    correctToday: 0,
+    timeSpentToday: 0,
+    cfaLevel: 'Level I',
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const displayName = stats.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Scholar';
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user) return;
+      try {
+        const res = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const data = await res.json();
+        if (!data.error) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard stats:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, [user]);
+
+  const formatStudyTime = (seconds: number) => {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m`;
+    const hours = (seconds / 3600).toFixed(1);
+    return `${hours}h`;
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+        <div className="flex-1">
           <motion.h1
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold text-white"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-4xl font-extrabold text-foreground tracking-tight"
           >
-            Welcome back! 👋
+            Welcome Back, {displayName} 👋
           </motion.h1>
-          <p className="text-slate-400 mt-1">
-            You&apos;re on a 5-day streak. Keep it up!
+          <p className="text-muted-foreground mt-2 text-lg">
+            It&apos;s <span className="text-indigo-400 font-semibold">87 days</span> until your Feb 2025 exam
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="level1" className="gap-1">
-            <Award className="h-3 w-3" />
-            Level I
-          </Badge>
-          <Badge className="gap-1 bg-amber-500/20 text-amber-300 border-amber-500/30">
-            <Flame className="h-3 w-3" />
-            5 Day Streak
-          </Badge>
+
+        <div className="grid grid-cols-2 sm:flex items-center gap-3" data-onboarding="score-cards">
+          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[160px]">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
+                <Flame className="h-4 w-4" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Streak</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <div className="text-2xl font-bold text-foreground">{stats.currentStreak} Days</div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase">Best: {stats.longestStreak}</div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[140px]">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-500">
+                <Award className="h-4 w-4" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Level</span>
+            </div>
+            <div className="text-2xl font-bold text-foreground">{stats.cfaLevel.replace('_', ' ')}</div>
+          </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards Section - Replaced with more compact layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Questions Today"
-          value="12"
-          subtitle="18 remaining"
+          value={stats.questionsToday.toString()}
+          subtitle={`${stats.correctToday} correct`}
           icon={Target}
           color="indigo"
           delay={0}
@@ -129,24 +187,24 @@ export default function DashboardPage() {
         />
         <StatsCard
           title="Study Time"
-          value="2.5h"
-          subtitle="This week"
+          value={formatStudyTime(stats.timeSpentToday || 0)}
+          subtitle="Today"
           icon={Clock}
           color="amber"
           delay={0.2}
         />
         <StatsCard
-          title="Days to Exam"
-          value="87"
-          subtitle="Feb 2025"
-          icon={Calendar}
+          title="Average Score"
+          value="68%"
+          subtitle="Top 15%"
+          icon={Award}
           color="purple"
           delay={0.3}
         />
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* Quick Actions (Bento Row) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
           return (
@@ -157,22 +215,25 @@ export default function DashboardPage() {
               transition={{ delay: 0.4 + index * 0.1 }}
             >
               <Link href={action.href}>
-                <Card className="group cursor-pointer hover:border-indigo-500/50 transition-all">
-                  <CardContent className="p-6">
+                <Card className="group relative overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all duration-300 bg-card border-border rounded-2xl">
+                  {/* Subtle background gradient on hover */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+
+                  <CardContent className="p-8">
                     <div
-                      className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${action.color} mb-4 group-hover:scale-110 transition-transform`}
+                      className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${action.color} mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                     >
-                      <Icon className="h-6 w-6 text-white" />
+                      <Icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-1">
+                    <h3 className="text-xl font-bold text-foreground mb-2">
                       {action.title}
                     </h3>
-                    <p className="text-sm text-slate-400 mb-4">
+                    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
                       {action.description}
                     </p>
-                    <div className="flex items-center text-indigo-400 text-sm font-medium group-hover:translate-x-1 transition-transform">
-                      Start Now
-                      <ArrowRight className="h-4 w-4 ml-1" />
+                    <div className="flex items-center text-indigo-400 text-sm font-bold group-hover:translate-x-1 transition-transform">
+                      Get Started
+                      <ArrowRight className="h-4 w-4 ml-1.5" />
                     </div>
                   </CardContent>
                 </Card>
@@ -185,99 +246,126 @@ export default function DashboardPage() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Performance Chart */}
         <div className="lg:col-span-2">
-          <PerformanceChart weeklyData={weeklyData} topicData={topicData} />
+          <Card className="h-full bg-card border-border rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-border p-6">
+              <CardTitle className="text-xl font-bold flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-emerald-400" />
+                Performance Analytics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <PerformanceChart weeklyData={weeklyData} topicData={topicData} />
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Weak Topics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Target className="h-5 w-5 text-red-400" />
+        {/* Focus Areas (Weak Topics) */}
+        <Card className="bg-card border-border rounded-2xl overflow-hidden flex flex-col">
+          <CardHeader className="border-b border-border p-6 text-sm">
+            <CardTitle className="text-xl font-bold flex items-center gap-3 text-foreground">
+              <div className="p-2 rounded-lg bg-red-500/10">
+                <Target className="h-5 w-5 text-red-400" />
+              </div>
               Focus Areas
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-6 space-y-5 flex-1 overflow-y-auto">
             {weakTopics.map((topic, index) => (
               <motion.div
                 key={topic.name}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
-                className="p-4 rounded-xl bg-slate-800/50 border border-slate-700"
+                className="group cursor-default"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium text-white">{topic.name}</span>
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
+                  <div className="flex items-center gap-3">
                     <span
-                      className={`text-sm ${
-                        topic.trend > 0 ? 'text-emerald-400' : 'text-red-400'
-                      }`}
+                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${topic.trend > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                        }`}
                     >
-                      {topic.trend > 0 ? '+' : ''}{topic.trend}%
+                      {topic.trend > 0 ? '↑' : '↓'} {Math.abs(topic.trend)}%
                     </span>
-                    <span className="text-slate-400">{topic.accuracy}%</span>
+                    <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
                   </div>
                 </div>
-                <Progress
-                  value={topic.accuracy}
-                  indicatorClassName={
-                    topic.accuracy >= 60
-                      ? 'from-amber-600 to-orange-600'
-                      : 'from-red-600 to-rose-600'
-                  }
-                />
+                <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${topic.accuracy}%` }}
+                    transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                    className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${topic.accuracy >= 60
+                      ? 'from-amber-500 to-orange-500'
+                      : 'from-red-500 to-rose-500'
+                      }`}
+                  />
+                </div>
               </motion.div>
             ))}
-            <Link href="/quiz?topics=weak">
-              <Button className="w-full mt-2">
-                Practice Weak Topics
+          </CardContent>
+          <div className="p-6 pt-0 mt-auto">
+            <Link href="/quiz?topics=weak" className="block w-full">
+              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+                Sharpen Weak Topics
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </Link>
-          </CardContent>
+          </div>
         </Card>
       </div>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
+      <Card className="bg-card border-border rounded-2xl overflow-hidden">
+        <CardHeader className="border-b border-border p-6 text-foreground">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Recent Activity</CardTitle>
+            <CardTitle className="text-xl font-bold text-foreground">Recent History</CardTitle>
             <Link href="/analytics">
-              <Button variant="ghost" size="sm">
-                View All
-                <ArrowRight className="h-4 w-4 ml-1" />
+              <Button variant="ghost" size="sm" className="text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/5 font-bold uppercase tracking-widest text-xs">
+                View Reports
+                <ArrowRight className="h-3 w-3 ml-2" />
               </Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {recentActivity.map((activity, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 + index * 0.1 }}
-                className="p-4 rounded-xl bg-slate-800/50 border border-slate-700"
+                className="group relative p-6 rounded-2xl bg-muted/40 border border-border hover:border-indigo-500/30 transition-all cursor-default"
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className="text-xs">
+                <div className="flex items-center justify-between mb-4">
+                  <Badge className="bg-muted text-muted-foreground border-border uppercase font-extrabold text-[10px] tracking-widest px-2 py-0.5">
                     {activity.type}
                   </Badge>
-                  <span className="text-xs text-slate-500">{activity.date}</span>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{activity.date}</span>
                 </div>
-                <p className="font-medium text-white mb-1">{activity.topic}</p>
-                <div className="flex items-center gap-2">
-                  <Progress value={activity.score} className="flex-1" />
-                  <span
-                    className={`text-sm font-semibold ${
-                      activity.score >= 70
-                        ? 'text-emerald-400'
+                <p className="font-bold text-foreground text-lg mb-4 truncate group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{activity.topic}</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${activity.score}%` }}
+                      transition={{ duration: 1, delay: 1 + index * 0.1 }}
+                      className={`h-full rounded-full ${activity.score >= 70
+                        ? 'bg-emerald-500'
                         : activity.score >= 50
+                          ? 'bg-amber-500'
+                          : 'bg-red-500'
+                        }`}
+                    />
+                  </div>
+                  <span
+                    className={`text-sm font-black font-mono ${activity.score >= 70
+                      ? 'text-emerald-400'
+                      : activity.score >= 50
                         ? 'text-amber-400'
                         : 'text-red-400'
-                    }`}
+                      }`}
                   >
                     {activity.score}%
                   </span>
