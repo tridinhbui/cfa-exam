@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
@@ -19,7 +19,7 @@ import Link from 'next/link';
 
 // Mock questions removed, now fetching from API
 
-export default function QuizSessionPage() {
+function QuizContent() {
   const [isLoading, setIsLoading] = useState(true);
   const {
     questions,
@@ -150,6 +150,21 @@ export default function QuizSessionPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function QuizSessionPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Preparing Quiz Session...</p>
+        </div>
+      </div>
+    }>
+      <QuizContent />
+    </Suspense>
   );
 }
 
