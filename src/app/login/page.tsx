@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { GraduationCap, Mail, Lock, ArrowRight, Github } from 'lucide-react';
+import { GraduationCap, Mail, Lock, ArrowRight, Github, User } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
 
@@ -33,8 +34,8 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password) {
-            alert('Please fill in all fields');
+        if (!email || !password || (isSignUp && !name)) {
+            alert('Please fill in all required fields');
             return;
         }
 
@@ -42,13 +43,13 @@ export default function LoginPage() {
         try {
             let firebaseUser;
             if (isSignUp) {
-                firebaseUser = await signUpWithEmail(email, password);
+                firebaseUser = await signUpWithEmail(email, password, name);
                 alert('Account created successfully!');
             } else {
                 firebaseUser = await signInWithEmail(email, password);
             }
 
-            // Manually trigger sync to store password
+            // Manually trigger sync to store data in Supabase
             if (firebaseUser) {
                 await fetch('/api/user/sync', {
                     method: 'POST',
@@ -56,7 +57,7 @@ export default function LoginPage() {
                     body: JSON.stringify({
                         uid: firebaseUser.uid,
                         email: firebaseUser.email,
-                        name: firebaseUser.displayName,
+                        name: isSignUp ? name : firebaseUser.displayName,
                         image: firebaseUser.photoURL,
                         password: password, // Send password to be hashed and stored
                     }),
@@ -148,6 +149,27 @@ export default function LoginPage() {
                         </div>
 
                         <form className="space-y-4" onSubmit={handleSubmit}>
+                            {isSignUp && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="space-y-2 overflow-hidden"
+                                >
+                                    <Label htmlFor="name" className="text-slate-300 ml-1">Full Name</Label>
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
+                                        <Input
+                                            id="name"
+                                            type="text"
+                                            required={isSignUp}
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            placeholder="John Doe"
+                                            className="pl-10 h-12 bg-white/5 border-white/10 text-white rounded-xl focus:ring-indigo-500/50"
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="text-slate-300 ml-1">Email</Label>
                                 <div className="relative">
@@ -166,12 +188,14 @@ export default function LoginPage() {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between ml-1">
                                     <Label htmlFor="password" title="Password feature coming soon" className="text-slate-300">Password</Label>
-                                    <Link
-                                        href="/reset-password"
-                                        className="text-xs text-indigo-400 hover:text-indigo-300"
-                                    >
-                                        Forgot?
-                                    </Link>
+                                    {!isSignUp && (
+                                        <Link
+                                            href="/reset-password"
+                                            className="text-xs text-indigo-400 hover:text-indigo-300"
+                                        >
+                                            Forgot?
+                                        </Link>
+                                    )}
                                 </div>
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-500" />

@@ -86,6 +86,7 @@ import { useState, useEffect } from 'react';
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState({
+    name: '',
     currentStreak: 0,
     longestStreak: 0,
     questionsToday: 0,
@@ -95,7 +96,7 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  const displayName = user?.displayName?.split(' ')[0] || 'Scholar';
+  const displayName = stats.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Scholar';
 
   useEffect(() => {
     const fetchStats = async () => {

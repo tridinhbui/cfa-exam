@@ -18,6 +18,7 @@ export async function GET(req: Request) {
                 longestStreak: true,
                 cfaLevel: true,
                 lastActiveAt: true,
+                name: true,
             }
         });
 
@@ -38,6 +39,7 @@ export async function GET(req: Request) {
 
         // Get some stats or history if needed
         const stats = {
+            name: user.name,
             currentStreak: user.currentStreak,
             longestStreak: user.longestStreak,
             cfaLevel: user.cfaLevel,

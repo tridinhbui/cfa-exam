@@ -7,7 +7,8 @@ import {
     sendPasswordResetEmail,
     updatePassword,
     confirmPasswordReset,
-    verifyPasswordResetCode
+    verifyPasswordResetCode,
+    updateProfile
 } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -33,9 +34,10 @@ export const signInWithEmail = async (email: string, pass: string) => {
     }
 };
 
-export const signUpWithEmail = async (email: string, pass: string) => {
+export const signUpWithEmail = async (email: string, pass: string, name: string) => {
     try {
         const result = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(result.user, { displayName: name });
         return result.user;
     } catch (error) {
         console.error("Error signing up with email", error);
