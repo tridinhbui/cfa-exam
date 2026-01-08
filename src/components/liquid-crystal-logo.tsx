@@ -51,70 +51,61 @@ float mapScene(vec2 uv) {
   vec2 p3_rand = vec2(cos(t * 0.6 + 3.1), sin(t * 0.9 - 0.8)) * 0.42;
   vec2 p4_rand = vec2(cos(t * 1.5 - 0.2), sin(t * 0.5 + 4.5)) * 0.38;
 
-  // Target positions (center)
-  vec2 p_target = vec2(0.0, 0.0);
+  // Tighter convergence to form a small energetic cluster at the center
+  vec2 p1_target = vec2(0.02, 0.02);
+  vec2 p2_target = vec2(-0.02, 0.02);
+  vec2 p3_target = vec2(-0.02, -0.02);
+  vec2 p4_target = vec2(0.02, -0.02);
   
   // Interpolated positions
-  vec2 p1 = mix(p1_rand, p_target, u_morph);
-  vec2 p2 = mix(p2_rand, p_target, u_morph);
-  vec2 p3 = mix(p3_rand, p_target, u_morph);
-  vec2 p4 = mix(p4_rand, p_target, u_morph);
-
-  // Radii - tuned for a balanced look on screen
-  float r1 = mix(0.18, 0.2, u_morph);
-  float r2 = mix(0.15, 0.2, u_morph);
-  float r3 = mix(0.2, 0.2, u_morph);
-  float r4 = mix(0.16, 0.2, u_morph);
+  vec2 p1 = mix(p1_rand, p1_target, u_morph);
+  vec2 p2 = mix(p2_rand, p2_target, u_morph);
+  vec2 p3 = mix(p3_rand, p3_target, u_morph);
+  vec2 p4 = mix(p4_rand, p4_target, u_morph);
+  
+  // Significantly smaller radii to avoid the 'giant purple circle' look
+  float r1 = mix(0.12, 0.08, u_morph);
+  float r2 = mix(0.1, 0.08, u_morph);
+  float r3 = mix(0.14, 0.08, u_morph);
+  float r4 = mix(0.11, 0.08, u_morph);
 
   float b1 = sdCircle(uv - p1, r1);
   float b2 = sdCircle(uv - p2, r2);
   float b3 = sdCircle(uv - p3, r3);
   float b4 = sdCircle(uv - p4, r4);
 
-  // Base liquid crystal shape
-  float u12 = opSmoothUnion(b1, b2, 0.25);
-  float u34 = opSmoothUnion(b3, b4, 0.25);
-  float liquidShape = opSmoothUnion(u12, u34, 0.3);
-  
-  // Rounded box shape for an even more compact logo (0.1 size)
-  float boxShape = sdRoundedBox(uv, vec2(0.1), vec4(0.04));
-  
-  // Morph between liquid and box
-  return mix(liquidShape, boxShape, pow(u_morph, 1.2));
+  // Smooth union for fluid merging
+  float u12 = opSmoothUnion(b1, b2, 0.15);
+  float u34 = opSmoothUnion(b3, b4, 0.15);
+  return opSmoothUnion(u12, u34, 0.2);
 }
 
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
   float d = mapScene(uv);
 
-  // Glow effect
-  // When morph is 1, we want a solid purple background with a slight rim glow
-  float glow = 0.01 / abs(d);
+  // AI-inspired colors (Cyan and Bright Blue to match the brain logo)
+  vec3 col_inner = vec3(0.0, 0.8, 1.0); // Cyan
+  vec3 col_outer = vec3(0.1, 0.4, 0.9); // Electric Blue
   
-  // Base color (Indigo/Purple palette)
-  vec3 col_liquid = vec3(0.2, 0.1, 0.6); // Deep indigo base
-  vec3 col_logo = vec3(0.31, 0.27, 0.90); // Indigo-600
+  // Dynamic color pulse
+  float pulse = 0.5 + 0.5 * sin(u_time * 2.0);
+  vec3 base_col = mix(col_outer, col_inner, pulse);
   
-  // Dynamic palette
-  vec3 pha = 0.5 + 0.5 * cos(u_time * 0.5 + uv.xyx + vec3(0,1,2));
+  // Energy glow effect - glows more as it clusters
+  vec3 col = base_col * (0.02 / (abs(d) + 0.01));
   
-  vec3 base_col = mix(col_liquid * pha, col_logo, u_morph);
+  // Rim highlights
+  col += col_inner * (1.0 - smoothstep(0.0, 0.01, abs(d)));
   
-  // Apply distance-based shading
-  vec3 col = base_col;
-  
-  // Add a rim highlight
-  col += vec3(0.5, 0.4, 1.0) * (1.0 - smoothstep(0.0, 0.02, abs(d)));
-  
-  // Fill the interior when morphed
   if (d < 0.0) {
-      col = mix(base_col, col_logo, u_morph);
-  } else {
-      // Glow outside
-      col *= smoothstep(0.1, 0.0, d);
+      col = mix(col, vec3(1.0), 0.2); // Brighten core
   }
 
-  fragColor = vec4(col, 1.0 - smoothstep(0.0, 0.01 * (1.0-u_morph + 0.1), d));
+  // Fade out as it converges into the logo
+  float mask = 1.0 - smoothstep(0.0, 0.01, d);
+  float fade = 1.0 - pow(u_morph, 1.5); // Snappier fade
+  fragColor = vec4(col, mask * fade);
 }
 `;
 

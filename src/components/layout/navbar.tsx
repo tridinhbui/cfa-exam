@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   BookOpen,
   BarChart3,
@@ -62,9 +63,15 @@ export function Navbar() {
           <Link href="/dashboard" className="flex items-center gap-3">
             <motion.div
               layoutId="brand-logo"
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25"
+              className="flex h-10 w-10 items-center justify-center"
             >
-              <GraduationCap className="h-6 w-6 text-white" />
+              <Image
+                src="/logo-brain-v3.png"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain brightness-125 saturate-150 drop-shadow-[0_0_8px_rgba(34,197,253,0.5)]"
+              />
             </motion.div>
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold text-foreground">

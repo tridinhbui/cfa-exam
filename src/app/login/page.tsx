@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { GraduationCap, Mail, Lock, ArrowRight, Github } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -46,9 +47,15 @@ export default function LoginPage() {
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                            className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/20 mb-6"
+                            className="inline-flex h-16 w-16 items-center justify-center mb-6"
                         >
-                            <GraduationCap className="h-8 w-8 text-white" />
+                            <Image
+                                src="/logo-brain-v3.png"
+                                alt="Logo"
+                                width={48}
+                                height={48}
+                                className="h-12 w-12 object-contain brightness-125 saturate-150 drop-shadow-[0_0_12px_rgba(34,197,253,0.6)]"
+                            />
                         </motion.div>
                         <h2 className="text-3xl font-bold text-white tracking-tight">Welcome Back</h2>
                         <p className="text-slate-400 mt-2">Sign in to continue your CFA journey</p>

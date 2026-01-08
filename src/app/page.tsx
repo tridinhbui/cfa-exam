@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
@@ -188,13 +189,19 @@ export default function LandingPage() {
                       initial={{ opacity: 1 }}
                       animate={{ opacity: 1 }}
                       style={{ opacity: 1 }}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/20 ring-1 ring-white/10"
+                      className="flex h-10 w-10 items-center justify-center"
                       transition={{
                         duration: 0.7,
                         ease: [0.4, 0, 0.2, 1]
                       }}
                     >
-                      <GraduationCap className="h-6 w-6 text-white" />
+                      <Image
+                        src="/logo-brain-v3.png"
+                        alt="Logo"
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 object-contain brightness-125 saturate-150 drop-shadow-[0_0_8px_rgba(34,197,253,0.5)]"
+                      />
                     </motion.div>
                   )}
 
@@ -663,8 +670,14 @@ export default function LandingPage() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 opacity-80 decoration-clone">
-                    <GraduationCap className="h-5 w-5 text-white" />
+                  <div className="flex h-8 w-8 items-center justify-center">
+                    <Image
+                      src="/logo-brain-v3.png"
+                      alt="Logo"
+                      width={24}
+                      height={24}
+                      className="h-6 w-6 object-contain brightness-125 saturate-125"
+                    />
                   </div>
                   <span className="font-bold text-slate-300">CFA Prep AI</span>
                 </div>
