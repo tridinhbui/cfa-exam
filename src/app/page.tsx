@@ -147,11 +147,11 @@ export default function LandingPage() {
     }
 
     // Otherwise, show it and mark as seen
-    const exitTimer = setTimeout(() => setLoadingState('exiting'), 3280);
+    const exitTimer = setTimeout(() => setLoadingState('exiting'), 2300);
     const completeTimer = setTimeout(() => {
       setLoadingState('complete');
       setPreloaderSeen(true);
-    }, 3980);
+    }, 2800);
 
     return () => {
       clearTimeout(exitTimer);

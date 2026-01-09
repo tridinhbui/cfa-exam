@@ -18,7 +18,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
         // Start morphing after 1.7 seconds of free movement
         const morphTimer = setTimeout(() => {
             let start = Date.now();
-            const duration = 1500;
+            const duration = 1100;
 
             const update = () => {
                 const elapsed = Date.now() - start;
@@ -39,7 +39,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                 }
             };
             requestAnimationFrame(update);
-        }, 1700);
+        }, 1200);
 
         return () => clearTimeout(morphTimer);
     }, []);
