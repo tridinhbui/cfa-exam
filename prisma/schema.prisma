@@ -306,7 +306,7 @@ model Book {
 model Reading {
   id        String   @id @default(cuid())
   bookId    String
-  book      Book     @relation(fields: [bookId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   code      String   // "READING 1" (hoặc "Reading 1")
   title     String   // "Rates and Returns" (nếu có)
@@ -318,6 +318,23 @@ model Reading {
 
   createdAt DateTime @default(now())
 
+  modules   Module[]
+
   @@unique([bookId, order])
   @@index([bookId])
 }
+
+model Module {
+  id        String   @id @default(cuid())
+  readingId String
+  reading   Reading  @relation(fields: [readingId], references: [id], onDelete: Cascade)
+
+  // "Module 1.1"
+  code      String   // ex: "1.1"
+  title     String   // ex: "Interest Rates and Return Measurement"
+  order     Int
+
+  @@unique([readingId, code])      // tránh trùng module trong cùng reading
+  @@index([readingId, order])
+}
+

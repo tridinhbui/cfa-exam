@@ -6,10 +6,18 @@ export async function GET() {
         const books = await prisma.book.findMany({
             include: {
                 readings: {
+                    include: {
+                        modules: {
+                            orderBy: {
+                                order: 'asc',
+                            },
+                        },
+                    },
                     orderBy: {
                         order: 'asc',
                     },
                 },
+
             },
         });
         return NextResponse.json(books);

@@ -13,11 +13,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
+interface Module {
+  id: string;
+  code: string;
+  title: string;
+  order: number;
+}
+
 interface Reading {
   id: string;
   code: string;
   title: string;
   order: number;
+  modules: Module[];
 }
 
 interface Book {
@@ -28,10 +36,13 @@ interface Book {
   readings: Reading[];
 }
 
+
 export default function ItemSetsPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedReading, setSelectedReading] = useState<Reading | null>(null);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     async function fetchBooks() {
@@ -64,26 +75,40 @@ export default function ItemSetsPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setSelectedBook(null)}
+            onClick={() => {
+              if (selectedReading) {
+                setSelectedReading(null);
+              } else {
+                setSelectedBook(null);
+              }
+            }}
             className="rounded-full"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
+
         <div>
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl font-bold text-foreground"
           >
-            {selectedBook ? selectedBook.title : 'Study Materials'}
+            {selectedReading
+              ? selectedReading.title
+              : selectedBook
+                ? selectedBook.title
+                : 'Study Materials'}
           </motion.h1>
           <p className="text-muted-foreground mt-1 text-lg">
-            {selectedBook
-              ? `Exploring ${selectedBook.readings.length} readings from this curriculum`
-              : 'Choose a textbook or item set to start your study session'
+            {selectedReading
+              ? `Reviewing ${selectedReading.modules.length} modules for this reading`
+              : selectedBook
+                ? `Exploring ${selectedBook.readings.length} readings from this curriculum`
+                : 'Choose a textbook or item set to start your study session'
             }
           </p>
+
         </div>
       </div>
 
@@ -136,7 +161,7 @@ export default function ItemSetsPage() {
               </Card>
             ))}
           </motion.div>
-        ) : (
+        ) : !selectedReading ? (
           <motion.div
             key="readings-grid"
             initial={{ opacity: 0, x: 20 }}
@@ -150,15 +175,21 @@ export default function ItemSetsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.02 }}
+                onClick={() => setSelectedReading(reading)}
               >
                 <Card className="h-full hover:bg-muted/30 transition-colors border border-border/60 hover:border-primary/40 group cursor-pointer relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                   <CardContent className="p-5 flex flex-col justify-between h-full">
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between">
                         <span className="text-xs font-black text-primary bg-primary/10 px-2.5 py-1 rounded-md border border-primary/20 shadow-sm shadow-primary/5">
                           RD {reading.order}
                         </span>
+                        {reading.modules.length > 0 && (
+                          <span className="text-[10px] text-muted-foreground font-semibold">
+                            {reading.modules.length} MODULES
+                          </span>
+                        )}
                       </div>
                       <h4 className="font-bold text-base leading-snug group-hover:text-primary transition-colors">
                         {reading.title}
@@ -176,7 +207,55 @@ export default function ItemSetsPage() {
               </motion.div>
             ))}
           </motion.div>
+        ) : (
+          <motion.div
+            key="modules-grid"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid sm:grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            {selectedReading.modules.map((module, index) => (
+              <motion.div
+                key={module.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Card className="hover:bg-muted/30 transition-all border border-border/60 hover:border-indigo-500/40 group cursor-pointer relative overflow-hidden bg-gradient-to-r from-transparent to-transparent hover:to-indigo-500/5">
+                  <CardContent className="p-6 flex items-center gap-6">
+                    <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-colors">
+                      <span className="text-sm font-black text-indigo-500 tracking-tighter">
+                        M {module.code}
+                      </span>
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                          Module {module.code}
+                        </span>
+                      </div>
+                      <h4 className="font-extrabold text-lg leading-tight group-hover:text-indigo-400 transition-colors">
+                        {module.title}
+                      </h4>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-sm">
+                        <ChevronRight className="h-5 w-5" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+            {selectedReading.modules.length === 0 && (
+              <div className="col-span-full py-12 text-center">
+                <p className="text-muted-foreground">No modules found for this reading. Check back soon!</p>
+              </div>
+            )}
+          </motion.div>
         )}
+
       </AnimatePresence>
     </div>
   );
