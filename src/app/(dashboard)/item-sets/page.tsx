@@ -46,6 +46,7 @@ function ItemSetsContent() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [selectedReading, setSelectedReading] = useState<Reading | null>(null);
   const [loading, setLoading] = useState(true);
+  const [visibleReadingsCount, setVisibleReadingsCount] = useState(8);
 
   const readingId = searchParams.get('readingId');
   const bookId = searchParams.get('bookId');
@@ -78,6 +79,7 @@ function ItemSetsContent() {
 
   const handleSelectBook = (book: Book) => {
     setSelectedBook(book);
+    setVisibleReadingsCount(8); // Reset count when book changes
     router.push(`/item-sets?bookId=${book.id}`, { scroll: false });
   };
 
@@ -94,6 +96,7 @@ function ItemSetsContent() {
       router.push(`/item-sets?bookId=${selectedBook?.id}`, { scroll: false });
     } else {
       setSelectedBook(null);
+      setVisibleReadingsCount(8); // Reset count when going back to books
       router.push('/item-sets', { scroll: false });
     }
   };
@@ -141,7 +144,6 @@ function ItemSetsContent() {
                 : 'Choose a textbook or item set to start your study session'
             }
           </p>
-
         </div>
       </div>
 
@@ -195,51 +197,67 @@ function ItemSetsContent() {
             ))}
           </motion.div>
         ) : !selectedReading ? (
-          <motion.div
-            key="readings-grid"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-          >
-            {selectedBook.readings.map((reading, index) => (
-              <motion.div
-                key={reading.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.02 }}
-                onClick={() => handleSelectReading(reading)}
-              >
-                <Card className="h-full hover:bg-muted/30 transition-colors border border-border/60 hover:border-primary/40 group cursor-pointer relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardContent className="p-5 flex flex-col justify-between h-full">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-black text-primary bg-primary/10 px-2.5 py-1 rounded-md border border-primary/20 shadow-sm shadow-primary/5">
-                          RD {reading.order}
-                        </span>
-                        {reading.modules.length > 0 && (
-                          <span className="text-[10px] text-muted-foreground font-semibold">
-                            {reading.modules.length} MODULES
+          <div className="space-y-10">
+            <motion.div
+              key="readings-grid"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
+              {selectedBook.readings.slice(0, visibleReadingsCount).map((reading: Reading, index: number) => (
+                <motion.div
+                  key={reading.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.02 }}
+                  onClick={() => handleSelectReading(reading)}
+                >
+                  <Card className="h-full hover:bg-muted/30 transition-colors border border-border/60 hover:border-primary/40 group cursor-pointer relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="p-5 flex flex-col justify-between h-full">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-primary bg-primary/10 px-2.5 py-1 rounded-md border border-primary/20 shadow-sm shadow-primary/5">
+                            Reading {reading.order}
                           </span>
-                        )}
+                          {reading.modules.length > 0 && (
+                            <span className="text-[10px] text-muted-foreground font-semibold">
+                              {reading.modules.length} MODULES
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-bold text-base leading-snug group-hover:text-primary transition-colors">
+                          {reading.title}
+                        </h4>
                       </div>
-                      <h4 className="font-bold text-base leading-snug group-hover:text-primary transition-colors">
-                        {reading.title}
-                      </h4>
-                    </div>
 
-                    <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                        {reading.code}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+                      <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                          {reading.code}
+                        </span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {visibleReadingsCount < selectedBook.readings.length && (
+              <div className="flex justify-center pt-2">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setVisibleReadingsCount(prev => prev + 8)}
+                  className="px-12 py-6 rounded-2xl border-2 border-primary/20 hover:border-primary/50 hover:bg-primary/5 text-primary font-bold transition-all shadow-xl shadow-primary/5"
+                >
+                  Load More Readings
+                  <ChevronRight className="h-5 w-5 ml-2 rotate-90" />
+                </Button>
+              </div>
+            )}
+          </div>
         ) : (
           <motion.div
             key="modules-grid"
@@ -248,7 +266,7 @@ function ItemSetsContent() {
             exit={{ opacity: 0, y: -20 }}
             className="grid sm:grid-cols-1 md:grid-cols-2 gap-4"
           >
-            {selectedReading.modules.map((module, index) => (
+            {selectedReading.modules.map((module: Module, index: number) => (
               <motion.div
                 key={module.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -256,7 +274,6 @@ function ItemSetsContent() {
                 transition={{ delay: index * 0.05 }}
                 onClick={() => window.location.href = `/item-sets/module/${module.id}/quiz`}
               >
-
                 <Card className="hover:bg-muted/30 transition-all border border-border/60 hover:border-indigo-500/40 group cursor-pointer relative overflow-hidden bg-gradient-to-r from-transparent to-transparent hover:to-indigo-500/5">
                   <CardContent className="p-6 flex items-center gap-6">
                     <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-colors">
@@ -290,7 +307,6 @@ function ItemSetsContent() {
             )}
           </motion.div>
         )}
-
       </AnimatePresence>
     </div>
   );
@@ -307,4 +323,3 @@ export default function ItemSetsPage() {
     </Suspense>
   );
 }
-
