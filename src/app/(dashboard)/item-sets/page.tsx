@@ -37,7 +37,9 @@ interface Book {
   readings: Reading[];
 }
 
-export default function ItemSetsPage() {
+import { Suspense } from 'react';
+
+function ItemSetsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
@@ -293,3 +295,16 @@ export default function ItemSetsPage() {
     </div>
   );
 }
+
+export default function ItemSetsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <ItemSetsContent />
+    </Suspense>
+  );
+}
+
