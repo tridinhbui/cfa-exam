@@ -39,7 +39,6 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { href: '/quiz', label: 'Quiz', icon: BookOpen },
   { href: '/item-sets', label: 'Item Sets', icon: FileText },
-  { href: '/essays', label: 'Essays', icon: GraduationCap },
   { href: '/study-plan', label: 'Study Plan', icon: Calendar },
 ];
 

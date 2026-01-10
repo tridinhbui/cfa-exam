@@ -9,9 +9,15 @@ async function main() {
     const fileContent = fs.readFileSync(filePath, 'utf8');
 
     // Fix malformed JSON (multiple arrays [][][]) into a single array
-    const normalizedContent = fileContent
+    let normalizedContent = fileContent
         .trim()
         .replace(/\]\s*\[/g, ',');
+
+    // Remove any trailing characters after the last ']' (like the trailing dot in some files)
+    const lastBracketIndex = normalizedContent.lastIndexOf(']');
+    if (lastBracketIndex !== -1) {
+        normalizedContent = normalizedContent.substring(0, lastBracketIndex + 1);
+    }
 
     try {
         const rawQuestions = JSON.parse(normalizedContent);

@@ -30,7 +30,6 @@ model User {
   // Relations
   quizAttempts      QuizAttempt[]
   itemSetAttempts   ItemSetAttempt[]
-  essayAttempts     EssayAttempt[]
   studyPlans        StudyPlan[]
   dailyProgress     DailyProgress[]
   topicPerformances TopicPerformance[]
@@ -62,7 +61,6 @@ model Topic {
   // Relations
   questions         Question[]
   itemSets          ItemSet[]
-  essayQuestions    EssayQuestion[]
   los               LearningObjective[]
   topicPerformances TopicPerformance[]
   studyPlanItems    StudyPlanItem[]
@@ -141,23 +139,6 @@ model ItemSetQuestion {
   answers       ItemSetAnswer[]
 }
 
-// Essay Questions for Level III
-model EssayQuestion {
-  id          String   @id @default(cuid())
-  title       String
-  scenario    String   @db.Text
-  prompt      String   @db.Text
-  rubric      String   @db.Text
-  modelAnswer String   @db.Text
-  maxScore    Int      @default(10)
-  timeLimit   Int      @default(20) // minutes
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id])
-  cfaLevel    CFALevel @default(LEVEL_3)
-  createdAt   DateTime @default(now())
-
-  attempts    EssayAttempt[]
-}
 
 // Quiz Attempts
 model QuizAttempt {
@@ -223,20 +204,6 @@ model ItemSetAnswer {
   answeredAt      DateTime?
 }
 
-// Essay Attempts
-model EssayAttempt {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  essayQuestionId String
-  essayQuestion   EssayQuestion @relation(fields: [essayQuestionId], references: [id])
-  userResponse    String   @db.Text
-  aiScore         Float?
-  aiFeedback      String?  @db.Text
-  missingPoints   String?  @db.Text
-  startedAt       DateTime @default(now())
-  submittedAt     DateTime?
-}
 
 // Analytics and Progress
 model TopicPerformance {

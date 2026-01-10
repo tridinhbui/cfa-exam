@@ -10,13 +10,13 @@ import {
     Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { QuizCard } from '@/components/quiz/quiz-card';
 import { QuizTimer } from '@/components/quiz/quiz-timer';
 import { QuizProgress } from '@/components/quiz/quiz-progress';
 import { QuizResults } from '@/components/quiz/quiz-results';
 import { useQuizStore } from '@/store/quiz-store';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 function ModuleQuizContent() {
     const { moduleId } = useParams();
@@ -125,9 +125,54 @@ function ModuleQuizContent() {
                 </div>
             </div>
 
-            {/* Progress Boxes */}
-            <div className="mb-8">
-                <QuizProgress />
+            {/* Navigation & Progress Hub */}
+            <div className="mb-8 space-y-4 bg-card/30 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl shadow-indigo-500/5">
+                <div className="flex items-center justify-between gap-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={prevQuestion}
+                        disabled={currentIndex === 0}
+                        className="font-bold rounded-xl h-10 px-4 hover:bg-white/10"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Prev
+                    </Button>
+
+                    <div className="flex-1 flex justify-center">
+                        <QuizProgress />
+                    </div>
+
+                    {currentIndex === questions.length - 1 ? (
+                        <Button
+                            size="sm"
+                            onClick={submitQuiz}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl h-10 px-6 shadow-lg shadow-indigo-500/20"
+                        >
+                            Finish
+                        </Button>
+                    ) : (
+                        <Button
+                            size="sm"
+                            onClick={nextQuestion}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl h-10 px-6 shadow-lg shadow-indigo-500/20"
+                        >
+                            Next
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                        </Button>
+                    )}
+                </div>
+
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">
+                        <span>Course Progress</span>
+                        <span className="text-primary">{Object.keys(answers).length} / {questions.length} Answered</span>
+                    </div>
+                    <Progress
+                        value={questions.length > 0 ? (Object.keys(answers).length / questions.length) * 100 : 0}
+                        className="h-2 bg-muted shadow-inner rounded-full"
+                    />
+                </div>
             </div>
 
             {/* Main Question Card */}
@@ -146,45 +191,6 @@ function ModuleQuizContent() {
                     />
                 )}
             </AnimatePresence>
-
-            {/* Bottom Navigation */}
-            <div className="flex items-center justify-between mt-10 p-6 bg-card/30 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl shadow-indigo-500/5">
-                <Button
-                    variant="ghost"
-                    onClick={prevQuestion}
-                    disabled={currentIndex === 0}
-                    className="font-bold rounded-xl h-12 px-6"
-                >
-                    <ArrowLeft className="h-5 w-5 mr-2" />
-                    Previous
-                </Button>
-
-                <div className="flex flex-col items-center">
-                    <span className="text-xs font-black text-muted-foreground uppercase tracking-tighter mb-1">
-                        Progress
-                    </span>
-                    <span className="text-sm font-black text-primary">
-                        {Object.keys(answers).length} of {questions.length} answered
-                    </span>
-                </div>
-
-                {currentIndex === questions.length - 1 ? (
-                    <Button
-                        onClick={submitQuiz}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl h-12 px-8 shadow-lg shadow-indigo-500/20"
-                    >
-                        Finish Quiz
-                    </Button>
-                ) : (
-                    <Button
-                        onClick={nextQuestion}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl h-12 px-8 shadow-lg shadow-indigo-500/20"
-                    >
-                        Next
-                        <ArrowRight className="h-5 w-5 ml-2" />
-                    </Button>
-                )}
-            </div>
         </div>
     );
 }

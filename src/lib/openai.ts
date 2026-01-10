@@ -12,14 +12,6 @@ export interface ExplanationResult {
   keyPoints: string[];
 }
 
-export interface EssayScoreResult {
-  score: number;
-  feedback: string;
-  missingPoints: string[];
-  strengths: string[];
-  improvements: string[];
-}
-
 export async function generateExplanation(
   question: string,
   options: { a: string; b: string; c: string },
@@ -74,11 +66,11 @@ Format your response as JSON:
 
     const content = completion.choices[0]?.message?.content || '';
     const jsonMatch = content.match(/\{[\s\S]*\}/);
-    
+
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    
+
     return {
       explanation: content,
       keyPoints: [],
@@ -88,84 +80,6 @@ Format your response as JSON:
     return {
       explanation: 'Unable to generate explanation at this time.',
       keyPoints: [],
-    };
-  }
-}
-
-export async function scoreEssay(
-  scenario: string,
-  prompt: string,
-  rubric: string,
-  modelAnswer: string,
-  userResponse: string,
-  maxScore: number
-): Promise<EssayScoreResult> {
-  const scoringPrompt = `You are a CFA Level III essay grader. Score the following response.
-
-SCENARIO:
-${scenario}
-
-QUESTION:
-${prompt}
-
-GRADING RUBRIC:
-${rubric}
-
-MODEL ANSWER:
-${modelAnswer}
-
-CANDIDATE'S RESPONSE:
-${userResponse}
-
-Maximum Score: ${maxScore}
-
-Grade the response according to CFA Institute standards. Be fair but thorough.
-
-Format your response as JSON:
-{
-  "score": <number between 0 and ${maxScore}>,
-  "feedback": "overall feedback",
-  "missingPoints": ["missing point 1", "missing point 2"],
-  "strengths": ["strength 1", "strength 2"],
-  "improvements": ["improvement suggestion 1", "improvement suggestion 2"]
-}`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert CFA Level III exam grader. Always respond with valid JSON.',
-        },
-        { role: 'user', content: scoringPrompt },
-      ],
-      temperature: 0.3,
-      max_tokens: 1500,
-    });
-
-    const content = completion.choices[0]?.message?.content || '';
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    
-    return {
-      score: 0,
-      feedback: content,
-      missingPoints: [],
-      strengths: [],
-      improvements: [],
-    };
-  } catch (error) {
-    console.error('OpenAI API error:', error);
-    return {
-      score: 0,
-      feedback: 'Unable to score essay at this time.',
-      missingPoints: [],
-      strengths: [],
-      improvements: [],
     };
   }
 }
@@ -196,11 +110,11 @@ Provide actionable recommendations focusing on weak areas. Format as a JSON arra
 
     const content = completion.choices[0]?.message?.content || '';
     const jsonMatch = content.match(/\[[\s\S]*\]/);
-    
+
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    
+
     return ['Continue practicing regularly', 'Focus on weak topics'];
   } catch (error) {
     console.error('OpenAI API error:', error);

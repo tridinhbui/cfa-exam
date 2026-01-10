@@ -5,13 +5,19 @@ import * as path from 'path';
 const prisma = new PrismaClient();
 
 async function main() {
-    const filePath = path.join(process.cwd(), 'alterinvest.json');
+    const filePath = path.join(process.cwd(), 'altsinvest.json');
     const fileContent = fs.readFileSync(filePath, 'utf8');
 
     // Fix malformed JSON (multiple arrays [][][]) into a single array
-    const normalizedContent = fileContent
+    let normalizedContent = fileContent
         .trim()
         .replace(/\]\s*\[/g, ',');
+
+    // Remove any trailing characters after the last ']'
+    const lastBracketIndex = normalizedContent.lastIndexOf(']');
+    if (lastBracketIndex !== -1) {
+        normalizedContent = normalizedContent.substring(0, lastBracketIndex + 1);
+    }
 
     try {
         const rawQuestions = JSON.parse(normalizedContent);

@@ -5,18 +5,31 @@ import * as path from 'path';
 const prisma = new PrismaClient();
 
 async function main() {
-    const filePath = path.join(process.cwd(), 'economic.json');
+    const filePath = path.join(process.cwd(), 'econ.json');
+    if (!fs.existsSync(filePath)) {
+        console.error('File econ.json not found!');
+        return;
+    }
+
     const fileContent = fs.readFileSync(filePath, 'utf8');
 
     // Fix malformed JSON (multiple arrays [][][]) into a single array
-    const normalizedContent = fileContent
+    let normalizedContent = fileContent
         .trim()
         .replace(/\]\s*\[/g, ',');
+
+    // Remove any trailing characters after the last ']'
+    const lastBracketIndex = normalizedContent.lastIndexOf(']');
+    if (lastBracketIndex !== -1) {
+        normalizedContent = normalizedContent.substring(0, lastBracketIndex + 1);
+    }
 
     try {
         const rawQuestions = JSON.parse(normalizedContent);
 
         console.log(`Found ${rawQuestions.length} Economics questions to import.`);
+
+        const targetTopicId = 'economics';
 
         for (let i = 0; i < rawQuestions.length; i++) {
             const q = rawQuestions[i];
@@ -25,12 +38,9 @@ async function main() {
             const difficulty = (q.difficulty as string).toUpperCase() as Difficulty;
             const cfaLevel = (q.cfaLevel as string).toUpperCase() as CFALevel;
 
-            // Target topic ID is 'economics'
-            const targetTopicId = 'economics';
-
             await prisma.question.upsert({
                 where: {
-                    id: `econ-l1-${i + 1}`
+                    id: `economics-l1-${i + 1}`
                 },
                 update: {
                     content: q.content,
@@ -45,7 +55,7 @@ async function main() {
                     cfaLevel: cfaLevel,
                 },
                 create: {
-                    id: `econ-l1-${i + 1}`,
+                    id: `economics-l1-${i + 1}`,
                     content: q.content,
                     optionA: q.optionA,
                     optionB: q.optionB,

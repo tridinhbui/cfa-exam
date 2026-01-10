@@ -5,18 +5,31 @@ import * as path from 'path';
 const prisma = new PrismaClient();
 
 async function main() {
-    const filePath = path.join(process.cwd(), 'equityinvestment.json');
+    const filePath = path.join(process.cwd(), 'equityinvest.json');
+    if (!fs.existsSync(filePath)) {
+        console.error('File equityinvest.json not found!');
+        return;
+    }
+
     const fileContent = fs.readFileSync(filePath, 'utf8');
 
     // Fix malformed JSON (multiple arrays [][][]) into a single array
-    const normalizedContent = fileContent
+    let normalizedContent = fileContent
         .trim()
         .replace(/\]\s*\[/g, ',');
+
+    // Remove any trailing characters after the last ']'
+    const lastBracketIndex = normalizedContent.lastIndexOf(']');
+    if (lastBracketIndex !== -1) {
+        normalizedContent = normalizedContent.substring(0, lastBracketIndex + 1);
+    }
 
     try {
         const rawQuestions = JSON.parse(normalizedContent);
 
-        console.log(`Found ${rawQuestions.length} Equity Investment questions to import.`);
+        console.log(`Found ${rawQuestions.length} Equity Investments questions to import.`);
+
+        const targetTopicId = 'equity';
 
         for (let i = 0; i < rawQuestions.length; i++) {
             const q = rawQuestions[i];
@@ -24,9 +37,6 @@ async function main() {
             // Map strings to Enums
             const difficulty = (q.difficulty as string).toUpperCase() as Difficulty;
             const cfaLevel = (q.cfaLevel as string).toUpperCase() as CFALevel;
-
-            // Target topic ID is 'equity'
-            const targetTopicId = 'equity';
 
             await prisma.question.upsert({
                 where: {
@@ -60,9 +70,9 @@ async function main() {
             });
         }
 
-        console.log('Equity Investment import successful!');
+        console.log('Equity Investments import successful!');
     } catch (error) {
-        console.error('Failed to parse or import Equity Investment questions:', error);
+        console.error('Failed to parse or import Equity Investments questions:', error);
     }
 }
 

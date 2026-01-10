@@ -59,20 +59,12 @@ const quickActions = [
     href: '/item-sets',
     color: 'from-purple-600 to-pink-600',
   },
-  {
-    title: 'Essay Practice',
-    description: 'Level III constructed response',
-    icon: GraduationCap,
-    href: '/essays',
-    color: 'from-amber-600 to-orange-600',
-  },
 ];
 
 const recentActivity = [
   { type: 'quiz', topic: 'Ethics', score: 80, date: '2 hours ago' },
   { type: 'item-set', topic: 'Fixed Income', score: 67, date: '5 hours ago' },
   { type: 'quiz', topic: 'Derivatives', score: 55, date: 'Yesterday' },
-  { type: 'essay', topic: 'Portfolio Management', score: 72, date: 'Yesterday' },
 ];
 
 const weakTopics = [
@@ -92,7 +84,11 @@ export default function DashboardPage() {
     questionsToday: 0,
     correctToday: 0,
     timeSpentToday: 0,
-    cfaLevel: 'Level I',
+    averageScore: 0,
+    totalQuestions: 0,
+    weeklyAccuracy: 0,
+    weeklyTrend: 0,
+    cfaLevel: 'LEVEL_1',
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -179,9 +175,10 @@ export default function DashboardPage() {
         />
         <StatsCard
           title="Weekly Accuracy"
-          value="72%"
+          value={`${stats.weeklyAccuracy}%`}
           icon={TrendingUp}
-          trend={{ value: 5, isPositive: true }}
+          trend={{ value: Math.abs(stats.weeklyTrend), isPositive: stats.weeklyTrend >= 0 }}
+          subtitle={`${stats.weeklyTrend >= 0 ? '+' : '-'}${Math.abs(stats.weeklyTrend)}% vs last week`}
           color="emerald"
           delay={0.1}
         />
@@ -195,8 +192,8 @@ export default function DashboardPage() {
         />
         <StatsCard
           title="Average Score"
-          value="68%"
-          subtitle="Top 15%"
+          value={`${stats.averageScore}%`}
+          subtitle={`${stats.totalQuestions} questions total`}
           icon={Award}
           color="purple"
           delay={0.3}
@@ -204,7 +201,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions (Bento Row) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
           return (

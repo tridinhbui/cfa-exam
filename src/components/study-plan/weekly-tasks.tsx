@@ -18,7 +18,7 @@ import { cn, formatDate } from '@/lib/utils';
 export interface WeeklyTask {
   id: string;
   topic: string;
-  type: 'quiz' | 'item-set' | 'essay' | 'review';
+  type: 'quiz' | 'item-set' | 'review';
   targetDate: Date;
   isCompleted: boolean;
   estimatedTime: number; // minutes
@@ -43,12 +43,6 @@ const taskTypeConfig = {
     color: 'text-purple-600',
     bg: 'bg-purple-500/10',
     label: 'Item Set',
-  },
-  essay: {
-    icon: GraduationCap,
-    color: 'text-amber-600',
-    bg: 'bg-amber-500/10',
-    label: 'Essay',
   },
   review: {
     icon: Clock,

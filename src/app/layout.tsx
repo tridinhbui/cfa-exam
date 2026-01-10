@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'MentisAI | Master Your CFA Exam',
-  description: 'AI-powered CFA exam preparation with MCQ, Item Sets, and Essay practice. Get personalized feedback and track your progress.',
+  description: 'AI-powered CFA exam preparation with MCQ and Item Sets. Get personalized feedback and track your progress.',
   keywords: ['CFA', 'exam prep', 'finance', 'Level I', 'Level II', 'Level III', 'practice questions'],
 };
 

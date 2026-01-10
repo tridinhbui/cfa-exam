@@ -57,7 +57,22 @@ export function QuizCard({
               </Badge>
             </div>
 
-            <Badge variant="secondary" className="font-black text-[10px] bg-slate-800 text-slate-300 border-slate-700 uppercase tracking-widest">{question.topic.name}</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="font-black text-[10px] bg-slate-800 text-slate-300 border-slate-700 uppercase tracking-widest">
+                {question.topic.name}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "font-black text-[10px] uppercase tracking-widest border-2",
+                  question.difficulty === 'EASY' && "text-emerald-500 border-emerald-500/20 bg-emerald-500/5",
+                  question.difficulty === 'MEDIUM' && "text-amber-500 border-amber-500/20 bg-amber-500/5",
+                  question.difficulty === 'HARD' && "text-rose-500 border-rose-500/20 bg-rose-500/5"
+                )}
+              >
+                {question.difficulty}
+              </Badge>
+            </div>
           </div>
           <div className="markdown-content text-2xl font-extrabold text-foreground leading-[1.4] tracking-tight">
             <ReactMarkdown
@@ -133,7 +148,17 @@ export function QuizCard({
                       option.label
                     )}
                   </div>
-                  <p className="text-foreground pt-2 font-medium">{option.value}</p>
+                  <div className="text-foreground pt-1.5 font-medium markdown-content-sm">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={{
+                        p: ({ children }) => <span className="inline-block">{children}</span>,
+                      }}
+                    >
+                      {option.value}
+                    </ReactMarkdown>
+                  </div>
                 </motion.button>
               );
             })}

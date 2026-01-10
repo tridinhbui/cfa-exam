@@ -34,7 +34,7 @@ import { ThreeDCard } from '@/components/three-d-card';
 import { Starfield } from '@/components/starfield';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { FeatureCard } from '@/components/features/feature-card';
-import { MockExam, MockAnalytics, MockPlanner, MockEssay, MockItemSet } from '@/components/features/mockups';
+import { MockExam, MockAnalytics, MockPlanner, MockItemSet } from '@/components/features/mockups';
 import { PricingSection } from '@/components/pricing-section';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Typewriter } from '@/components/ui/typewriter';
@@ -60,9 +60,9 @@ const features = [
     className: 'md:col-span-1 md:row-span-2',
   },
   {
-    icon: GraduationCap,
-    title: 'Essay Grading',
-    description: 'AI-powered scoring for Level III constructed responses.',
+    icon: Layout,
+    title: 'Exam Simulation',
+    description: 'Timed full-length mock exams designed to match the actual CBT computer-based testing interface.',
     color: 'text-amber-400',
     bg: 'bg-amber-500/10',
     className: 'md:col-span-1',
@@ -96,14 +96,12 @@ const features = [
 const stats = [
   { value: '10,000+', label: 'Practice Questions' },
   { value: '500+', label: 'Item Sets' },
-  { value: '200+', label: 'Essay Prompts' },
+  { value: '50,000+', label: 'Happy Students' },
   { value: '92%', label: 'Pass Rate' },
 ];
 
 const levels = [
   { level: 'Level I', topics: 'Ethics, Quant, Economics, FRA, Corporate, Equity, Fixed Income, Derivatives, Alts, PM', color: 'level1' as const },
-  { level: 'Level II', topics: 'Advanced Valuation, Financial Reporting, Risk Management, Item Set Focus', color: 'level2' as const },
-  { level: 'Level III', topics: 'Portfolio Management, Wealth Planning, Essay Writing, Ethics Integration', color: 'level3' as const },
 ];
 const whyChooseUs = [
   {
@@ -517,17 +515,35 @@ export default function LandingPage() {
                   <MockPlanner />
                 </FeatureCard>
 
-                {/* 5. AI Essay Grading */}
+                {/* 5. Exam Simulation */}
                 <FeatureCard
-                  title="Essay Grading"
-                  description="AI-powered scoring for Level III constructed responses."
-                  icon={GraduationCap}
+                  title="Exam Simulation"
+                  description="Timed mock exams that mirror the official interface."
+                  icon={Layout}
                   iconColor="text-amber-400"
                   className="md:col-span-1"
                   delay={0.4}
                   glowingVariant="amber"
                 >
-                  <MockEssay />
+                  <div className="absolute inset-0 flex items-center justify-center p-6 pb-0 overflow-hidden">
+                    <div className="w-full bg-slate-900 border border-white/10 rounded-t-xl p-4 shadow-2xl transform translate-y-4">
+                      <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3 h-3 text-amber-500" />
+                          <span className="text-[10px] text-slate-400 font-bold uppercase">02:14:55</span>
+                        </div>
+                        <Badge variant="outline" className="text-[8px] bg-emerald-500/5 text-emerald-400 border-emerald-500/20">Active Session</Badge>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="h-2 w-3/4 bg-slate-800 rounded-full" />
+                        <div className="h-2 w-1/2 bg-slate-800 rounded-full" />
+                        <div className="grid grid-cols-2 gap-2 pt-2">
+                          <div className="h-8 rounded-lg bg-slate-800/50 border border-white/5" />
+                          <div className="h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </FeatureCard>
 
                 {/* 6. Simple Text Card (or repurpose) */}
@@ -617,11 +633,11 @@ export default function LandingPage() {
               <div className="text-center mb-16">
                 <span className="text-indigo-400 font-semibold tracking-wider uppercase text-sm">Curriculum</span>
                 <h2 className="text-4xl font-bold text-white mt-3 mb-6">
-                  Prepare for Any CFA Level
+                  Prepare for CFA Level 1
                 </h2>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-8">
+              <div className="flex justify-center max-w-lg mx-auto">
                 {levels.map((level, index) => {
                   const badgeColors = {
                     level1: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",

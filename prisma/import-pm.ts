@@ -5,9 +5,9 @@ import * as path from 'path';
 const prisma = new PrismaClient();
 
 async function main() {
-    const filePath = path.join(process.cwd(), 'ethics.json');
+    const filePath = path.join(process.cwd(), 'portmana.json');
     if (!fs.existsSync(filePath)) {
-        console.error('File ethics.json not found!');
+        console.error('File portmana.json not found!');
         return;
     }
 
@@ -27,9 +27,9 @@ async function main() {
     try {
         const rawQuestions = JSON.parse(normalizedContent);
 
-        console.log(`Found ${rawQuestions.length} Ethics questions to import.`);
+        console.log(`Found ${rawQuestions.length} Portfolio Management questions to import.`);
 
-        const targetTopicId = 'ethics';
+        const targetTopicId = 'pm';
 
         for (let i = 0; i < rawQuestions.length; i++) {
             const q = rawQuestions[i];
@@ -40,7 +40,7 @@ async function main() {
 
             await prisma.question.upsert({
                 where: {
-                    id: `ethics-l1-${i + 1}`
+                    id: `pm-l1-${i + 1}`
                 },
                 update: {
                     content: q.content,
@@ -51,11 +51,11 @@ async function main() {
                     explanation: q.explanation,
                     formula: q.formula,
                     difficulty: difficulty,
-                    topicId: targetTopicId, // Force use of 'ethics' slug
+                    topicId: targetTopicId,
                     cfaLevel: cfaLevel,
                 },
                 create: {
-                    id: `ethics-l1-${i + 1}`,
+                    id: `pm-l1-${i + 1}`,
                     content: q.content,
                     optionA: q.optionA,
                     optionB: q.optionB,
@@ -64,15 +64,15 @@ async function main() {
                     explanation: q.explanation,
                     formula: q.formula,
                     difficulty: difficulty,
-                    topicId: targetTopicId, // Force use of 'ethics' slug
+                    topicId: targetTopicId,
                     cfaLevel: cfaLevel,
                 },
             });
         }
 
-        console.log('Ethics import successful!');
+        console.log('Portfolio Management import successful!');
     } catch (error) {
-        console.error('Failed to parse or import Ethics questions:', error);
+        console.error('Failed to parse or import Portfolio Management questions:', error);
     }
 }
 

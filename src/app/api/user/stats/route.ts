@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { startOfDay } from 'date-fns';
+import { startOfDay, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
 
 export async function GET(req: Request) {
     try {
@@ -27,7 +27,8 @@ export async function GET(req: Request) {
         }
 
         // Get today's progress
-        const today = startOfDay(new Date());
+        const now = new Date();
+        const today = startOfDay(now);
         const dailyProgress = await prisma.dailyProgress.findUnique({
             where: {
                 userId_date: {
@@ -36,6 +37,53 @@ export async function GET(req: Request) {
                 }
             }
         });
+
+        // Get total progress for Average Score
+        const totalProgress = await prisma.dailyProgress.aggregate({
+            where: { userId },
+            _sum: {
+                questionsAnswered: true,
+                correctAnswers: true,
+            }
+        });
+
+        const totalQuestions = totalProgress._sum.questionsAnswered || 0;
+        const totalCorrect = totalProgress._sum.correctAnswers || 0;
+        const averageScore = totalQuestions > 0
+            ? Math.round((totalCorrect / totalQuestions) * 100)
+            : 0;
+
+        // Weekly Accuracy Logic
+        const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+        const lastWeekStart = subWeeks(weekStart, 1);
+        const lastWeekEnd = subWeeks(weekEnd, 1);
+
+        const currentWeekStats = await prisma.dailyProgress.aggregate({
+            where: {
+                userId,
+                date: { gte: weekStart, lte: weekEnd }
+            },
+            _sum: { questionsAnswered: true, correctAnswers: true }
+        });
+
+        const lastWeekStats = await prisma.dailyProgress.aggregate({
+            where: {
+                userId,
+                date: { gte: lastWeekStart, lte: lastWeekEnd }
+            },
+            _sum: { questionsAnswered: true, correctAnswers: true }
+        });
+
+        const curWeekTotal = currentWeekStats._sum.questionsAnswered || 0;
+        const curWeekCorrect = currentWeekStats._sum.correctAnswers || 0;
+        const weeklyAccuracy = curWeekTotal > 0 ? Math.round((curWeekCorrect / curWeekTotal) * 100) : 0;
+
+        const lastWeekTotal = lastWeekStats._sum.questionsAnswered || 0;
+        const lastWeekCorrect = lastWeekStats._sum.correctAnswers || 0;
+        const lastWeekAccuracy = lastWeekTotal > 0 ? Math.round((lastWeekCorrect / lastWeekTotal) * 100) : 0;
+
+        const weeklyTrend = weeklyAccuracy - lastWeekAccuracy;
 
         // Get some stats or history if needed
         const stats = {
@@ -46,6 +94,10 @@ export async function GET(req: Request) {
             questionsToday: dailyProgress?.questionsAnswered || 0,
             correctToday: dailyProgress?.correctAnswers || 0,
             timeSpentToday: dailyProgress?.timeSpent || 0,
+            averageScore,
+            totalQuestions,
+            weeklyAccuracy,
+            weeklyTrend
         };
 
         return NextResponse.json(stats);

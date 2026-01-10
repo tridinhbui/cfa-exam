@@ -159,31 +159,6 @@ export function MockPlanner() {
     );
 }
 
-export function MockEssay() {
-    return (
-        <div className="absolute top-8 left-8 right-8 bg-slate-50 p-6 rounded-t-xl text-slate-900 shadow-xl origin-bottom transform group-hover:-translate-y-2 transition-transform duration-500">
-            <div className="flex items-center justify-between mb-4 border-b border-indigo-100 pb-2">
-                <span className="font-serif font-bold text-indigo-900">Response</span>
-                <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
-                    <Brain className="w-3 h-3" />
-                    AI Grading
-                </div>
-            </div>
-            <p className="font-serif text-sm leading-relaxed text-slate-700 opacity-60">
-                The portfolio manager should effectively utilize... <span className="bg-red-100 text-red-700 px-1 rounded mx-1 line-through decoration-red-400">leverage</span>
-                <span className="bg-green-100 text-green-800 px-1 rounded font-medium border border-green-200">risk-adjusted strategies</span>
-                to mitigate the potential downside...
-            </p>
-
-            <div className="absolute -right-4 top-12 bg-white p-3 rounded-xl shadow-lg border border-slate-100 transform rotate-6">
-                <div className="text-center">
-                    <div className="text-xs text-slate-400 uppercase font-bold">Score</div>
-                    <div className="text-2xl font-black text-indigo-600">8/10</div>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 export function MockItemSet() {
     return (

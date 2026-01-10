@@ -22,7 +22,6 @@ const mainNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { href: '/quiz', label: 'Practice Quiz', icon: BookOpen },
   { href: '/item-sets', label: 'Item Sets', icon: FileText },
-  { href: '/essays', label: 'Essay Practice', icon: GraduationCap },
   { href: '/analytics', label: 'Analytics', icon: TrendingUp },
   { href: '/study-plan', label: 'Study Plan', icon: Calendar },
 ];
@@ -83,7 +82,7 @@ export function Sidebar() {
           <div className="p-3 rounded-lg bg-card border border-border">
             <div className="flex items-center gap-2 text-emerald-500 mb-1">
               <Target className="h-4 w-4" />
-              <span className="text-xs">Accuracy</span>
+              <span className="text-xs">Daily Accuracy</span>
             </div>
             <p className="text-lg font-bold text-foreground">
               {stats.questionsToday > 0
