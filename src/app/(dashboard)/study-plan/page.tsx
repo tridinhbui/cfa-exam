@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -19,8 +20,7 @@ import { StudyCalendar } from '@/components/study-plan/study-calendar';
 import { WeeklyTasks, WeeklyTask } from '@/components/study-plan/weekly-tasks';
 import { addDays } from 'date-fns';
 
-// Mock data
-const examDate = new Date('2025-02-20');
+// Mock task data (keep existing tasks for now)
 const today = new Date();
 
 const studyTasks = [
@@ -51,8 +51,45 @@ const milestones = [
 
 export default function StudyPlanPage() {
   const [currentWeek] = useState(1);
-  const daysUntilExam = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  const weeksUntilExam = Math.ceil(daysUntilExam / 7);
+  const [examInfo, setExamInfo] = useState<{ date: Date | null; label: string; daysRemaining: number }>({
+    date: null,
+    label: 'Loading...',
+    daysRemaining: 0,
+  });
+
+  useEffect(() => {
+    const fetchExamDate = async () => {
+      try {
+        const res = await fetch('/api/exam-date');
+        if (res.ok) {
+          const data = await res.json();
+          const examDate = new Date(data.date); // API returns ISO string
+          const now = new Date();
+          const diffTime = examDate.getTime() - now.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          setExamInfo({
+            date: examDate,
+            label: data.label,
+            daysRemaining: diffDays > 0 ? diffDays : 0
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch exam date", error);
+        // Fallback or error state could go here
+        setExamInfo({
+          date: new Date('2026-02-17'),
+          label: 'Feb 17, 2026 (Est)',
+          daysRemaining: 0
+        });
+      }
+    };
+
+    fetchExamDate();
+  }, []);
+
+  // Use state values or defaults
+  const weeksUntilExam = Math.ceil((examInfo.daysRemaining) / 7);
 
   const handleTaskComplete = (taskId: string) => {
     console.log('Task completed:', taskId);
@@ -105,13 +142,16 @@ export default function StudyPlanPage() {
                 </div>
                 <div>
                   <p className="text-sm text-amber-600 font-medium">Exam Date</p>
-                  <p className="text-3xl font-bold text-foreground">{daysUntilExam} days</p>
-                  <p className="text-sm text-muted-foreground">Feb 20, 2025</p>
+                  <p className="text-3xl font-bold text-foreground">
+                    {examInfo.date ? `${examInfo.daysRemaining} days` : '...'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{examInfo.label}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
+
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -222,7 +262,7 @@ export default function StudyPlanPage() {
       >
         <StudyCalendar
           tasks={studyTasks}
-          examDate={examDate}
+          examDate={examInfo.date || new Date()}
           onTaskClick={(task) => console.log('Task clicked:', task)}
         />
       </motion.div>
