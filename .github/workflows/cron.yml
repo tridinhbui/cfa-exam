@@ -1,0 +1,19 @@
+
+name: Sync Exam Dates
+
+on:
+  schedule:
+    # Run at 00:00 every Sunday
+    - cron: '0 0 * * 0'
+  # Allow manual trigger from GitHub Actions tab for testing
+  workflow_dispatch:
+
+jobs:
+  sync-dates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Sync API
+        run: |
+          curl -X GET "${{ secrets.APP_URL }}/api/cron/sync-exam-dates" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+          --fail

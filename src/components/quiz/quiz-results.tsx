@@ -20,13 +20,25 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/auth-context';
 
 export function QuizResults() {
-  const { questions, answers, resetQuiz, timeSpent } = useQuizStore();
+  const { questions, answers, resetQuiz, timeSpent, mode } = useQuizStore();
   const { user } = useAuth();
   const syncRef = useRef(false);
 
   const correctCount = questions.filter(
     (q) => answers[q.id] === q.correctAnswer
   ).length;
+
+  const topicPerformance = questions.reduce((acc, q) => {
+    const topicId = q.topic.id;
+    if (!acc[topicId]) {
+      acc[topicId] = { correct: 0, total: 0 };
+    }
+    acc[topicId].total++;
+    if (answers[q.id] === q.correctAnswer) {
+      acc[topicId].correct++;
+    }
+    return acc;
+  }, {} as Record<string, { correct: number; total: number }>);
 
   useEffect(() => {
     const syncResults = async () => {
@@ -45,6 +57,9 @@ export function QuizResults() {
             totalQuestions: questions.length,
             timeSpent: timeSpent,
             topics: Array.from(new Set(questions.map(q => q.topic.id))),
+            topicPerformance,
+            date: new Date().toLocaleDateString('en-CA'), // Sends YYYY-MM-DD in local time
+            mode,
           }),
         });
       } catch (error) {
@@ -53,7 +68,7 @@ export function QuizResults() {
     };
 
     syncResults();
-  }, [user, correctCount, questions, timeSpent]);
+  }, [user, correctCount, questions, timeSpent, topicPerformance]);
   const totalQuestions = questions.length;
   const score = Math.round((correctCount / totalQuestions) * 100);
 
@@ -215,7 +230,10 @@ export function QuizResults() {
         transition={{ delay: 1 }}
         className="flex flex-col sm:flex-row gap-3"
       >
-        <Button onClick={resetQuiz} className="flex-1">
+        <Button onClick={() => {
+          resetQuiz();
+          window.location.reload();
+        }} className="flex-1">
           <RefreshCw className="h-4 w-4 mr-2" />
           Try Again
         </Button>

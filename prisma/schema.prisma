@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,28 +8,281 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// User Management
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String?
-  name          String?
-  image         String?
-  cfaLevel      CFALevel  @default(LEVEL_1)
-  subscription  SubscriptionType @default(FREE)
+  id                 String             @id @default(cuid())
+  email              String             @unique
+  password           String?
+  name               String?
+  image              String?
+  cfaLevel           CFALevel           @default(LEVEL_1)
+  subscription       SubscriptionType   @default(FREE)
   subscriptionEndsAt DateTime?
-  currentStreak      Int       @default(0)
-  longestStreak      Int       @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  currentStreak      Int                @default(0)
   lastActiveAt       DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  longestStreak      Int                @default(0)
+  dailyProgress      DailyProgress[]
+  itemSetAttempts    ItemSetAttempt[]
+  quizAttempts       QuizAttempt[]
+  studyPlans         StudyPlan[]
+  topicPerformances  TopicPerformance[]
+}
 
-  // Relations
-  quizAttempts      QuizAttempt[]
-  itemSetAttempts   ItemSetAttempt[]
-  studyPlans        StudyPlan[]
-  dailyProgress     DailyProgress[]
+model Topic {
+  id                String              @id @default(cuid())
+  name              String
+  slug              String              @unique
+  description       String?
+  cfaLevel          CFALevel
+  order             Int
+  parentId          String?
+  itemSets          ItemSet[]
+  los               LearningObjective[]
+  questions         Question[]
+  studyPlanItems    StudyPlanItem[]
+  parent            Topic?              @relation("TopicChildren", fields: [parentId], references: [id])
+  children          Topic[]             @relation("TopicChildren")
   topicPerformances TopicPerformance[]
+}
+
+model LearningObjective {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  description String
+  topicId     String
+  itemSets    ItemSet[]
+  topic       Topic      @relation(fields: [topicId], references: [id])
+  questions   Question[]
+}
+
+model Question {
+  id            String             @id @default(cuid())
+  content       String
+  optionA       String
+  optionB       String
+  optionC       String
+  correctAnswer String
+  explanation   String
+  formula       String?
+  difficulty    Difficulty         @default(MEDIUM)
+  topicId       String
+  losId         String?
+  cfaLevel      CFALevel
+  createdAt     DateTime           @default(now())
+  los           LearningObjective? @relation(fields: [losId], references: [id])
+  topic         Topic              @relation(fields: [topicId], references: [id])
+  quizQuestions QuizQuestion[]
+
+  @@index([topicId, difficulty])
+}
+
+model ItemSet {
+  id        String             @id @default(cuid())
+  title     String
+  vignette  String
+  topicId   String
+  losId     String?
+  cfaLevel  CFALevel           @default(LEVEL_2)
+  timeLimit Int                @default(18)
+  createdAt DateTime           @default(now())
+  los       LearningObjective? @relation(fields: [losId], references: [id])
+  topic     Topic              @relation(fields: [topicId], references: [id])
+  attempts  ItemSetAttempt[]
+  questions ItemSetQuestion[]
+}
+
+model ItemSetQuestion {
+  id            String          @id @default(cuid())
+  itemSetId     String
+  order         Int
+  content       String
+  optionA       String
+  optionB       String
+  optionC       String
+  correctAnswer String
+  explanation   String
+  formula       String?
+  answers       ItemSetAnswer[]
+  itemSet       ItemSet         @relation(fields: [itemSetId], references: [id], onDelete: Cascade)
+}
+
+model QuizAttempt {
+  id             String         @id @default(cuid())
+  userId         String
+  cfaLevel       CFALevel
+  mode           QuizMode       @default(PRACTICE)
+  timeLimit      Int?
+  startedAt      DateTime       @default(now())
+  completedAt    DateTime?
+  score          Float?
+  totalQuestions Int
+  correctAnswers Int            @default(0)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions      QuizQuestion[]
+}
+
+model QuizQuestion {
+  id            String      @id @default(cuid())
+  quizAttemptId String
+  questionId    String
+  order         Int
+  userAnswer    String?
+  isCorrect     Boolean?
+  timeTaken     Int?
+  answeredAt    DateTime?
+  question      Question    @relation(fields: [questionId], references: [id])
+  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+}
+
+model ItemSetAttempt {
+  id             String          @id @default(cuid())
+  userId         String
+  itemSetId      String
+  startedAt      DateTime        @default(now())
+  completedAt    DateTime?
+  score          Float?
+  totalQuestions Int
+  correctAnswers Int             @default(0)
+  answers        ItemSetAnswer[]
+  itemSet        ItemSet         @relation(fields: [itemSetId], references: [id])
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ItemSetAnswer {
+  id         String          @id @default(cuid())
+  attemptId  String
+  questionId String
+  userAnswer String?
+  isCorrect  Boolean?
+  timeTaken  Int?
+  answeredAt DateTime?
+  attempt    ItemSetAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question   ItemSetQuestion @relation(fields: [questionId], references: [id])
+}
+
+model TopicPerformance {
+  id            String    @id @default(cuid())
+  userId        String
+  topicId       String
+  totalAttempts Int       @default(0)
+  correctCount  Int       @default(0)
+  accuracy      Float     @default(0)
+  lastPracticed DateTime?
+  topic         Topic     @relation(fields: [topicId], references: [id])
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+}
+
+model DailyProgress {
+  id                String   @id @default(cuid())
+  userId            String
+  date              DateTime @db.Date
+  questionsAnswered Int      @default(0)
+  correctAnswers    Int      @default(0)
+  timeSpent         Int      @default(0)
+  sessionsCount     Int      @default(0)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model StudyPlan {
+  id        String          @id @default(cuid())
+  userId    String
+  name      String
+  cfaLevel  CFALevel
+  examDate  DateTime
+  startDate DateTime        @default(now())
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     StudyPlanItem[]
+}
+
+model StudyPlanItem {
+  id          String    @id @default(cuid())
+  studyPlanId String
+  topicId     String
+  weekNumber  Int
+  targetDate  DateTime
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  studyPlan   StudyPlan @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+  topic       Topic     @relation(fields: [topicId], references: [id])
+}
+
+model Book {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  level       CFALevel?
+  createdAt   DateTime  @default(now())
+  readings    Reading[]
+}
+
+model Reading {
+  id        String   @id @default(cuid())
+  bookId    String
+  code      String
+  title     String
+  order     Int
+  pageStart Int?
+  pageEnd   Int?
+  createdAt DateTime @default(now())
+  modules   Module[]
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, order])
+  @@index([bookId])
+}
+
+model Module {
+  id         String            @id @default(cuid())
+  readingId  String
+  code       String
+  title      String
+  order      Int
+  reading    Reading           @relation(fields: [readingId], references: [id], onDelete: Cascade)
+  quizHeader ModuleQuizHeader?
+
+  @@unique([readingId, code])
+  @@index([readingId, order])
+}
+
+model ModuleQuizHeader {
+  id        String               @id @default(cuid())
+  moduleId  String               @unique
+  title     String
+  module    Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions ModuleQuizQuestion[]
+}
+
+model ModuleQuizQuestion {
+  id          String           @id @default(cuid())
+  headerId    String
+  questionNo  Int
+  prompt      String
+  optionA     String
+  optionB     String
+  optionC     String
+  correct     AnswerChoice     @default(B)
+  explanation String?
+  header      ModuleQuizHeader @relation(fields: [headerId], references: [id], onDelete: Cascade)
+
+  @@unique([headerId, questionNo])
+  @@index([headerId])
+}
+
+model ExamWindow {
+  id          String   @id
+  sessionName String   @unique
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  isActive    Boolean  @default(true)
+  updatedAt   DateTime @default(now())
 }
 
 enum CFALevel {
@@ -46,115 +296,10 @@ enum SubscriptionType {
   PRO
 }
 
-// Topics and Learning Objectives
-model Topic {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?
-  cfaLevel    CFALevel
-  order       Int
-  parentId    String?
-  parent      Topic?   @relation("TopicChildren", fields: [parentId], references: [id])
-  children    Topic[]  @relation("TopicChildren")
-  
-  // Relations
-  questions         Question[]
-  itemSets          ItemSet[]
-  los               LearningObjective[]
-  topicPerformances TopicPerformance[]
-  studyPlanItems    StudyPlanItem[]
-}
-
-model LearningObjective {
-  id          String   @id @default(cuid())
-  code        String   @unique
-  description String
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id])
-  
-  questions   Question[]
-  itemSets    ItemSet[]
-}
-
-// Multiple Choice Questions (MCQ)
-model Question {
-  id          String   @id @default(cuid())
-  content     String
-  optionA     String
-  optionB     String
-  optionC     String
-  correctAnswer String
-  explanation String
-  formula     String?
-  difficulty  Difficulty @default(MEDIUM)
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id])
-  losId       String?
-  los         LearningObjective? @relation(fields: [losId], references: [id])
-  cfaLevel    CFALevel
-  createdAt   DateTime @default(now())
-
-  quizQuestions QuizQuestion[]
-
-  @@index([topicId, difficulty])
-}
-
 enum Difficulty {
   EASY
   MEDIUM
   HARD
-}
-
-// Item Sets (Vignettes) for Level II
-model ItemSet {
-  id          String   @id @default(cuid())
-  title       String
-  vignette    String   @db.Text
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id])
-  losId       String?
-  los         LearningObjective? @relation(fields: [losId], references: [id])
-  cfaLevel    CFALevel @default(LEVEL_2)
-  timeLimit   Int      @default(18) // minutes
-  createdAt   DateTime @default(now())
-
-  questions   ItemSetQuestion[]
-  attempts    ItemSetAttempt[]
-}
-
-model ItemSetQuestion {
-  id            String   @id @default(cuid())
-  itemSetId     String
-  itemSet       ItemSet  @relation(fields: [itemSetId], references: [id], onDelete: Cascade)
-  order         Int
-  content       String
-  optionA       String
-  optionB       String
-  optionC       String
-  correctAnswer String
-  explanation   String
-  formula       String?
-
-  answers       ItemSetAnswer[]
-}
-
-
-// Quiz Attempts
-model QuizAttempt {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cfaLevel    CFALevel
-  mode        QuizMode @default(PRACTICE)
-  timeLimit   Int?     // in seconds
-  startedAt   DateTime @default(now())
-  completedAt DateTime?
-  score       Float?
-  totalQuestions Int
-  correctAnswers Int    @default(0)
-
-  questions   QuizQuestion[]
 }
 
 enum QuizMode {
@@ -163,184 +308,8 @@ enum QuizMode {
   EXAM
 }
 
-model QuizQuestion {
-  id            String   @id @default(cuid())
-  quizAttemptId String
-  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
-  questionId    String
-  question      Question @relation(fields: [questionId], references: [id])
-  order         Int
-  userAnswer    String?
-  isCorrect     Boolean?
-  timeTaken     Int?     // in seconds
-  answeredAt    DateTime?
-}
-
-// Item Set Attempts
-model ItemSetAttempt {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  itemSetId   String
-  itemSet     ItemSet  @relation(fields: [itemSetId], references: [id])
-  startedAt   DateTime @default(now())
-  completedAt DateTime?
-  score       Float?
-  totalQuestions Int
-  correctAnswers Int    @default(0)
-
-  answers     ItemSetAnswer[]
-}
-
-model ItemSetAnswer {
-  id              String   @id @default(cuid())
-  attemptId       String
-  attempt         ItemSetAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  questionId      String
-  question        ItemSetQuestion @relation(fields: [questionId], references: [id])
-  userAnswer      String?
-  isCorrect       Boolean?
-  timeTaken       Int?
-  answeredAt      DateTime?
-}
-
-
-// Analytics and Progress
-model TopicPerformance {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topicId       String
-  topic         Topic    @relation(fields: [topicId], references: [id])
-  totalAttempts Int      @default(0)
-  correctCount  Int      @default(0)
-  accuracy      Float    @default(0)
-  lastPracticed DateTime?
-  
-  @@unique([userId, topicId])
-}
-
-model DailyProgress {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date            DateTime @db.Date
-  questionsAnswered Int    @default(0)
-  correctAnswers  Int      @default(0)
-  timeSpent       Int      @default(0) // in seconds
-  sessionsCount   Int      @default(0)
-  
-  @@unique([userId, date])
-}
-
-// Study Plan
-model StudyPlan {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  cfaLevel    CFALevel
-  examDate    DateTime
-  startDate   DateTime @default(now())
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-
-  items       StudyPlanItem[]
-}
-
-model StudyPlanItem {
-  id          String   @id @default(cuid())
-  studyPlanId String
-  studyPlan   StudyPlan @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id])
-  weekNumber  Int
-  targetDate  DateTime
-  isCompleted Boolean  @default(false)
-  completedAt DateTime?
-}
-
-model Book {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  coverImage  String?
-  level       CFALevel?      // optional
-  readings    Reading[]
-  createdAt   DateTime  @default(now())
-}
-
-model Reading {
-  id        String   @id @default(cuid())
-  bookId    String
-  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-
-  code      String   // "READING 1" (hoặc "Reading 1")
-  title     String   // "Rates and Returns" (nếu có)
-  order     Int
-
-  // optional: để trace lại nguồn trong PDF
-  pageStart Int?
-  pageEnd   Int?
-
-  createdAt DateTime @default(now())
-
-  modules   Module[]
-
-  @@unique([bookId, order])
-  @@index([bookId])
-}
-
-model Module {
-  id        String   @id @default(cuid())
-  readingId String
-  reading   Reading  @relation(fields: [readingId], references: [id], onDelete: Cascade)
-
-  // "Module 1.1"
-  code      String   // ex: "1.1"
-  title     String   // ex: "Interest Rates and Return Measurement"
-  order     Int
-
-  quizHeader ModuleQuizHeader?
-
-  @@unique([readingId, code])      // tránh trùng module trong cùng reading
-  @@index([readingId, order])
-}
-
-model ModuleQuizHeader {
-  id        String   @id @default(cuid())
-
-  moduleId  String   @unique
-  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-
-  title     String   // e.g. "MODULE QUIZ 1.1"
-  questions ModuleQuizQuestion[]
-}
-
-model ModuleQuizQuestion {
-  id        String   @id @default(cuid())
-  headerId  String
-  header    ModuleQuizHeader @relation(fields: [headerId], references: [id], onDelete: Cascade)
-
-  questionNo Int
-  prompt    String  @db.Text
-  optionA   String  @db.Text
-  optionB   String  @db.Text
-  optionC   String  @db.Text
-  correct   AnswerChoice @default(B)
-  explanation String? @db.Text
-
-  @@unique([headerId, questionNo])
-  @@index([headerId])
-}
-
 enum AnswerChoice {
   A
   B
   C
 }
-
-
-
-
-

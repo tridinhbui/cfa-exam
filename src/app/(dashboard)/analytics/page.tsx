@@ -1,5 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/auth-context';
+
 import { motion } from 'framer-motion';
 import {
   BarChart3,
@@ -31,18 +34,12 @@ const weeklyData = [
   { date: 'Week 8', accuracy: 78, questionsAnswered: 230 },
 ];
 
-const topicData = [
-  { name: 'Ethics', accuracy: 82, attempts: 150 },
-  { name: 'Quantitative Methods', accuracy: 68, attempts: 120 },
-  { name: 'Economics', accuracy: 71, attempts: 90 },
-  { name: 'Financial Reporting', accuracy: 58, attempts: 200 },
-  { name: 'Corporate Issuers', accuracy: 75, attempts: 80 },
-  { name: 'Equity Investments', accuracy: 65, attempts: 100 },
-  { name: 'Fixed Income', accuracy: 52, attempts: 85 },
-  { name: 'Derivatives', accuracy: 48, attempts: 60 },
-  { name: 'Alternative Investments', accuracy: 70, attempts: 45 },
-  { name: 'Portfolio Management', accuracy: 62, attempts: 90 },
-];
+
+interface TopicData {
+  name: string;
+  accuracy: number | null;
+  attempts: number; // Mapping 'questions' from API to 'attempts' for UI consistency
+}
 
 const errorTypes = [
   { type: 'Conceptual Error', count: 45, percentage: 35 },
@@ -76,6 +73,32 @@ const recommendations = [
 ];
 
 export default function AnalyticsPage() {
+  const { user } = useAuth();
+  const [topicData, setTopicData] = useState<TopicData[]>([]);
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      if (!user) return;
+      try {
+        const response = await fetch(`/api/quiz/topics?userId=${user.uid}`);
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          // Transform API data to match component needs
+          const transformedData = data.map((item: any) => ({
+            name: item.name,
+            accuracy: item.accuracy,
+            attempts: item.questions, // 'questions' field from API represents total questions/attempts
+          }));
+          setTopicData(transformedData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch topics for analytics:', error);
+      }
+    };
+
+    fetchTopics();
+  }, [user]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -251,14 +274,16 @@ export default function AnalyticsPage() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span
-                      className={`text-2xl font-bold ${topic.accuracy >= 70
-                        ? 'text-emerald-400'
-                        : topic.accuracy >= 50
-                          ? 'text-amber-400'
-                          : 'text-red-400'
+                      className={`text-2xl font-bold ${topic.accuracy === null
+                          ? 'text-slate-500' // Gray for N/A
+                          : topic.accuracy >= 70
+                            ? 'text-emerald-400'
+                            : topic.accuracy >= 50
+                              ? 'text-amber-400'
+                              : 'text-red-400'
                         }`}
                     >
-                      {topic.accuracy}%
+                      {topic.accuracy !== null ? `${topic.accuracy}%` : 'N/A'}
                     </span>
                     <Badge variant="secondary" className="text-xs">
                       {topic.attempts}
@@ -268,14 +293,16 @@ export default function AnalyticsPage() {
                     {topic.name}
                   </p>
                   <Progress
-                    value={topic.accuracy}
+                    value={topic.accuracy || 0}
                     className="mt-2 h-1.5"
                     indicatorClassName={
-                      topic.accuracy >= 70
-                        ? 'from-emerald-600 to-teal-600'
-                        : topic.accuracy >= 50
-                          ? 'from-amber-600 to-orange-600'
-                          : 'from-red-600 to-rose-600'
+                      topic.accuracy === null
+                        ? 'bg-slate-700'
+                        : topic.accuracy >= 70
+                          ? 'from-emerald-600 to-teal-600'
+                          : topic.accuracy >= 50
+                            ? 'from-amber-600 to-orange-600'
+                            : 'from-red-600 to-rose-600'
                     }
                   />
                 </motion.div>

@@ -22,27 +22,14 @@ import { StatsCard } from '@/components/analytics/stats-card';
 import { PerformanceChart } from '@/components/analytics/performance-chart';
 import { useAuth } from '@/context/auth-context';
 
-// Mock data
-const weeklyData = [
-  { date: 'Mon', accuracy: 65, questionsAnswered: 20 },
-  { date: 'Tue', accuracy: 72, questionsAnswered: 25 },
-  { date: 'Wed', accuracy: 68, questionsAnswered: 18 },
-  { date: 'Thu', accuracy: 75, questionsAnswered: 30 },
-  { date: 'Fri', accuracy: 71, questionsAnswered: 22 },
-  { date: 'Sat', accuracy: 78, questionsAnswered: 28 },
-  { date: 'Sun', accuracy: 74, questionsAnswered: 15 },
-];
 
-const topicData = [
-  { name: 'Ethics', accuracy: 82, attempts: 150 },
-  { name: 'Quantitative Methods', accuracy: 68, attempts: 120 },
-  { name: 'Economics', accuracy: 71, attempts: 90 },
-  { name: 'Financial Reporting', accuracy: 58, attempts: 200 },
-  { name: 'Corporate Issuers', accuracy: 75, attempts: 80 },
-  { name: 'Equity Investments', accuracy: 65, attempts: 100 },
-  { name: 'Fixed Income', accuracy: 52, attempts: 85 },
-  { name: 'Derivatives', accuracy: 48, attempts: 60 },
-];
+
+
+interface TopicData {
+  name: string;
+  accuracy: number | null;
+  attempts: number;
+}
 
 const quickActions = [
   {
@@ -57,21 +44,10 @@ const quickActions = [
     description: 'Vignette-style questions',
     icon: FileText,
     href: '/item-sets',
-    color: 'from-purple-600 to-pink-600',
+    color: 'from-indigo-600 to-violet-600',
   },
 ];
 
-const recentActivity = [
-  { type: 'quiz', topic: 'Ethics', score: 80, date: '2 hours ago' },
-  { type: 'item-set', topic: 'Fixed Income', score: 67, date: '5 hours ago' },
-  { type: 'quiz', topic: 'Derivatives', score: 55, date: 'Yesterday' },
-];
-
-const weakTopics = [
-  { name: 'Derivatives', accuracy: 48, trend: -5 },
-  { name: 'Fixed Income', accuracy: 52, trend: 2 },
-  { name: 'Financial Reporting', accuracy: 58, trend: 8 },
-];
 
 import { useState, useEffect } from 'react';
 
@@ -91,6 +67,14 @@ export default function DashboardPage() {
     cfaLevel: 'LEVEL_1',
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [topicData, setTopicData] = useState<TopicData[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [weeklyData, setWeeklyData] = useState<any[]>([]);
+
+  // Filter topics with accuracy < 50% (excluding N/A) for Focus Areas
+  const weakTopics = topicData
+    .filter(t => t.accuracy !== null && t.accuracy < 50)
+    .sort((a, b) => (a.accuracy || 0) - (b.accuracy || 0));
 
   const displayName = stats.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Scholar';
 
@@ -98,13 +82,37 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       if (!user) return;
       try {
-        const res = await fetch(`/api/user/stats?userId=${user.uid}`);
-        const data = await res.json();
-        if (!data.error) {
-          setStats(data);
+        // Fetch user stats
+        const statsRes = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const statsData = await statsRes.json();
+        if (!statsData.error) {
+          setStats(statsData);
+          if (statsData.chartData) {
+            setWeeklyData(statsData.chartData);
+          }
         }
+
+        // Fetch topic data
+        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`);
+        const topicsData = await topicsRes.json();
+        if (Array.isArray(topicsData)) {
+          const transformedTopics = topicsData.map((topic: any) => ({
+            name: topic.name,
+            accuracy: topic.accuracy, // This is now number | null
+            attempts: topic.questions
+          }));
+          setTopicData(transformedTopics);
+        }
+
+        // Fetch recent activity
+        const activityRes = await fetch(`/api/user/activity?userId=${user.uid}`);
+        const activityData = await activityRes.json();
+        if (Array.isArray(activityData)) {
+          setRecentActivity(activityData);
+        }
+
       } catch (err) {
-        console.error('Failed to fetch dashboard stats:', err);
+        console.error('Failed to fetch dashboard data:', err);
       } finally {
         setIsLoading(false);
       }
@@ -170,7 +178,7 @@ export default function DashboardPage() {
           value={stats.questionsToday.toString()}
           subtitle={`${stats.correctToday} correct`}
           icon={Target}
-          color="indigo"
+          color="indigo" // Keep indigo
           delay={0}
         />
         <StatsCard
@@ -179,7 +187,7 @@ export default function DashboardPage() {
           icon={TrendingUp}
           trend={{ value: Math.abs(stats.weeklyTrend), isPositive: stats.weeklyTrend >= 0 }}
           subtitle={`${stats.weeklyTrend >= 0 ? '+' : '-'}${Math.abs(stats.weeklyTrend)}% vs last week`}
-          color="emerald"
+          color="indigo" // Changed from emerald to indigo
           delay={0.1}
         />
         <StatsCard
@@ -187,7 +195,7 @@ export default function DashboardPage() {
           value={formatStudyTime(stats.timeSpentToday || 0)}
           subtitle="Today"
           icon={Clock}
-          color="amber"
+          color="indigo" // Changed from amber to indigo
           delay={0.2}
         />
         <StatsCard
@@ -195,7 +203,7 @@ export default function DashboardPage() {
           value={`${stats.averageScore}%`}
           subtitle={`${stats.totalQuestions} questions total`}
           icon={Award}
-          color="purple"
+          color="indigo" // Changed from purple to indigo
           delay={0.3}
         />
       </div>
@@ -267,39 +275,43 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-5 flex-1 overflow-y-auto">
-            {weakTopics.map((topic, index) => (
-              <motion.div
-                key={topic.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + index * 0.1 }}
-                className="group cursor-default"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${topic.trend > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
-                        }`}
-                    >
-                      {topic.trend > 0 ? '↑' : '↓'} {Math.abs(topic.trend)}%
-                    </span>
-                    <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
+            {weakTopics.length > 0 ? (
+              weakTopics.map((topic, index) => (
+                <motion.div
+                  key={topic.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
+                  className="group cursor-default"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
+                    </div>
                   </div>
+                  <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${topic.accuracy}%` }}
+                      transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                      className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${(topic.accuracy || 0) >= 60
+                        ? 'from-amber-500 to-orange-500'
+                        : 'from-red-500 to-rose-500'
+                        }`}
+                    />
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                <div className="p-3 rounded-full bg-emerald-500/10 mb-3">
+                  <Award className="h-6 w-6 text-emerald-500" />
                 </div>
-                <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${topic.accuracy}%` }}
-                    transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
-                    className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${topic.accuracy >= 60
-                      ? 'from-amber-500 to-orange-500'
-                      : 'from-red-500 to-rose-500'
-                      }`}
-                  />
-                </div>
-              </motion.div>
-            ))}
+                <p className="text-foreground font-medium mb-1">No Weak Areas!</p>
+                <p className="text-sm text-muted-foreground">You&apos;re maintaining &gt;50% accuracy across all practiced topics.</p>
+              </div>
+            )}
           </CardContent>
           <div className="p-6 pt-0 mt-auto">
             <Link href="/quiz?topics=weak" className="block w-full">
@@ -327,48 +339,55 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {recentActivity.map((activity, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + index * 0.1 }}
-                className="group relative p-6 rounded-2xl bg-muted/40 border border-border hover:border-indigo-500/30 transition-all cursor-default"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <Badge className="bg-muted text-muted-foreground border-border uppercase font-extrabold text-[10px] tracking-widest px-2 py-0.5">
-                    {activity.type}
-                  </Badge>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{activity.date}</span>
-                </div>
-                <p className="font-bold text-foreground text-lg mb-4 truncate group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{activity.topic}</p>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${activity.score}%` }}
-                      transition={{ duration: 1, delay: 1 + index * 0.1 }}
-                      className={`h-full rounded-full ${activity.score >= 70
-                        ? 'bg-emerald-500'
-                        : activity.score >= 50
-                          ? 'bg-amber-500'
-                          : 'bg-red-500'
-                        }`}
-                    />
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                  className="group relative p-6 rounded-2xl bg-muted/40 border border-border hover:border-indigo-500/30 transition-all cursor-default"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge className="bg-muted text-muted-foreground border-border uppercase font-extrabold text-[10px] tracking-widest px-2 py-0.5">
+                      {activity.type}
+                    </Badge>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{activity.date}</span>
                   </div>
-                  <span
-                    className={`text-sm font-black font-mono ${activity.score >= 70
-                      ? 'text-emerald-400'
-                      : activity.score >= 50
-                        ? 'text-amber-400'
-                        : 'text-red-400'
-                      }`}
-                  >
-                    {activity.score}%
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+                  <p className="font-bold text-foreground text-lg mb-4 truncate group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{activity.topic}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${activity.score}%` }}
+                        transition={{ duration: 1, delay: 1 + index * 0.1 }}
+                        className={`h-full rounded-full ${activity.score >= 70
+                          ? 'bg-emerald-500'
+                          : activity.score >= 50
+                            ? 'bg-amber-500'
+                            : 'bg-red-500'
+                          }`}
+                      />
+                    </div>
+                    <span
+                      className={`text-sm font-black font-mono ${activity.score >= 70
+                        ? 'text-emerald-400'
+                        : activity.score >= 50
+                          ? 'text-amber-400'
+                          : 'text-red-400'
+                        }`}
+                    >
+                      {activity.score}%
+                    </span>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
+                <p className="font-medium">No recent activity</p>
+                <p className="text-sm">Complete quizzes to see your history here.</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

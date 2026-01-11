@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/auth-context';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
@@ -21,18 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const topics = [
-  { id: 'ethics', name: 'Ethics', questions: 120, accuracy: 82 },
-  { id: 'quant', name: 'Quantitative Methods', questions: 95, accuracy: 68 },
-  { id: 'economics', name: 'Economics', questions: 85, accuracy: 71 },
-  { id: 'fra', name: 'Financial Reporting', questions: 150, accuracy: 58 },
-  { id: 'corporate', name: 'Corporate Issuers', questions: 70, accuracy: 75 },
-  { id: 'equity', name: 'Equity Investments', questions: 110, accuracy: 65 },
-  { id: 'fixed-income', name: 'Fixed Income', questions: 100, accuracy: 52 },
-  { id: 'derivatives', name: 'Derivatives', questions: 80, accuracy: 48 },
-  { id: 'alts', name: 'Alternative Investments', questions: 45, accuracy: 70 },
-  { id: 'pm', name: 'Portfolio Management', questions: 90, accuracy: 62 },
-];
+
 
 const quizModes = [
   {
@@ -58,11 +48,59 @@ const quizModes = [
   },
 ];
 
+interface Topic {
+  id: string;
+  name: string;
+  questions: number;
+  accuracy: number | null;
+}
+
+interface QuizHistoryItem {
+  id: string;
+  mode: string;
+  startedAt: string;
+  completedAt: string;
+  totalQuestions: number;
+  score: number;
+}
+
 export default function QuizPage() {
+  const { user } = useAuth();
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState('practice');
   const [questionCount, setQuestionCount] = useState('10');
   const [difficulty, setDifficulty] = useState('all');
+  const [recentQuizzes, setRecentQuizzes] = useState<QuizHistoryItem[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      try {
+        // Fetch Topics
+        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`);
+        const topicsData = await topicsRes.json();
+        if (Array.isArray(topicsData)) {
+          setTopics(topicsData);
+        }
+
+        // Fetch Recent Quizzes
+        const historyRes = await fetch(`/api/quiz/history?userId=${user.uid}`);
+        const historyData = await historyRes.json();
+        if (Array.isArray(historyData)) {
+          setRecentQuizzes(historyData);
+        }
+
+      } catch (error) {
+        console.error('Failed to fetch quiz data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
 
   const toggleTopic = (topicId: string) => {
     setSelectedTopics((prev) =>
@@ -200,14 +238,17 @@ export default function QuizPage() {
                         </span>
                         <Badge
                           variant={
-                            topic.accuracy >= 70
-                              ? 'success'
-                              : topic.accuracy >= 50
-                                ? 'warning'
-                                : 'destructive'
+                            topic.accuracy === null
+                              ? 'secondary'
+                              : topic.accuracy >= 70
+                                ? 'success'
+                                : topic.accuracy >= 50
+                                  ? 'warning'
+                                  : 'destructive'
                           }
+                          className={topic.accuracy === null ? 'bg-slate-700 text-slate-300' : ''}
                         >
-                          {topic.accuracy}%
+                          {topic.accuracy !== null ? `${topic.accuracy}%` : 'N/A'}
                         </Badge>
                       </div>
                     </div>
@@ -307,30 +348,40 @@ export default function QuizPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { topics: 'Ethics, Quant', score: 80, questions: 20, time: '2h ago' },
-                { topics: 'Fixed Income', score: 65, questions: 15, time: '5h ago' },
-                { topics: 'All Topics', score: 72, questions: 30, time: 'Yesterday' },
-              ].map((quiz, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{quiz.topics}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {quiz.questions} questions • {quiz.time}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      quiz.score >= 70 ? 'success' : quiz.score >= 50 ? 'warning' : 'destructive'
-                    }
+              {recentQuizzes.length > 0 ? (
+                recentQuizzes.map((quiz) => (
+                  <div
+                    key={quiz.id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
                   >
-                    {quiz.score}%
-                  </Badge>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] px-1 py-0 h-5 uppercase tracking-wide">
+                          {quiz.mode}
+                        </Badge>
+                        <span className="font-medium text-foreground text-sm">
+                          {quiz.totalQuestions} Questions
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {quiz.startedAt} - {quiz.completedAt}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={
+                        quiz.score >= 70 ? 'success' : quiz.score >= 50 ? 'warning' : 'destructive'
+                      }
+                      className="text-sm px-3 py-1"
+                    >
+                      {quiz.score}%
+                    </Badge>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No recent quizzes. Start one above!
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
