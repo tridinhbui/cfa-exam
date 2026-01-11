@@ -30,8 +30,9 @@ export function ExamWindowSelector({ currentSelectedDate, onSelect, open, onOpen
                     setWindows(data);
                     // Pre-select the card that matches currentSelectedDate
                     if (currentSelectedDate) {
+                        const selectedTime = new Date(currentSelectedDate).getTime();
                         const match = data.find(w =>
-                            Math.abs(new Date(w.startDate).getTime() - currentSelectedDate.getTime()) < 86400000
+                            Math.abs(new Date(w.startDate).getTime() - selectedTime) < 86400000
                         );
                         if (match) setSelectedWindow(match);
                     }

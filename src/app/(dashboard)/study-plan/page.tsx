@@ -20,6 +20,9 @@ import { StudyCalendar } from '@/components/study-plan/study-calendar';
 import { WeeklyTasks, WeeklyTask } from '@/components/study-plan/weekly-tasks';
 import { addDays } from 'date-fns';
 import { ExamWindowSelector } from '@/components/study-plan/exam-window-selector';
+import { useExamStore } from '@/store/exam-store';
+import { useAuth } from '@/context/auth-context';
+import { updateStudyPlanExamDate } from '@/app/actions/study-plan';
 
 // Mock task data (keep existing tasks for now)
 const today = new Date();
@@ -51,38 +54,23 @@ const milestones = [
 ];
 
 export default function StudyPlanPage() {
+  const { user } = useAuth();
   const [currentWeek] = useState(1);
-  const [examInfo, setExamInfo] = useState<{ date: Date | null; label: string; daysRemaining: number }>({
-    date: null,
-    label: 'Select Exam Date',
-    daysRemaining: 0,
-  });
+  const { date: examDate, label: examLabel, setExam, daysRemaining } = useExamStore();
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
 
+  // Derived state
+  const daysLeft = daysRemaining();
+
   useEffect(() => {
-    // Check if user has a saved preference
-    const savedDate = localStorage.getItem('cfa_exam_date');
-    const savedLabel = localStorage.getItem('cfa_exam_label');
-
-    if (savedDate && savedLabel) {
-      const date = new Date(savedDate);
-      const now = new Date();
-      const diffTime = date.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      setExamInfo({
-        date: date,
-        label: savedLabel,
-        daysRemaining: diffDays > 0 ? diffDays : 0
-      });
-    } else {
-      // User hasn't selected yet -> Open Dialog
+    // If global store has no date, open dialog
+    if (!examDate) {
       setIsCustomizeOpen(true);
     }
-  }, []);
+  }, [examDate]);
 
   // Use state values or defaults
-  const weeksUntilExam = Math.ceil((examInfo.daysRemaining) / 7);
+  const weeksUntilExam = Math.ceil(daysLeft / 7);
 
   const handleTaskComplete = (taskId: string) => {
     console.log('Task completed:', taskId);
@@ -92,20 +80,15 @@ export default function StudyPlanPage() {
     console.log('Starting task:', task);
   };
 
-  const handleExamSelect = (date: Date, label: string) => {
-    const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    // Save preference
-    localStorage.setItem('cfa_exam_date', date.toISOString());
-    localStorage.setItem('cfa_exam_label', label);
-
-    setExamInfo({
-      date,
-      label,
-      daysRemaining: diffDays > 0 ? diffDays : 0
-    });
+  const handleExamSelect = async (date: Date, label: string) => {
+    setExam(date, label);
+    if (user?.uid) {
+      try {
+        await updateStudyPlanExamDate(user.uid, date);
+      } catch (error) {
+        console.error('Failed to update study plan:', error);
+      }
+    }
   };
 
   return (
@@ -136,7 +119,7 @@ export default function StudyPlanPage() {
           <ExamWindowSelector
             open={isCustomizeOpen}
             onOpenChange={setIsCustomizeOpen}
-            currentSelectedDate={examInfo.date}
+            currentSelectedDate={examDate}
             onSelect={handleExamSelect}
           />
         </div>
@@ -158,9 +141,9 @@ export default function StudyPlanPage() {
                 <div>
                   <p className="text-sm text-amber-600 font-medium">Exam Date</p>
                   <p className="text-3xl font-bold text-foreground">
-                    {examInfo.date ? `${examInfo.daysRemaining} days` : '...'}
+                    {examDate ? `${daysLeft} days` : '...'}
                   </p>
-                  <p className="text-sm text-muted-foreground">{examInfo.label}</p>
+                  <p className="text-sm text-muted-foreground">{examLabel}</p>
                 </div>
               </div>
             </CardContent>
@@ -277,7 +260,7 @@ export default function StudyPlanPage() {
       >
         <StudyCalendar
           tasks={studyTasks}
-          examDate={examInfo.date || new Date()}
+          examDate={examDate || new Date()}
           onTaskClick={(task) => console.log('Task clicked:', task)}
         />
       </motion.div>
@@ -314,4 +297,3 @@ export default function StudyPlanPage() {
     </div >
   );
 }
-
