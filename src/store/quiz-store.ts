@@ -37,10 +37,12 @@ interface QuizState {
   showExplanation: boolean;
   startTime: number | null;
   timeSpent: number; // in seconds
+  flaggedQuestions: string[];
 
   // Actions
   startQuiz: (quizId: string | null, questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM', timeLimit?: number) => void;
   setAnswer: (questionId: string, answer: string) => void;
+  toggleFlag: (questionId: string) => void;
   nextQuestion: () => void;
   prevQuestion: () => void;
   goToQuestion: (index: number) => void;
@@ -71,6 +73,7 @@ export const useQuizStore = create<QuizState>()(
       startTime: null,
       timeSpent: 0,
 
+      flaggedQuestions: [],
       startQuiz: (quizId, questions, mode, timeLimit) => {
         const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM';
         const time = timeLimit ? timeLimit * 60 : questions.length * 90; // 90 seconds per question default
@@ -92,6 +95,7 @@ export const useQuizStore = create<QuizState>()(
           questions,
           currentIndex: 0,
           answers: {},
+          flaggedQuestions: [],
           timeRemaining: upperMode === 'PRACTICE' ? 0 : time,
           isTimerRunning: upperMode !== 'PRACTICE',
           isCompleted: false,
@@ -105,6 +109,17 @@ export const useQuizStore = create<QuizState>()(
         set((state) => ({
           answers: { ...state.answers, [questionId]: answer },
         }));
+      },
+
+      toggleFlag: (questionId) => {
+        set((state) => {
+          const isFlagged = state.flaggedQuestions.includes(questionId);
+          return {
+            flaggedQuestions: isFlagged
+              ? state.flaggedQuestions.filter((id) => id !== questionId)
+              : [...state.flaggedQuestions, questionId],
+          };
+        });
       },
 
       nextQuestion: () => {
@@ -147,6 +162,7 @@ export const useQuizStore = create<QuizState>()(
           questions: [],
           currentIndex: 0,
           answers: {},
+          flaggedQuestions: [],
           timeRemaining: 0,
           isTimerRunning: false,
           isCompleted: false,
@@ -185,6 +201,7 @@ export const useQuizStore = create<QuizState>()(
         questions: state.questions,
         currentIndex: state.currentIndex,
         answers: state.answers,
+        flaggedQuestions: state.flaggedQuestions,
         timeRemaining: state.timeRemaining,
         isCompleted: state.isCompleted,
         startTime: state.startTime,

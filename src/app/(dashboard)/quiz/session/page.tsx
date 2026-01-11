@@ -33,6 +33,8 @@ function QuizContent() {
     prevQuestion,
     submitQuiz,
     toggleExplanation,
+    flaggedQuestions,
+    toggleFlag,
   } = useQuizStore();
 
   const searchParams = useSearchParams();
@@ -46,7 +48,7 @@ function QuizContent() {
     const fetchQuestions = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}&difficulty=${difficulty}`);
+        const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}&difficulty=${difficulty}&mode=${mode}`);
         const data = await response.json();
 
         if (data.error) throw new Error(data.error);
@@ -78,6 +80,7 @@ function QuizContent() {
 
   const currentQuestion = questions[currentIndex];
   const selectedAnswer = answers[currentQuestion?.id] || null;
+  const isFlagged = currentQuestion && flaggedQuestions.includes(currentQuestion.id);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -98,9 +101,14 @@ function QuizContent() {
         </div>
         <div className="flex items-center gap-3">
           <QuizTimer />
-          <Button variant="outline" size="sm" className="hidden sm:flex border-border/50 font-bold">
-            <Flag className="h-4 w-4 mr-2" />
-            Flag
+          <Button
+            variant={isFlagged ? "default" : "outline"}
+            size="sm"
+            className={`hidden sm:flex border-border/50 font-bold ${isFlagged ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : ''}`}
+            onClick={() => currentQuestion && toggleFlag(currentQuestion.id)}
+          >
+            <Flag className={`h-4 w-4 mr-2 ${isFlagged ? 'fill-current' : ''}`} />
+            {isFlagged ? 'Flagged' : 'Flag'}
           </Button>
         </div>
       </div>
