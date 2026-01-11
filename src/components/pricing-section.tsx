@@ -5,11 +5,52 @@ import { Check } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { NumberFlow } from '@/components/ui/number-flow';
 import { Tab } from '@/components/ui/pricing-tab';
 
 export function PricingSection() {
+    const { user } = useAuth();
+    const router = useRouter();
+    const [loading, setLoading] = useState<string | null>(null);
+
+    const handleCheckout = async (planName: string) => {
+        if (!user) {
+            router.push('/login?redirect=/pricing');
+            return;
+        }
+
+        setLoading(planName);
+
+        try {
+            const response = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    plan: planName,
+                    userId: user.uid,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                console.error('Checkout error:', data.error);
+                alert('Failed to start checkout via Stripe. Please try again.');
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
+            alert('An error occurred. Please try again.');
+        } finally {
+            setLoading(null);
+        }
+    };
     const plans: {
         name: string;
         price: number;
@@ -164,16 +205,29 @@ export function PricingSection() {
                                     ))}
                                 </div>
 
-                                <Link href="/dashboard" className="block w-full mt-auto">
+                                {plan.cta === 'Choose this plan' ? (
                                     <Button
+                                        onClick={() => handleCheckout(plan.name)}
+                                        disabled={loading === plan.name}
                                         className={`w-full h-12 rounded-xl font-bold text-sm transition-all ${plan.highlight
                                             ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/30'
                                             : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
                                             }`}
                                     >
-                                        {plan.cta}
+                                        {loading === plan.name ? 'Processing...' : plan.cta}
                                     </Button>
-                                </Link>
+                                ) : (
+                                    <Link href="/dashboard" className="block w-full mt-auto">
+                                        <Button
+                                            className={`w-full h-12 rounded-xl font-bold text-sm transition-all ${plan.highlight
+                                                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/30'
+                                                : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
+                                                }`}
+                                        >
+                                            {plan.cta}
+                                        </Button>
+                                    </Link>
+                                )}
                             </div>
                         </motion.div>
                     ))}

@@ -171,7 +171,79 @@ export async function GET(req: Request) {
             chartData
         };
 
-        return NextResponse.json(stats);
+        // Error Analysis Logic
+        // 1. Fetch Quiz Mistakes
+        const quizMistakes = await prisma.quizQuestion.findMany({
+            where: {
+                quizAttempt: { userId },
+                isCorrect: false,
+            },
+            include: { question: true }
+        });
+
+        // 2. Fetch Item Set Mistakes
+        const itemSetMistakes = await prisma.itemSetAnswer.findMany({
+            where: {
+                attempt: { userId },
+                isCorrect: false,
+            },
+            include: { question: true }
+        });
+
+        let calcErrors = 0;
+        let conceptErrors = 0;
+
+        // Helper to analyze a question
+        const analyzeMistake = (q: any) => {
+            if (!q) return;
+            const content = q.content.toLowerCase();
+
+            // Check explanation and options too for stronger signal
+            const combinedText = [
+                q.content,
+                q.explanation,
+                q.optionA,
+                q.optionB,
+                q.optionC
+            ].join(' ').toLowerCase();
+
+            // Heuristic: If question contains math keywords/symbols, assume Calculation Mistake
+            const isCalculation =
+                content.includes('calculate') ||
+                content.includes('compute') ||
+                content.includes('value of') ||
+                content.includes('closest to') ||
+                combinedText.includes('$') ||
+                combinedText.includes('\\') || // LaTeX
+                combinedText.includes('%') ||
+                /[0-9]/.test(content);    // Contains numbers in prompt
+
+            if (isCalculation) {
+                calcErrors++;
+            } else {
+                conceptErrors++;
+            }
+        };
+
+        // Analyze both sources
+        quizMistakes.forEach(m => analyzeMistake(m.question));
+        itemSetMistakes.forEach(m => analyzeMistake(m.question));
+
+        const totalMistakes = calcErrors + conceptErrors;
+        const errorAnalysis = [
+            {
+                type: 'Conceptual Error',
+                count: conceptErrors,
+                percentage: totalMistakes > 0 ? Math.round((conceptErrors / totalMistakes) * 100) : 0
+            },
+            {
+                type: 'Calculation Mistake',
+                count: calcErrors,
+                percentage: totalMistakes > 0 ? Math.round((calcErrors / totalMistakes) * 100) : 0
+            }
+        ];
+
+        return NextResponse.json({ ...stats, errorAnalysis });
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

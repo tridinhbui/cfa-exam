@@ -23,7 +23,8 @@ import { PerformanceChart } from '@/components/analytics/performance-chart';
 import Link from 'next/link';
 
 // Mock data
-const weeklyData = [
+// Mock data fallback
+const mockWeeklyData = [
   { date: 'Week 1', accuracy: 58, questionsAnswered: 150 },
   { date: 'Week 2', accuracy: 62, questionsAnswered: 180 },
   { date: 'Week 3', accuracy: 65, questionsAnswered: 200 },
@@ -41,13 +42,8 @@ interface TopicData {
   attempts: number; // Mapping 'questions' from API to 'attempts' for UI consistency
 }
 
-const errorTypes = [
-  { type: 'Conceptual Error', count: 45, percentage: 35 },
-  { type: 'Calculation Mistake', count: 32, percentage: 25 },
-  { type: 'Misread Question', count: 26, percentage: 20 },
-  { type: 'Time Pressure', count: 18, percentage: 14 },
-  { type: 'Careless Error', count: 8, percentage: 6 },
-];
+// Removed static mock errorTypes in favor of dynamic state
+// const errorTypes = [ ... ];
 
 const recommendations = [
   {
@@ -79,6 +75,11 @@ const formatStudyHours = (seconds: number) => {
 export default function AnalyticsPage() {
   const { user } = useAuth();
   const [topicData, setTopicData] = useState<TopicData[]>([]);
+  const [weeklyData, setWeeklyData] = useState<any[]>(mockWeeklyData);
+  const [errorTypes, setErrorTypes] = useState([
+    { type: 'Conceptual Error', count: 0, percentage: 0 },
+    { type: 'Calculation Mistake', count: 0, percentage: 0 }
+  ]);
   const [stats, setStats] = useState({
     totalQuestions: 0,
     averageScore: 0,
@@ -114,6 +115,12 @@ export default function AnalyticsPage() {
             timeSpentThisMonth: statsData.timeSpentThisMonth || 0,
             monthlyTimeTrend: statsData.monthlyTimeTrend || 0,
           });
+          if (statsData.chartData && Array.isArray(statsData.chartData)) {
+            setWeeklyData(statsData.chartData);
+          }
+          if (statsData.errorAnalysis && Array.isArray(statsData.errorAnalysis)) {
+            setErrorTypes(statsData.errorAnalysis);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch analytics data:', error);
@@ -193,10 +200,20 @@ export default function AnalyticsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <PerformanceChart weeklyData={weeklyData} topicData={topicData} />
+        <Card className="h-full bg-card border-border rounded-2xl overflow-hidden">
+          <CardHeader className="border-b border-border p-6">
+            <CardTitle className="text-xl font-bold flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-emerald-400" />
+              Performance Analytics
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <PerformanceChart weeklyData={weeklyData} topicData={topicData} />
+          </CardContent>
+        </Card>
       </motion.div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-6">
         {/* Error Analysis */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -232,49 +249,6 @@ export default function AnalyticsPage() {
                   />
                 </div>
               ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* AI Recommendations */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-emerald-400" />
-                AI Recommendations
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {recommendations.map((rec, index) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-xl border ${rec.priority === 'high'
-                    ? 'bg-red-500/10 border-red-500/20'
-                    : 'bg-muted/50 border-border'
-                    }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-foreground">{rec.topic}</span>
-                    <Badge
-                      variant={rec.priority === 'high' ? 'destructive' : 'secondary'}
-                    >
-                      {rec.priority}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{rec.message}</p>
-                </div>
-              ))}
-              <Link href="/quiz?topics=weak">
-                <Button className="w-full mt-2">
-                  Practice Weak Areas
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
             </CardContent>
           </Card>
         </motion.div>
