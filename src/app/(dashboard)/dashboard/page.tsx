@@ -22,16 +22,7 @@ import { StatsCard } from '@/components/analytics/stats-card';
 import { PerformanceChart } from '@/components/analytics/performance-chart';
 import { useAuth } from '@/context/auth-context';
 
-// Mock data
-const weeklyData = [
-  { date: 'Mon', accuracy: 65, questionsAnswered: 20 },
-  { date: 'Tue', accuracy: 72, questionsAnswered: 25 },
-  { date: 'Wed', accuracy: 68, questionsAnswered: 18 },
-  { date: 'Thu', accuracy: 75, questionsAnswered: 30 },
-  { date: 'Fri', accuracy: 71, questionsAnswered: 22 },
-  { date: 'Sat', accuracy: 78, questionsAnswered: 28 },
-  { date: 'Sun', accuracy: 74, questionsAnswered: 15 },
-];
+
 
 
 interface TopicData {
@@ -53,16 +44,9 @@ const quickActions = [
     description: 'Vignette-style questions',
     icon: FileText,
     href: '/item-sets',
-    color: 'from-purple-600 to-pink-600',
+    color: 'from-indigo-600 to-violet-600',
   },
 ];
-
-const recentActivity = [
-  { type: 'quiz', topic: 'Ethics', score: 80, date: '2 hours ago' },
-  { type: 'item-set', topic: 'Fixed Income', score: 67, date: '5 hours ago' },
-  { type: 'quiz', topic: 'Derivatives', score: 55, date: 'Yesterday' },
-];
-
 
 
 import { useState, useEffect } from 'react';
@@ -84,6 +68,8 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [topicData, setTopicData] = useState<TopicData[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [weeklyData, setWeeklyData] = useState<any[]>([]);
 
   // Filter topics with accuracy < 50% (excluding N/A) for Focus Areas
   const weakTopics = topicData
@@ -101,6 +87,9 @@ export default function DashboardPage() {
         const statsData = await statsRes.json();
         if (!statsData.error) {
           setStats(statsData);
+          if (statsData.chartData) {
+            setWeeklyData(statsData.chartData);
+          }
         }
 
         // Fetch topic data
@@ -113,6 +102,13 @@ export default function DashboardPage() {
             attempts: topic.questions
           }));
           setTopicData(transformedTopics);
+        }
+
+        // Fetch recent activity
+        const activityRes = await fetch(`/api/user/activity?userId=${user.uid}`);
+        const activityData = await activityRes.json();
+        if (Array.isArray(activityData)) {
+          setRecentActivity(activityData);
         }
 
       } catch (err) {
@@ -182,7 +178,7 @@ export default function DashboardPage() {
           value={stats.questionsToday.toString()}
           subtitle={`${stats.correctToday} correct`}
           icon={Target}
-          color="indigo"
+          color="indigo" // Keep indigo
           delay={0}
         />
         <StatsCard
@@ -191,7 +187,7 @@ export default function DashboardPage() {
           icon={TrendingUp}
           trend={{ value: Math.abs(stats.weeklyTrend), isPositive: stats.weeklyTrend >= 0 }}
           subtitle={`${stats.weeklyTrend >= 0 ? '+' : '-'}${Math.abs(stats.weeklyTrend)}% vs last week`}
-          color="emerald"
+          color="indigo" // Changed from emerald to indigo
           delay={0.1}
         />
         <StatsCard
@@ -199,7 +195,7 @@ export default function DashboardPage() {
           value={formatStudyTime(stats.timeSpentToday || 0)}
           subtitle="Today"
           icon={Clock}
-          color="amber"
+          color="indigo" // Changed from amber to indigo
           delay={0.2}
         />
         <StatsCard
@@ -207,7 +203,7 @@ export default function DashboardPage() {
           value={`${stats.averageScore}%`}
           subtitle={`${stats.totalQuestions} questions total`}
           icon={Award}
-          color="purple"
+          color="indigo" // Changed from purple to indigo
           delay={0.3}
         />
       </div>
@@ -343,48 +339,55 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {recentActivity.map((activity, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + index * 0.1 }}
-                className="group relative p-6 rounded-2xl bg-muted/40 border border-border hover:border-indigo-500/30 transition-all cursor-default"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <Badge className="bg-muted text-muted-foreground border-border uppercase font-extrabold text-[10px] tracking-widest px-2 py-0.5">
-                    {activity.type}
-                  </Badge>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{activity.date}</span>
-                </div>
-                <p className="font-bold text-foreground text-lg mb-4 truncate group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{activity.topic}</p>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${activity.score}%` }}
-                      transition={{ duration: 1, delay: 1 + index * 0.1 }}
-                      className={`h-full rounded-full ${activity.score >= 70
-                        ? 'bg-emerald-500'
-                        : activity.score >= 50
-                          ? 'bg-amber-500'
-                          : 'bg-red-500'
-                        }`}
-                    />
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                  className="group relative p-6 rounded-2xl bg-muted/40 border border-border hover:border-indigo-500/30 transition-all cursor-default"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge className="bg-muted text-muted-foreground border-border uppercase font-extrabold text-[10px] tracking-widest px-2 py-0.5">
+                      {activity.type}
+                    </Badge>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{activity.date}</span>
                   </div>
-                  <span
-                    className={`text-sm font-black font-mono ${activity.score >= 70
-                      ? 'text-emerald-400'
-                      : activity.score >= 50
-                        ? 'text-amber-400'
-                        : 'text-red-400'
-                      }`}
-                  >
-                    {activity.score}%
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+                  <p className="font-bold text-foreground text-lg mb-4 truncate group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{activity.topic}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${activity.score}%` }}
+                        transition={{ duration: 1, delay: 1 + index * 0.1 }}
+                        className={`h-full rounded-full ${activity.score >= 70
+                          ? 'bg-emerald-500'
+                          : activity.score >= 50
+                            ? 'bg-amber-500'
+                            : 'bg-red-500'
+                          }`}
+                      />
+                    </div>
+                    <span
+                      className={`text-sm font-black font-mono ${activity.score >= 70
+                        ? 'text-emerald-400'
+                        : activity.score >= 50
+                          ? 'text-amber-400'
+                          : 'text-red-400'
+                        }`}
+                    >
+                      {activity.score}%
+                    </span>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
+                <p className="font-medium">No recent activity</p>
+                <p className="text-sm">Complete quizzes to see your history here.</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

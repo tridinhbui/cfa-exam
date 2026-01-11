@@ -12,9 +12,6 @@ import {
   BarChart,
   Bar,
   Cell,
-  PieChart,
-  Pie,
-  Legend,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -39,20 +36,13 @@ interface PerformanceChartProps {
 const COLORS = ['#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e'];
 
 export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProps) {
-  const pieData = useMemo(() => {
-    const sorted = [...topicData].sort((a, b) => b.attempts - a.attempts);
-    return sorted.slice(0, 6).map((item) => ({
-      name: item.name.length > 15 ? item.name.slice(0, 15) + '...' : item.name,
-      value: item.attempts,
-    }));
-  }, [topicData]);
+
 
   return (
     <Tabs defaultValue="trend">
       <TabsList className="mb-4">
         <TabsTrigger value="trend">Trend</TabsTrigger>
         <TabsTrigger value="topics">Topics</TabsTrigger>
-        <TabsTrigger value="distribution">Distribution</TabsTrigger>
       </TabsList>
 
       <TabsContent value="trend" className="h-[300px]">
@@ -137,11 +127,7 @@ export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProp
                     fill={
                       entry.accuracy === null
                         ? '#374151' // Gray for N/A
-                        : accuracy >= 70
-                          ? '#10b981'
-                          : accuracy >= 50
-                            ? '#f59e0b'
-                            : '#ef4444'
+                        : '#6366f1' // Indigo for all valid scores
                     }
                   />
                 );
@@ -151,42 +137,7 @@ export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProp
         </ResponsiveContainer>
       </TabsContent>
 
-      <TabsContent value="distribution" className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={pieData}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={100}
-              paddingAngle={3}
-              dataKey="value"
-            >
-              {pieData.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'var(--card)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-              }}
-              formatter={(value: number) => [value, 'Questions']}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: '12px' }}
-              formatter={(value) => (
-                <span className="text-muted-foreground">{value}</span>
-              )}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </TabsContent>
+
     </Tabs>
   );
 }

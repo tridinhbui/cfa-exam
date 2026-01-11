@@ -1,23 +1,24 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 
 export async function POST(req: Request) {
     try {
-        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance } = await req.json();
+        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance, date, mode } = await req.json();
 
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
         }
 
         // 1. Get user to check current streak and lastActiveAt
-        const user = await (prisma.user.findUnique as any)({
+        const user = await prisma.user.findUnique({
             where: { id: userId },
             select: {
                 id: true,
                 currentStreak: true,
                 longestStreak: true,
                 lastActiveAt: true,
+                cfaLevel: true, // Needed for QuizAttempt
             }
         });
 
@@ -26,39 +27,34 @@ export async function POST(req: Request) {
         }
 
         const now = new Date();
-        const today = startOfDay(now);
-        let newStreak = (user as any).currentStreak;
+        const today = date ? new Date(date) : startOfDay(now);
+        let newStreak = user.currentStreak;
 
         // 2. Logic to update Streak
-        if (!(user as any).lastActiveAt) {
-            // First time ever
+        if (!user.lastActiveAt) {
             newStreak = 1;
         } else {
-            const lastActiveDate = startOfDay(new Date((user as any).lastActiveAt));
+            const lastActiveDate = startOfDay(new Date(user.lastActiveAt));
 
             if (isSameDay(today, lastActiveDate)) {
-                // Already active today, streak stays the same
-                newStreak = (user as any).currentStreak;
+                newStreak = user.currentStreak;
             } else {
                 const yesterday = startOfDay(subDays(today, 1));
                 if (isSameDay(lastActiveDate, yesterday)) {
-                    // Active yesterday, increment streak
-                    newStreak = (user as any).currentStreak + 1;
+                    newStreak = user.currentStreak + 1;
                 } else if (lastActiveDate < yesterday) {
-                    // Missed a day or more, reset to 1
                     newStreak = 1;
                 }
             }
         }
 
-        const newLongestStreak = Math.max(newStreak, (user as any).longestStreak);
+        const newLongestStreak = Math.max(newStreak, user.longestStreak);
 
         // Prepare TopicPerformance updates
         const topicUpdates: any[] = [];
         if (topicPerformance) {
             const topicIds = Object.keys(topicPerformance);
 
-            // Fetch existing performances to calculate accuracy
             const existingPerformances = await prisma.topicPerformance.findMany({
                 where: {
                     userId,
@@ -101,10 +97,27 @@ export async function POST(req: Request) {
             }
         }
 
-        // 3. Update User, DailyProgress, and TopicPerformance in a transaction
+        // Create QuizAttempt
+        // We'll create it even if we don't have detailed questionsData, just to track history.
+        const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+        const quizAttemptCreate = prisma.quizAttempt.create({
+            data: {
+                userId,
+                cfaLevel: user.cfaLevel || 'LEVEL_1', // Default or fetch from user
+                mode: mode ? mode.toUpperCase() : 'PRACTICE',
+                startedAt: new Date(now.getTime() - (timeSpent * 1000)), // Approximate start time
+                completedAt: now,
+                score,
+                totalQuestions,
+                correctAnswers,
+            }
+        });
+
+
+        // 3. Update User, DailyProgress, TopicPerformance, and create QuizAttempt in a transaction
         await prisma.$transaction([
             // Update User streaks
-            (prisma.user.update as any)({
+            prisma.user.update({
                 where: { id: userId },
                 data: {
                     currentStreak: newStreak,
@@ -135,7 +148,8 @@ export async function POST(req: Request) {
                     sessionsCount: 1,
                 }
             }),
-            ...topicUpdates
+            ...topicUpdates,
+            quizAttemptCreate
         ]);
 
         return NextResponse.json({

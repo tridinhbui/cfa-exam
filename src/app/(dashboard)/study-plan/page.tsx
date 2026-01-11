@@ -196,10 +196,10 @@ export default function StudyPlanPage() {
                     <Badge variant="secondary">Week {milestone.week}</Badge>
                     <span
                       className={`text-sm font-semibold ${milestone.current >= milestone.target
-                          ? 'text-emerald-400'
-                          : milestone.current > 0
-                            ? 'text-amber-400'
-                            : 'text-slate-500'
+                        ? 'text-emerald-400'
+                        : milestone.current > 0
+                          ? 'text-amber-400'
+                          : 'text-slate-500'
                         }`}
                     >
                       {milestone.current}%

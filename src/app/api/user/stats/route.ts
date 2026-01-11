@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { startOfDay, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
+import { startOfDay, startOfWeek, endOfWeek, subWeeks, subDays, addDays, format } from 'date-fns';
 
 export async function GET(req: Request) {
     try {
@@ -85,6 +85,42 @@ export async function GET(req: Request) {
 
         const weeklyTrend = weeklyAccuracy - lastWeekAccuracy;
 
+        // Chart Data (Last 7 Days)
+        const sevenDaysAgo = subDays(startOfDay(now), 6);
+        const last7DaysProgress = await prisma.dailyProgress.findMany({
+            where: {
+                userId,
+                date: { gte: sevenDaysAgo }
+            },
+            orderBy: { date: 'asc' }
+        });
+
+        const chartData = [];
+        for (let i = 0; i < 7; i++) {
+            const d = addDays(sevenDaysAgo, i);
+            const dayName = format(d, 'EEE'); // "Mon", "Tue", etc.
+            const dateStr = format(d, 'yyyy-MM-dd'); // "2026-01-10" in local time
+
+            // Find stats for this day
+            // We compare the YYYY-MM-DD string part. 
+            // Prisma returns UTC dates for @db.Date. 
+            // We want "2026-01-10" from DB to match "2026-01-10" from chart iteration.
+            const dayStats = last7DaysProgress.find(p => {
+                const dbDateStr = p.date.toISOString().split('T')[0];
+                return dbDateStr === dateStr;
+            });
+
+            const acc = dayStats && dayStats.questionsAnswered > 0
+                ? Math.round((dayStats.correctAnswers / dayStats.questionsAnswered) * 100)
+                : 0;
+
+            chartData.push({
+                date: dayName,
+                accuracy: acc,
+                questionsAnswered: dayStats?.questionsAnswered || 0
+            });
+        }
+
         // Get some stats or history if needed
         const stats = {
             name: user.name,
@@ -97,7 +133,8 @@ export async function GET(req: Request) {
             averageScore,
             totalQuestions,
             weeklyAccuracy,
-            weeklyTrend
+            weeklyTrend,
+            chartData
         };
 
         return NextResponse.json(stats);

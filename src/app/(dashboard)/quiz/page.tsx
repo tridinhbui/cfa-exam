@@ -55,6 +55,15 @@ interface Topic {
   accuracy: number | null;
 }
 
+interface QuizHistoryItem {
+  id: string;
+  mode: string;
+  startedAt: string;
+  completedAt: string;
+  totalQuestions: number;
+  score: number;
+}
+
 export default function QuizPage() {
   const { user } = useAuth();
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -63,24 +72,34 @@ export default function QuizPage() {
   const [selectedMode, setSelectedMode] = useState('practice');
   const [questionCount, setQuestionCount] = useState('10');
   const [difficulty, setDifficulty] = useState('all');
+  const [recentQuizzes, setRecentQuizzes] = useState<QuizHistoryItem[]>([]);
 
   useEffect(() => {
-    const fetchTopics = async () => {
+    const fetchData = async () => {
       if (!user) return;
       try {
-        const response = await fetch(`/api/quiz/topics?userId=${user.uid}`);
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setTopics(data);
+        // Fetch Topics
+        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`);
+        const topicsData = await topicsRes.json();
+        if (Array.isArray(topicsData)) {
+          setTopics(topicsData);
         }
+
+        // Fetch Recent Quizzes
+        const historyRes = await fetch(`/api/quiz/history?userId=${user.uid}`);
+        const historyData = await historyRes.json();
+        if (Array.isArray(historyData)) {
+          setRecentQuizzes(historyData);
+        }
+
       } catch (error) {
-        console.error('Failed to fetch topics:', error);
+        console.error('Failed to fetch quiz data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchTopics();
+    fetchData();
   }, [user]);
 
   const toggleTopic = (topicId: string) => {
@@ -329,30 +348,40 @@ export default function QuizPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { topics: 'Ethics, Quant', score: 80, questions: 20, time: '2h ago' },
-                { topics: 'Fixed Income', score: 65, questions: 15, time: '5h ago' },
-                { topics: 'All Topics', score: 72, questions: 30, time: 'Yesterday' },
-              ].map((quiz, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{quiz.topics}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {quiz.questions} questions • {quiz.time}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      quiz.score >= 70 ? 'success' : quiz.score >= 50 ? 'warning' : 'destructive'
-                    }
+              {recentQuizzes.length > 0 ? (
+                recentQuizzes.map((quiz) => (
+                  <div
+                    key={quiz.id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
                   >
-                    {quiz.score}%
-                  </Badge>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] px-1 py-0 h-5 uppercase tracking-wide">
+                          {quiz.mode}
+                        </Badge>
+                        <span className="font-medium text-foreground text-sm">
+                          {quiz.totalQuestions} Questions
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {quiz.startedAt} - {quiz.completedAt}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={
+                        quiz.score >= 70 ? 'success' : quiz.score >= 50 ? 'warning' : 'destructive'
+                      }
+                      className="text-sm px-3 py-1"
+                    >
+                      {quiz.score}%
+                    </Badge>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No recent quizzes. Start one above!
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
