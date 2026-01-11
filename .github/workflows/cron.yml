@@ -11,9 +11,25 @@ on:
 jobs:
   sync-dates:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Call Sync API
-        run: |
-          curl -X GET "${{ secrets.APP_URL }}/api/cron/sync-exam-dates" \
-          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-          --fail
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run Sync Script
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: npx tsx scripts/sync-exam-dates.ts
