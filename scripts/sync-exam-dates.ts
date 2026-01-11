@@ -71,6 +71,17 @@ async function main() {
                 // Simple wait for network idle or a short pause to allow React/Angular to render
                 await new Promise(r => setTimeout(r, 2000));
 
+                // Check if registration is closed
+                // Logic: Look for the specific alert text shown in the screenshot
+                const isClosed = await page.evaluate(() => {
+                    const text = document.body.innerText;
+                    return text.includes('exam registration is closed') ||
+                        text.includes('Registration is closed') ||
+                        text.includes('Please choose another exam period');
+                });
+
+                console.log(`  -> Status: ${isClosed ? 'CLOSED' : 'OPEN'}`);
+
                 // Extract dates
                 const dates = await page.evaluate(() => {
                     // Strategy: Locate "CFA Program Exam Dates" and find the date associated with it
@@ -167,7 +178,8 @@ async function main() {
                     results.push({
                         sessionName: option.text,
                         startDate: startDate,
-                        endDate: endDate
+                        endDate: endDate,
+                        isActive: !isClosed // If closed, set isActive = false
                     });
                     console.log(`  -> Scraped: ${dates.start} to ${dates.end}`);
                 } else {
@@ -203,13 +215,14 @@ async function main() {
                     startDate: new Date(window.startDate),
                     endDate: new Date(window.endDate),
                     updatedAt: new Date(),
-                    isActive: true
+                    isActive: window.isActive ?? true
                 },
                 create: {
                     id: crypto.randomUUID(),
                     sessionName: window.sessionName,
                     startDate: new Date(window.startDate),
                     endDate: new Date(window.endDate),
+                    isActive: window.isActive ?? true
                 },
             });
             console.log(`Synced: ${window.sessionName}`);

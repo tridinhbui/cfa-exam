@@ -1,6 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { format, addMinutes } from 'date-fns';
 
 export const dynamic = 'force-dynamic'; // Disable caching so we always get the latest date
 
@@ -31,13 +32,14 @@ export async function GET() {
         }
 
         // Format the label like "Feb 20, 2026"
-        // Using simple formatting to avoid timezone issues with formatting libraries on server vs client if possible
+        // We use date-fns. To prevent timezone shifts (e.g. UTC 00:00 -> Local Previous Day),
+        // we essentially want to format the UTC date as-is.
+        // A simple trick is to add the timezone offset minutes to the date object so the "local" time matches the UTC time.
         const dateObj = new Date(nextExamWindow.startDate);
-        const label = dateObj.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        const offset = dateObj.getTimezoneOffset();
+        const adjustedDate = addMinutes(dateObj, offset);
+
+        const label = format(adjustedDate, 'MMM d, yyyy');
 
         return NextResponse.json({
             date: nextExamWindow.startDate.toISOString(), // Send ISO string for client parsing
