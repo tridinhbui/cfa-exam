@@ -39,13 +39,6 @@ const quizModes = [
     icon: Clock,
     color: 'from-amber-600 to-orange-600',
   },
-  {
-    id: 'exam',
-    name: 'Exam Simulation',
-    description: 'Full exam conditions with continuous timer',
-    icon: Zap,
-    color: 'from-red-600 to-rose-600',
-  },
 ];
 
 interface Topic {
@@ -146,7 +139,7 @@ export default function QuizPage() {
         transition={{ delay: 0.1 }}
       >
         <h2 className="text-lg font-semibold text-foreground mb-4">Select Mode</h2>
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           {quizModes.map((mode) => {
             const Icon = mode.icon;
             const isSelected = selectedMode === mode.id;
