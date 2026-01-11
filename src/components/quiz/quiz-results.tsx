@@ -228,7 +228,10 @@ export function QuizResults() {
         transition={{ delay: 1 }}
         className="flex flex-col sm:flex-row gap-3"
       >
-        <Button onClick={resetQuiz} className="flex-1">
+        <Button onClick={() => {
+          resetQuiz();
+          window.location.reload();
+        }} className="flex-1">
           <RefreshCw className="h-4 w-4 mr-2" />
           Try Again
         </Button>

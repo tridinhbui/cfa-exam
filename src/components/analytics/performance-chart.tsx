@@ -101,7 +101,7 @@ export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProp
 
       <TabsContent value="topics" className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={topicData.slice(0, 8)} layout="vertical">
+          <BarChart data={topicData.slice(0, 10)} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
             <XAxis
               type="number"
@@ -129,7 +129,7 @@ export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProp
               formatter={(value: number) => [`${value}%`, 'Accuracy']}
             />
             <Bar dataKey="accuracy" radius={[0, 4, 4, 0]}>
-              {topicData.slice(0, 8).map((entry, index) => {
+              {topicData.slice(0, 10).map((entry, index) => {
                 const accuracy = entry.accuracy ?? 0;
                 return (
                   <Cell

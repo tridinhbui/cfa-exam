@@ -33,16 +33,12 @@ const weeklyData = [
   { date: 'Sun', accuracy: 74, questionsAnswered: 15 },
 ];
 
-const topicData = [
-  { name: 'Ethics', accuracy: 82, attempts: 150 },
-  { name: 'Quantitative Methods', accuracy: 68, attempts: 120 },
-  { name: 'Economics', accuracy: 71, attempts: 90 },
-  { name: 'Financial Reporting', accuracy: 58, attempts: 200 },
-  { name: 'Corporate Issuers', accuracy: 75, attempts: 80 },
-  { name: 'Equity Investments', accuracy: 65, attempts: 100 },
-  { name: 'Fixed Income', accuracy: 52, attempts: 85 },
-  { name: 'Derivatives', accuracy: 48, attempts: 60 },
-];
+
+interface TopicData {
+  name: string;
+  accuracy: number | null;
+  attempts: number;
+}
 
 const quickActions = [
   {
@@ -67,11 +63,7 @@ const recentActivity = [
   { type: 'quiz', topic: 'Derivatives', score: 55, date: 'Yesterday' },
 ];
 
-const weakTopics = [
-  { name: 'Derivatives', accuracy: 48, trend: -5 },
-  { name: 'Fixed Income', accuracy: 52, trend: 2 },
-  { name: 'Financial Reporting', accuracy: 58, trend: 8 },
-];
+
 
 import { useState, useEffect } from 'react';
 
@@ -91,6 +83,12 @@ export default function DashboardPage() {
     cfaLevel: 'LEVEL_1',
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [topicData, setTopicData] = useState<TopicData[]>([]);
+
+  // Filter topics with accuracy < 50% (excluding N/A) for Focus Areas
+  const weakTopics = topicData
+    .filter(t => t.accuracy !== null && t.accuracy < 50)
+    .sort((a, b) => (a.accuracy || 0) - (b.accuracy || 0));
 
   const displayName = stats.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Scholar';
 
@@ -98,13 +96,27 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       if (!user) return;
       try {
-        const res = await fetch(`/api/user/stats?userId=${user.uid}`);
-        const data = await res.json();
-        if (!data.error) {
-          setStats(data);
+        // Fetch user stats
+        const statsRes = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const statsData = await statsRes.json();
+        if (!statsData.error) {
+          setStats(statsData);
         }
+
+        // Fetch topic data
+        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`);
+        const topicsData = await topicsRes.json();
+        if (Array.isArray(topicsData)) {
+          const transformedTopics = topicsData.map((topic: any) => ({
+            name: topic.name,
+            accuracy: topic.accuracy, // This is now number | null
+            attempts: topic.questions
+          }));
+          setTopicData(transformedTopics);
+        }
+
       } catch (err) {
-        console.error('Failed to fetch dashboard stats:', err);
+        console.error('Failed to fetch dashboard data:', err);
       } finally {
         setIsLoading(false);
       }
@@ -267,39 +279,43 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-5 flex-1 overflow-y-auto">
-            {weakTopics.map((topic, index) => (
-              <motion.div
-                key={topic.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + index * 0.1 }}
-                className="group cursor-default"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${topic.trend > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
-                        }`}
-                    >
-                      {topic.trend > 0 ? '↑' : '↓'} {Math.abs(topic.trend)}%
-                    </span>
-                    <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
+            {weakTopics.length > 0 ? (
+              weakTopics.map((topic, index) => (
+                <motion.div
+                  key={topic.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
+                  className="group cursor-default"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
+                    </div>
                   </div>
+                  <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${topic.accuracy}%` }}
+                      transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                      className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${(topic.accuracy || 0) >= 60
+                        ? 'from-amber-500 to-orange-500'
+                        : 'from-red-500 to-rose-500'
+                        }`}
+                    />
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                <div className="p-3 rounded-full bg-emerald-500/10 mb-3">
+                  <Award className="h-6 w-6 text-emerald-500" />
                 </div>
-                <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${topic.accuracy}%` }}
-                    transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
-                    className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${topic.accuracy >= 60
-                      ? 'from-amber-500 to-orange-500'
-                      : 'from-red-500 to-rose-500'
-                      }`}
-                  />
-                </div>
-              </motion.div>
-            ))}
+                <p className="text-foreground font-medium mb-1">No Weak Areas!</p>
+                <p className="text-sm text-muted-foreground">You&apos;re maintaining &gt;50% accuracy across all practiced topics.</p>
+              </div>
+            )}
           </CardContent>
           <div className="p-6 pt-0 mt-auto">
             <Link href="/quiz?topics=weak" className="block w-full">
