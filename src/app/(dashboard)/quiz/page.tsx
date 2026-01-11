@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/auth-context';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
@@ -21,18 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const topics = [
-  { id: 'ethics', name: 'Ethics', questions: 120, accuracy: 82 },
-  { id: 'quant', name: 'Quantitative Methods', questions: 95, accuracy: 68 },
-  { id: 'economics', name: 'Economics', questions: 85, accuracy: 71 },
-  { id: 'fra', name: 'Financial Reporting', questions: 150, accuracy: 58 },
-  { id: 'corporate', name: 'Corporate Issuers', questions: 70, accuracy: 75 },
-  { id: 'equity', name: 'Equity Investments', questions: 110, accuracy: 65 },
-  { id: 'fixed-income', name: 'Fixed Income', questions: 100, accuracy: 52 },
-  { id: 'derivatives', name: 'Derivatives', questions: 80, accuracy: 48 },
-  { id: 'alts', name: 'Alternative Investments', questions: 45, accuracy: 70 },
-  { id: 'pm', name: 'Portfolio Management', questions: 90, accuracy: 62 },
-];
+
 
 const quizModes = [
   {
@@ -58,11 +48,40 @@ const quizModes = [
   },
 ];
 
+interface Topic {
+  id: string;
+  name: string;
+  questions: number;
+  accuracy: number;
+}
+
 export default function QuizPage() {
+  const { user } = useAuth();
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState('practice');
   const [questionCount, setQuestionCount] = useState('10');
   const [difficulty, setDifficulty] = useState('all');
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      if (!user) return;
+      try {
+        const response = await fetch(`/api/quiz/topics?userId=${user.uid}`);
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setTopics(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch topics:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTopics();
+  }, [user]);
 
   const toggleTopic = (topicId: string) => {
     setSelectedTopics((prev) =>
