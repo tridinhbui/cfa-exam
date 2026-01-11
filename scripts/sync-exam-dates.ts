@@ -73,33 +73,89 @@ async function main() {
 
                 // Extract dates
                 const dates = await page.evaluate(() => {
-                    const bodyText = document.body.innerText;
-                    // Look for "Month DD - Month DD, YYYY" pattern near "Exam Dates"
-                    // Or just look for the regex pattern we verified earlier: "Start Month - End Month YYYY"
-                    // Verified pattern from Subagent: "February 2 – 8, 2026"
-                    // Regex: Month DD – DD, YYYY
-                    const simpleDateRegex = /([a-zA-Z]+)\s+(\d{1,2})\s*[–-]\s*(\d{1,2}),\s*(\d{4})/;
-                    const match = bodyText.match(simpleDateRegex);
+                    // Strategy: Locate "CFA Program Exam Dates" and find the date associated with it
+                    // Based on screenshot: Date is to the left of the label
 
-                    // Also handle cross-month: "May 28 – June 3, 2026"
-                    const complexDateRegex = /([a-zA-Z]+)\s+(\d{1,2})\s*[–-]\s*([a-zA-Z]+)\s+(\d{1,2}),\s*(\d{4})/;
-                    const complexMatch = bodyText.match(complexDateRegex);
+                    let dateText = '';
+
+                    // Try to find the label element
+                    // Use XPath to find the text
+                    const xpathResult = document.evaluate(
+                        "//*[contains(text(), 'CFA Program Exam Dates')]",
+                        document,
+                        null,
+                        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+                        null
+                    );
+
+                    if (xpathResult.snapshotLength > 0) {
+                        // Usually the last one is the visible one in the dynamics list, or we check bounding box
+                        // Let's assume the last one corresponds to the active view if multiple exist
+                        const labelEl = xpathResult.snapshotItem(xpathResult.snapshotLength - 1) as HTMLElement;
+
+                        // Look at siblings or parent's text
+                        // The structure is likely: <div class="row"> <div class="date">2 - 8 Feb</div> <div class="label">CFA Program Exam Dates</div> </div>
+                        if (labelEl) {
+                            // Option A: Check Previous Sibling
+                            let sibling = labelEl.previousElementSibling;
+                            while (sibling) {
+                                if (sibling.textContent && sibling.textContent.trim().length > 0) {
+                                    dateText += ' ' + sibling.textContent;
+                                }
+                                sibling = sibling.previousElementSibling;
+                            }
+
+                            // Option B: Check Parent text (if they are in same span/div)
+                            if (labelEl.parentElement) {
+                                dateText += ' ' + labelEl.parentElement.innerText;
+                            }
+                        }
+                    } else {
+                        // Fallback to body text if label not found
+                        dateText = document.body.innerText;
+                    }
+
+                    // Clean up text
+                    dateText = dateText.replace(/\s+/g, ' ');
+
+                    // Regex to parse "2 - 8 Feb" or "Feb 2 - 8" or "May 12 - 18"
+                    // Supports: "2 - 8 Feb", "Feb 2-8", "May 12-18", "12-18 May"
+                    // Note: The screenshot showed "2 - 8 Feb". 
+
+                    // Pattern 1: DD - DD Month (e.g. "2 - 8 Feb")
+                    const dayMonthRegex = /(\d{1,2})\s*[^0-9a-zA-Z]+\s*(\d{1,2})\s+([a-zA-Z]+)/;
+                    const match1 = dateText.match(dayMonthRegex);
+
+                    // Pattern 2: Month DD - DD (e.g. "Feb 2 - 8")
+                    const monthDayRegex = /([a-zA-Z]+)\s+(\d{1,2})\s*[^0-9a-zA-Z]+\s*(\d{1,2})/;
+                    const match2 = dateText.match(monthDayRegex);
+
+                    // Pattern 3: Cross Month (e.g. "May 28 – June 3")
+                    const complexRegex = /([a-zA-Z]+)\s+(\d{1,2})\s*[^0-9a-zA-Z]+\s*([a-zA-Z]+)\s+(\d{1,2})/;
+                    const complexMatch = dateText.match(complexRegex);
+
+                    // We need to pass the year of the OPTION being processed, but here we can just default to '2026' 
+                    // since we filtered options by '2026'. Or pass it in.
+                    // let's rely on hardcoded 2026 for now as we are strictly looking for 2026 options.
+                    const year = '2026';
 
                     if (complexMatch) {
-                        // Month1 DD - Month2 DD, YYYY
-                        const [_, m1, d1, m2, d2, y] = complexMatch;
-                        return {
-                            start: `${y}-${m1}-${d1}`,
-                            end: `${y}-${m2}-${d2}`
-                        };
-                    } else if (match) {
-                        // Month DD - DD, YYYY (Same month)
-                        const [_, m, d1, d2, y] = match;
-                        return {
-                            start: `${y}-${m}-${d1}`,
-                            end: `${y}-${m}-${d2}`
-                        };
+                        const [_, m1, d1, m2, d2] = complexMatch;
+                        return { start: `${year}-${m1}-${d1}`, end: `${year}-${m2}-${d2}` };
                     }
+
+                    if (match1) {
+                        // DD - DD Month -> "2 - 8 Feb"
+                        const [_, d1, d2, m] = match1;
+                        return { start: `${year}-${m}-${d1}`, end: `${year}-${m}-${d2}` };
+                    }
+
+                    if (match2) {
+                        // Month DD - DD -> "Feb 2 - 8"
+                        const [_, m, d1, d2] = match2;
+                        return { start: `${year}-${m}-${d1}`, end: `${year}-${m}-${d2}` };
+                    }
+
                     return null;
                 });
 
