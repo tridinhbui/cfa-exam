@@ -18,6 +18,7 @@ import { cn, formatDate } from '@/lib/utils';
 export interface WeeklyTask {
   id: string;
   topic: string;
+  topicId: string;
   type: 'quiz' | 'item-set' | 'review';
   targetDate: Date;
   isCompleted: boolean;
@@ -99,18 +100,18 @@ export function WeeklyTasks({
                     : 'hover:bg-muted/50'
                 )}
               >
-                {/* Checkbox */}
-                <button
-                  onClick={() => onTaskComplete(task.id)}
+                {/* Checkbox - Manual toggle disabled */}
+                <div
                   className={cn(
-                    'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
+                    'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-not-allowed opacity-80',
                     task.isCompleted
                       ? 'bg-emerald-500 border-emerald-500'
-                      : 'border-border hover:border-primary'
+                      : 'border-border'
                   )}
+                  title="Complete the quiz with 24/30 to mark as finished"
                 >
                   {task.isCompleted && <Check className="h-3 w-3 text-white" />}
-                </button>
+                </div>
 
                 {/* Task Type Icon */}
                 <div className={cn('p-2 rounded-lg', config.bg)}>
@@ -148,6 +149,14 @@ export function WeeklyTasks({
                     </span>
                     <span>•</span>
                     <span>{task.estimatedTime} min</span>
+                    {!task.isCompleted && (
+                      <>
+                        <span>•</span>
+                        <Badge variant="secondary" className="text-[9px] bg-indigo-500/10 text-indigo-400 border-indigo-500/20 font-bold">
+                          Pass: 21/30 Correct
+                        </Badge>
+                      </>
+                    )}
                   </div>
                 </div>
 

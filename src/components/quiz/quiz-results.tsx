@@ -20,7 +20,7 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/auth-context';
 
 export function QuizResults() {
-  const { questions, answers, resetQuiz, timeSpent, mode } = useQuizStore();
+  const { questions, answers, resetQuiz, timeSpent, mode, studyPlanItemId } = useQuizStore();
   const { user } = useAuth();
   const syncRef = useRef(false);
 
@@ -58,10 +58,12 @@ export function QuizResults() {
             timeSpent: timeSpent,
             topics: Array.from(new Set(questions.map(q => q.topic.id))),
             topicPerformance,
-            date: new Date().toLocaleDateString('en-CA'), // Sends YYYY-MM-DD in local time
+            date: new Date().toLocaleDateString('en-CA'),
             mode,
-            questions, // Sent for shadow copy logic
-            answers, // Add answers map for detailed analysis
+            questions,
+            answers,
+            studyPlanItemId,
+            isModuleQuiz: questions.some(q => q.isModuleQuiz),
           }),
         });
       } catch (error) {

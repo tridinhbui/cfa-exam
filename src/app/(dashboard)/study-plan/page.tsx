@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -26,6 +27,7 @@ import { updateStudyPlanExamDate, getActiveStudyPlan, toggleStudyItemCompletion 
 
 export default function StudyPlanPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const { date: storedExamDate, label: examLabel, setExam, daysRemaining } = useExamStore();
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -68,6 +70,7 @@ export default function StudyPlanPage() {
   const allTasks = plan?.items.map((item: any) => ({
     id: item.id,
     topic: item.topic.name,
+    topicId: item.topic.id,
     type: item.weekNumber === 1 ? 'review' : 'quiz',
     targetDate: new Date(item.targetDate),
     isCompleted: item.isCompleted,
@@ -94,29 +97,16 @@ export default function StudyPlanPage() {
   const overallProgress = Math.round((completedTasks / totalTasks) * 100);
 
   const handleTaskComplete = async (taskId: string) => {
-    const task = plan.items.find((i: any) => i.id === taskId);
-    if (!task) return;
-
-    // Optimistic update
-    setPlan((prev: any) => ({
-      ...prev,
-      items: prev.items.map((item: any) =>
-        item.id === taskId ? { ...item, isCompleted: !item.isCompleted } : item
-      )
-    }));
-
-    try {
-      await toggleStudyItemCompletion(taskId, !task.isCompleted);
-    } catch (err) {
-      console.error('Failed to toggle task:', err);
-      // Rollback
-      fetchPlan();
-    }
+    // Manual completion is now blocked per user request
+    // Users must achieve 24/30 in a quiz to complete
+    console.log('Manual completion is disabled. Finish the quiz with 80%+ to complete.');
+    return;
   };
 
   const handleStartTask = (task: WeeklyTask) => {
-    console.log('Starting task:', task);
-    // Future: Link to specific quiz/topic
+    // Navigate to quiz with 30 random questions for this topic
+    // Pass studyPlanItemId to link results back
+    router.push(`/quiz/session?topics=${task.topicId}&count=30&mode=practice&studyPlanItemId=${task.id}`);
   };
 
   const handleExamSelect = async (date: Date, label: string) => {
