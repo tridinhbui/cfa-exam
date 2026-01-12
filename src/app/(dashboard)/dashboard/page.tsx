@@ -85,47 +85,70 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user found in DashboardPage');
+        return;
+      }
+
       try {
-        const token = await user.getIdToken();
+        console.log('Fetching ID token for user:', user.uid);
+        const token = await user.getIdToken(true);
+        console.log('Token successfully fetched (length):', token?.length);
+
+        // --- Lệnh bí mật để bro test ---
+        (window as any).getToken = async () => {
+          const t = await user.getIdToken(true);
+          console.log("CHÌA KHÓA (TOKEN) CỦA BRO ĐÂY:");
+          console.log(t);
+          return t;
+        };
+        console.log("💡 Gõ 'await getToken()' vào console để lấy token!");
+        // ------------------------------
+
         const headers = {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         };
 
-        // Get local date string for timezone-safe stats (Jan 12, 2026 -> 2026-01-12)
+        // Get local date string
         const localDate = new Date().toLocaleDateString('en-CA');
 
-        // Fetch user stats
-        const statsRes = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`, { headers });
+        // Parallel fetch for better performance
+        const [statsRes, topicsRes, activityRes] = await Promise.all([
+          fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`, { headers }),
+          fetch(`/api/quiz/topics?userId=${user.uid}`, { headers }),
+          fetch(`/api/user/activity?userId=${user.uid}`, { headers })
+        ]);
+
         const statsData = await statsRes.json();
-        if (!statsData.error) {
+        if (statsRes.ok) {
           setStats(statsData);
-          if (statsData.chartData) {
-            setWeeklyData(statsData.chartData);
-          }
+          if (statsData.chartData) setWeeklyData(statsData.chartData);
+        } else {
+          console.error('Stats fetch failed:', statsData.error);
         }
 
-        // Fetch topic data
-        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`, { headers });
         const topicsData = await topicsRes.json();
-        if (Array.isArray(topicsData)) {
+        if (topicsRes.ok && Array.isArray(topicsData)) {
           const transformedTopics = topicsData.map((topic: any) => ({
             name: topic.name,
-            accuracy: topic.accuracy, // This is now number | null
+            accuracy: topic.accuracy,
             attempts: topic.questions
           }));
           setTopicData(transformedTopics);
+        } else {
+          console.error('Topics fetch failed:', topicsData.error);
         }
 
-        // Fetch recent activity
-        const activityRes = await fetch(`/api/user/activity?userId=${user.uid}`, { headers });
         const activityData = await activityRes.json();
-        if (Array.isArray(activityData)) {
+        if (activityRes.ok && Array.isArray(activityData)) {
           setRecentActivity(activityData);
+        } else {
+          console.error('Activity fetch failed:', activityData.error);
         }
 
       } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
+        console.error('Critical error in fetchStats:', err);
       } finally {
         setIsLoading(false);
       }
