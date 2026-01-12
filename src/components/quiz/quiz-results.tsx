@@ -46,10 +46,12 @@ export function QuizResults() {
       syncRef.current = true;
 
       try {
+        const token = await user.getIdToken();
         await fetch('/api/quiz/complete', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             userId: user.uid,

@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ moduleId: string }> }
 ) {
+    const authResult = await verifyAuth(request);
+    if (authResult.error) return authErrorResponse(authResult);
+
     const { moduleId } = await params;
 
 

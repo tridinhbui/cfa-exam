@@ -1,7 +1,7 @@
-
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { addMonths, addYears, addYears as addYearsDate } from 'date-fns';
+import { addMonths, addYears } from 'date-fns';
+import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
 // PayPal API base URLs
 // For production, change to https://api-m.paypal.com
@@ -38,6 +38,9 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { orderID, userId, planName } = body;
 
+        const authResult = await verifyAuth(request, userId);
+        if (authResult.error) return authErrorResponse(authResult);
+
         console.log('Capturing order:', orderID, userId, planName);
 
         if (!orderID || !userId || !planName) {
@@ -66,7 +69,6 @@ export async function POST(request: Request) {
             // Determine subscription duration
             const now = new Date();
             let endsAt = now;
-            let planTypeKey = 'MONTHLY'; // Just for logging or tracking
 
             switch (planName) {
                 case '1 Month':
@@ -77,11 +79,9 @@ export async function POST(request: Request) {
                     break;
                 case '1 Year':
                     endsAt = addYears(now, 1);
-                    planTypeKey = 'YEARLY';
                     break;
                 case 'Lifetime':
                     endsAt = addYears(now, 100); // 100 years = lifetime
-                    planTypeKey = 'LIFETIME';
                     break;
             }
 

@@ -15,9 +15,41 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'MentisAI | Master Your CFA Exam',
-  description: 'AI-powered CFA exam preparation with MCQ and Item Sets. Get personalized feedback and track your progress.',
-  keywords: ['CFA', 'exam prep', 'finance', 'Level I', 'Level II', 'Level III', 'practice questions'],
+  title: {
+    default: 'MentisAI | Master Your CFA Exam',
+    template: '%s | MentisAI'
+  },
+  metadataBase: new URL('https://cfa-exam.vercel.app'),
+  description: 'AI-powered CFA exam preparation with MCQ and Item Sets. Get personalized feedback and track your progress with our smart study plan.',
+  keywords: ['CFA Exam Prep', 'CFA Level 1', 'CFA Practice Questions', 'MentisAI', 'Financial Analyst Training', 'CFA Study Plan'],
+  authors: [{ name: 'MentisAI Team' }],
+  creator: 'MentisAI',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://cfa-exam.vercel.app',
+    title: 'MentisAI | Master Your CFA Exam',
+    description: 'The most advanced AI platform for CFA preparation.',
+    siteName: 'MentisAI',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'MentisAI CFA Exam Prep',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MentisAI | Master Your CFA Exam',
+    description: 'Master the CFA exam with AI-powered personalized study plans.',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 import { AuthProvider } from '@/context/auth-context';

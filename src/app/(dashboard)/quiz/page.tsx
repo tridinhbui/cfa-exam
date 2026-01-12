@@ -71,15 +71,18 @@ export default function QuizPage() {
     const fetchData = async () => {
       if (!user) return;
       try {
+        const token = await user.getIdToken();
+        const headers = { 'Authorization': `Bearer ${token}` };
+
         // Fetch Topics
-        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`);
+        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`, { headers });
         const topicsData = await topicsRes.json();
         if (Array.isArray(topicsData)) {
           setTopics(topicsData);
         }
 
         // Fetch Recent Quizzes
-        const historyRes = await fetch(`/api/quiz/history?userId=${user.uid}`);
+        const historyRes = await fetch(`/api/quiz/history?userId=${user.uid}`, { headers });
         const historyData = await historyRes.json();
         if (Array.isArray(historyData)) {
           setRecentQuizzes(historyData);

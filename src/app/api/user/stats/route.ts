@@ -1,12 +1,32 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { startOfDay, startOfWeek, endOfWeek, subWeeks, subDays, addDays, format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { adminAuth } from '@/lib/firebase-admin';
 
 export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const userId = searchParams.get('userId');
         const clientDate = searchParams.get('date'); // YYYY-MM-DD
+
+        // --- Security Check: Verify Firebase ID Token ---
+        const authHeader = req.headers.get('Authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return NextResponse.json({ error: 'Unauthorized: No token provided' }, { status: 401 });
+        }
+
+        const token = authHeader.split('Bearer ')[1];
+        try {
+            const decodedToken = await adminAuth.verifyIdToken(token);
+            // Protect against IDOR: Ensure the token UID matches the requested userId
+            if (decodedToken.uid !== userId) {
+                return NextResponse.json({ error: 'Forbidden: You can only access your own stats' }, { status: 403 });
+            }
+        } catch (error) {
+            console.error('Token verification failed:', error);
+            return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });
+        }
+        // ------------------------------------------------
 
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -30,83 +50,69 @@ export async function GET(req: Request) {
         // Use client date if provided to align with user's timezone
         const now = clientDate ? new Date(clientDate) : new Date();
         const today = startOfDay(now);
-        const dailyProgress = await prisma.dailyProgress.findUnique({
-            where: {
-                userId_date: {
-                    userId,
-                    date: today,
-                }
-            }
-        });
 
-        // Get total progress for Average Score
-        const totalProgress = await prisma.dailyProgress.aggregate({
-            where: { userId },
-            _sum: {
-                questionsAnswered: true,
-                correctAnswers: true,
-            }
-        });
+        // 1. Run independent basic stats in parallel
+        const [
+            dailyProgress,
+            totalProgress,
+            monthProgress,
+            lastMonthProgress,
+            currentWeekStats,
+            lastWeekStats,
+            last7DaysProgress
+        ] = await Promise.all([
+            prisma.dailyProgress.findUnique({
+                where: { userId_date: { userId, date: today } }
+            }),
+            prisma.dailyProgress.aggregate({
+                where: { userId },
+                _sum: { questionsAnswered: true, correctAnswers: true }
+            }),
+            prisma.dailyProgress.aggregate({
+                where: { userId, date: { gte: startOfMonth(now), lte: endOfMonth(now) } },
+                _sum: { timeSpent: true }
+            }),
+            prisma.dailyProgress.aggregate({
+                where: { userId, date: { gte: startOfMonth(subMonths(now, 1)), lte: endOfMonth(subMonths(now, 1)) } },
+                _sum: { timeSpent: true }
+            }),
+            prisma.dailyProgress.aggregate({
+                where: { userId, date: { gte: startOfWeek(now, { weekStartsOn: 1 }), lte: endOfWeek(now, { weekStartsOn: 1 }) } },
+                _sum: { questionsAnswered: true, correctAnswers: true }
+            }),
+            prisma.dailyProgress.aggregate({
+                where: { userId, date: { gte: subWeeks(startOfWeek(now, { weekStartsOn: 1 }), 1), lte: subWeeks(endOfWeek(now, { weekStartsOn: 1 }), 1) } },
+                _sum: { questionsAnswered: true, correctAnswers: true }
+            }),
+            prisma.dailyProgress.findMany({
+                where: { userId, date: { gte: subDays(startOfDay(now), 6) } },
+                orderBy: { date: 'asc' }
+            })
+        ]);
+
+        // 2. Fetch Recent Mistakes only (Optimized for scale - last 50 mistakes)
+        const [quizMistakes, itemSetMistakes] = await Promise.all([
+            prisma.quizQuestion.findMany({
+                where: { quizAttempt: { userId }, isCorrect: false },
+                take: 50,
+                orderBy: { answeredAt: 'desc' },
+                include: { question: { select: { content: true, explanation: true, optionA: true, optionB: true, optionC: true } } }
+            }),
+            prisma.itemSetAnswer.findMany({
+                where: { attempt: { userId }, isCorrect: false },
+                take: 50,
+                orderBy: { answeredAt: 'desc' },
+                include: { question: { select: { content: true, explanation: true, optionA: true, optionB: true, optionC: true } } }
+            })
+        ]);
 
         const totalQuestions = totalProgress._sum.questionsAnswered || 0;
         const totalCorrect = totalProgress._sum.correctAnswers || 0;
-        const averageScore = totalQuestions > 0
-            ? Math.round((totalCorrect / totalQuestions) * 100)
-            : 0;
+        const averageScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
-        // Current Month Study Time
-        const monthStart = startOfMonth(now);
-        const monthEnd = endOfMonth(now);
-        const monthProgress = await prisma.dailyProgress.aggregate({
-            where: {
-                userId,
-                date: { gte: monthStart, lte: monthEnd }
-            },
-            _sum: { timeSpent: true }
-        });
         const timeSpentThisMonth = monthProgress._sum.timeSpent || 0;
-
-        // Last Month Study Time (for Trend)
-        const lastMonthStart = startOfMonth(subMonths(now, 1));
-        const lastMonthEnd = endOfMonth(subMonths(now, 1));
-        const lastMonthProgress = await prisma.dailyProgress.aggregate({
-            where: {
-                userId,
-                date: { gte: lastMonthStart, lte: lastMonthEnd }
-            },
-            _sum: { timeSpent: true }
-        });
         const timeSpentLastMonth = lastMonthProgress._sum.timeSpent || 0;
-
-        // Calculate Trend %
-        let monthlyTimeTrend = 0;
-        if (timeSpentLastMonth > 0) {
-            monthlyTimeTrend = Math.round(((timeSpentThisMonth - timeSpentLastMonth) / timeSpentLastMonth) * 100);
-        } else if (timeSpentThisMonth > 0) {
-            monthlyTimeTrend = 100; // 100% growth if started from 0
-        }
-
-        // Weekly Accuracy Logic
-        const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-        const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
-        const lastWeekStart = subWeeks(weekStart, 1);
-        const lastWeekEnd = subWeeks(weekEnd, 1);
-
-        const currentWeekStats = await prisma.dailyProgress.aggregate({
-            where: {
-                userId,
-                date: { gte: weekStart, lte: weekEnd }
-            },
-            _sum: { questionsAnswered: true, correctAnswers: true }
-        });
-
-        const lastWeekStats = await prisma.dailyProgress.aggregate({
-            where: {
-                userId,
-                date: { gte: lastWeekStart, lte: lastWeekEnd }
-            },
-            _sum: { questionsAnswered: true, correctAnswers: true }
-        });
+        let monthlyTimeTrend = timeSpentLastMonth > 0 ? Math.round(((timeSpentThisMonth - timeSpentLastMonth) / timeSpentLastMonth) * 100) : (timeSpentThisMonth > 0 ? 100 : 0);
 
         const curWeekTotal = currentWeekStats._sum.questionsAnswered || 0;
         const curWeekCorrect = currentWeekStats._sum.correctAnswers || 0;
@@ -115,46 +121,21 @@ export async function GET(req: Request) {
         const lastWeekTotal = lastWeekStats._sum.questionsAnswered || 0;
         const lastWeekCorrect = lastWeekStats._sum.correctAnswers || 0;
         const lastWeekAccuracy = lastWeekTotal > 0 ? Math.round((lastWeekCorrect / lastWeekTotal) * 100) : 0;
-
         const weeklyTrend = weeklyAccuracy - lastWeekAccuracy;
 
         // Chart Data (Last 7 Days)
         const sevenDaysAgo = subDays(startOfDay(now), 6);
-        const last7DaysProgress = await prisma.dailyProgress.findMany({
-            where: {
-                userId,
-                date: { gte: sevenDaysAgo }
-            },
-            orderBy: { date: 'asc' }
+        const chartData = Array.from({ length: 7 }).map((_, i) => {
+            const d = addDays(sevenDaysAgo, i);
+            const dateStr = format(d, 'yyyy-MM-dd');
+            const dayStats = last7DaysProgress.find(p => p.date.toISOString().split('T')[0] === dateStr);
+            return {
+                date: format(d, 'EEE'),
+                accuracy: dayStats && dayStats.questionsAnswered > 0 ? Math.round((dayStats.correctAnswers / dayStats.questionsAnswered) * 100) : 0,
+                questionsAnswered: dayStats?.questionsAnswered || 0
+            };
         });
 
-        const chartData = [];
-        for (let i = 0; i < 7; i++) {
-            const d = addDays(sevenDaysAgo, i);
-            const dayName = format(d, 'EEE'); // "Mon", "Tue", etc.
-            const dateStr = format(d, 'yyyy-MM-dd'); // "2026-01-10" in local time
-
-            // Find stats for this day
-            // We compare the YYYY-MM-DD string part. 
-            // Prisma returns UTC dates for @db.Date. 
-            // We want "2026-01-10" from DB to match "2026-01-10" from chart iteration.
-            const dayStats = last7DaysProgress.find(p => {
-                const dbDateStr = p.date.toISOString().split('T')[0];
-                return dbDateStr === dateStr;
-            });
-
-            const acc = dayStats && dayStats.questionsAnswered > 0
-                ? Math.round((dayStats.correctAnswers / dayStats.questionsAnswered) * 100)
-                : 0;
-
-            chartData.push({
-                date: dayName,
-                accuracy: acc,
-                questionsAnswered: dayStats?.questionsAnswered || 0
-            });
-        }
-
-        // Get some stats or history if needed
         const stats = {
             name: user.name,
             currentStreak: user.currentStreak,
@@ -172,61 +153,25 @@ export async function GET(req: Request) {
             chartData
         };
 
-        // Error Analysis Logic
-        // 1. Fetch Quiz Mistakes
-        const quizMistakes = await prisma.quizQuestion.findMany({
-            where: {
-                quizAttempt: { userId },
-                isCorrect: false,
-            },
-            include: { question: true }
-        });
-
-        // 2. Fetch Item Set Mistakes
-        const itemSetMistakes = await prisma.itemSetAnswer.findMany({
-            where: {
-                attempt: { userId },
-                isCorrect: false,
-            },
-            include: { question: true }
-        });
-
+        // Optimized Error Analysis
         let calcErrors = 0;
         let conceptErrors = 0;
 
-        // Helper to analyze a question
         const analyzeMistake = (q: any) => {
             if (!q) return;
-            const content = q.content.toLowerCase();
-
-            // Check explanation and options too for stronger signal
-            const combinedText = [
-                q.content,
-                q.explanation,
-                q.optionA,
-                q.optionB,
-                q.optionC
-            ].join(' ').toLowerCase();
-
-            // Heuristic: If question contains math keywords/symbols, assume Calculation Mistake
-            const isCalculation =
-                content.includes('calculate') ||
-                content.includes('compute') ||
-                content.includes('value of') ||
-                content.includes('closest to') ||
+            const combinedText = [q.content, q.explanation, q.optionA, q.optionB, q.optionC].join(' ').toLowerCase();
+            const isCalculation = combinedText.includes('calculate') ||
+                combinedText.includes('compute') ||
+                combinedText.includes('value of') ||
+                combinedText.includes('closest to') ||
                 combinedText.includes('$') ||
-                combinedText.includes('\\') || // LaTeX
+                combinedText.includes('\\') ||
                 combinedText.includes('%') ||
-                /[0-9]/.test(content);    // Contains numbers in prompt
+                /[0-9]/.test(q.content);
 
-            if (isCalculation) {
-                calcErrors++;
-            } else {
-                conceptErrors++;
-            }
+            if (isCalculation) calcErrors++; else conceptErrors++;
         };
 
-        // Analyze both sources
         quizMistakes.forEach(m => analyzeMistake(m.question));
         itemSetMistakes.forEach(m => analyzeMistake(m.question));
 

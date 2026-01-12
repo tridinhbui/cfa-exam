@@ -32,10 +32,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (user) {
                 // Sync user with our database
                 try {
+                    const token = await user.getIdToken();
                     const response = await fetch('/api/user/sync', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({
                             uid: user.uid,

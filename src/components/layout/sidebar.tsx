@@ -51,8 +51,13 @@ export function Sidebar() {
     const fetchStats = async () => {
       if (!user) return;
       try {
+        const token = await user.getIdToken();
         const localDate = new Date().toLocaleDateString('en-CA');
-        const res = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`);
+        const res = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const data = await res.json();
         if (!data.error) {
           setStats(data);

@@ -101,6 +101,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                         alt="Logo"
                         width={192}
                         height={192}
+                        priority
                         className="h-48 w-48 brightness-150 saturate-150 contrast-125 drop-shadow-[0_0_40px_rgba(34,197,253,0.8)]"
                     />
                 </motion.div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/context/auth-context';
 
 interface Module {
   id: string;
@@ -37,9 +38,8 @@ interface Book {
   readings: Reading[];
 }
 
-import { Suspense } from 'react';
-
 function ItemSetsContent() {
+  const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [books, setBooks] = useState<Book[]>([]);
@@ -53,8 +53,14 @@ function ItemSetsContent() {
 
   useEffect(() => {
     async function fetchBooks() {
+      if (!user) return;
       try {
-        const response = await fetch('/api/books');
+        const token = await user.getIdToken();
+        const response = await fetch('/api/books', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const data = await response.json();
         setBooks(data);
 
@@ -75,7 +81,7 @@ function ItemSetsContent() {
       }
     }
     fetchBooks();
-  }, [bookId, readingId]);
+  }, [user, bookId, readingId]);
 
   const handleSelectBook = (book: Book) => {
     setSelectedBook(book);
@@ -101,7 +107,7 @@ function ItemSetsContent() {
     }
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

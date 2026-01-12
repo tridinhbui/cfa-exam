@@ -75,6 +75,11 @@ export default function DashboardPage() {
   const [topicData, setTopicData] = useState<TopicData[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Filter topics with accuracy < 50% (excluding N/A) for Focus Areas
   const weakTopics = topicData
@@ -85,42 +90,60 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user found in DashboardPage');
+        return;
+      }
+
       try {
-        // Get local date string for timezone-safe stats (Jan 12, 2026 -> 2026-01-12)
+        console.log('Fetching ID token for user:', user.uid);
+        const token = await user.getIdToken(true);
+        console.log('Token successfully fetched');
+
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        };
+
+        // Get local date string
         const localDate = new Date().toLocaleDateString('en-CA');
 
-        // Fetch user stats
-        const statsRes = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`);
+        // Parallel fetch for better performance
+        const [statsRes, topicsRes, activityRes] = await Promise.all([
+          fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`, { headers }),
+          fetch(`/api/quiz/topics?userId=${user.uid}`, { headers }),
+          fetch(`/api/user/activity?userId=${user.uid}`, { headers })
+        ]);
+
         const statsData = await statsRes.json();
-        if (!statsData.error) {
+        if (statsRes.ok) {
           setStats(statsData);
-          if (statsData.chartData) {
-            setWeeklyData(statsData.chartData);
-          }
+          if (statsData.chartData) setWeeklyData(statsData.chartData);
+        } else {
+          console.error('Stats fetch failed:', statsData.error);
         }
 
-        // Fetch topic data
-        const topicsRes = await fetch(`/api/quiz/topics?userId=${user.uid}`);
         const topicsData = await topicsRes.json();
-        if (Array.isArray(topicsData)) {
+        if (topicsRes.ok && Array.isArray(topicsData)) {
           const transformedTopics = topicsData.map((topic: any) => ({
             name: topic.name,
-            accuracy: topic.accuracy, // This is now number | null
+            accuracy: topic.accuracy,
             attempts: topic.questions
           }));
           setTopicData(transformedTopics);
+        } else {
+          console.error('Topics fetch failed:', topicsData.error);
         }
 
-        // Fetch recent activity
-        const activityRes = await fetch(`/api/user/activity?userId=${user.uid}`);
         const activityData = await activityRes.json();
-        if (Array.isArray(activityData)) {
+        if (activityRes.ok && Array.isArray(activityData)) {
           setRecentActivity(activityData);
+        } else {
+          console.error('Activity fetch failed:', activityData.error);
         }
 
       } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
+        console.error('Critical error in fetchStats:', err);
       } finally {
         setIsLoading(false);
       }
@@ -148,9 +171,13 @@ export default function DashboardPage() {
           >
             Welcome Back, {displayName} 👋
           </motion.h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            It&apos;s <span className="text-indigo-400 font-semibold">{daysLeft} days</span> until your {examLabel}
-          </p>
+          {isMounted ? (
+            <p className="text-muted-foreground mt-2 text-lg">
+              It&apos;s <span className="text-indigo-400 font-semibold">{daysLeft} days</span> until your {examLabel}
+            </p>
+          ) : (
+            <div className="h-7 w-64 bg-slate-800/50 animate-pulse rounded-md mt-2" />
+          )}
         </div>
 
         <div className="grid grid-cols-2 sm:flex items-center gap-3" data-onboarding="score-cards">

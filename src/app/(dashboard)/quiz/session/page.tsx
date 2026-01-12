@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Flag,
   X,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -14,12 +15,13 @@ import { QuizCard } from '@/components/quiz/quiz-card';
 import { QuizTimer } from '@/components/quiz/quiz-timer';
 import { QuizProgress } from '@/components/quiz/quiz-progress';
 import { QuizResults } from '@/components/quiz/quiz-results';
-import { useQuizStore, QuizQuestion } from '@/store/quiz-store';
+import { useQuizStore } from '@/store/quiz-store';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/auth-context';
 
 function QuizContent() {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const {
     questions,
@@ -46,10 +48,17 @@ function QuizContent() {
 
   useEffect(() => {
     const fetchQuestions = async () => {
+      if (!user) return;
+
       setIsLoading(true);
       try {
+        const token = await user.getIdToken();
         const studyPlanItemId = searchParams.get('studyPlanItemId');
-        const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}&difficulty=${difficulty}&mode=${mode}`);
+        const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}&difficulty=${difficulty}&mode=${mode}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const data = await response.json();
 
         if (data.error) throw new Error(data.error);
@@ -64,9 +73,9 @@ function QuizContent() {
     };
 
     fetchQuestions();
-  }, [topics, mode, count, difficulty, startQuiz]);
+  }, [user, topics, mode, count, difficulty, startQuiz, searchParams]);
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] gap-4 flex-col">
         <Loader2 className="h-12 w-12 animate-spin text-indigo-500" />
@@ -198,4 +207,3 @@ export default function QuizSessionPage() {
     </Suspense>
   );
 }
-

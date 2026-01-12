@@ -17,8 +17,10 @@ import { QuizProgress } from '@/components/quiz/quiz-progress';
 import { QuizResults } from '@/components/quiz/quiz-results';
 import { useQuizStore } from '@/store/quiz-store';
 import { useParams, useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 
 function ModuleQuizContent() {
+    const { user } = useAuth();
     const { moduleId } = useParams();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
@@ -45,9 +47,15 @@ function ModuleQuizContent() {
 
     useEffect(() => {
         const fetchModuleQuizzes = async () => {
+            if (!user) return;
             setIsLoading(true);
             try {
-                const response = await fetch(`/api/quiz/module/${moduleId}`);
+                const token = await user.getIdToken();
+                const response = await fetch(`/api/quiz/module/${moduleId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const data = await response.json();
 
                 if (data.error) throw new Error(data.error);
@@ -66,12 +74,12 @@ function ModuleQuizContent() {
             }
         };
 
-        if (moduleId) {
+        if (moduleId && user) {
             fetchModuleQuizzes();
         }
-    }, [moduleId, startQuiz]);
+    }, [moduleId, user, startQuiz]);
 
-    if (isLoading) {
+    if (isLoading || !user) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
                 <Loader2 className="h-12 w-12 animate-spin text-indigo-500" />

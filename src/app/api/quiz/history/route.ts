@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { format } from 'date-fns';
+import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
 export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const userId = searchParams.get('userId');
+
+        const authResult = await verifyAuth(req, userId);
+        if (authResult.error) return authErrorResponse(authResult);
 
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });

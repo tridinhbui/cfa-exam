@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
+        const authResult = await verifyAuth(req);
+        if (authResult.error) return authErrorResponse(authResult);
+
         const books = await prisma.book.findMany({
             include: {
                 readings: {

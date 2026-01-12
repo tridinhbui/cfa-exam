@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
 export async function POST(req: Request) {
     try {
-        const { uid, email, password } = await req.json();
+        const body = await req.json();
+        const { uid, email, password } = body;
+
+        const authResult = await verifyAuth(req, uid);
+        if (authResult.error) return authErrorResponse(authResult);
+
         console.log('Update Password Request:', { uid, email, hasPassword: !!password });
 
         if (!password || (!uid && !email)) {

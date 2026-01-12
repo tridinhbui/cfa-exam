@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
+import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
 export async function POST(req: Request) {
     try {
-        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance, date, mode, questions, answers, studyPlanItemId, isModuleQuiz } = await req.json();
+        const body = await req.json();
+        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance, date, mode, questions, answers, studyPlanItemId, isModuleQuiz } = body;
+
+        const authResult = await verifyAuth(req, userId);
+        if (authResult.error) return authErrorResponse(authResult);
 
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });

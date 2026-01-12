@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
 export async function GET(request: Request) {
+    const authResult = await verifyAuth(request);
+    if (authResult.error) return authErrorResponse(authResult);
+
     const { searchParams } = new URL(request.url);
     const topics = searchParams.get('topics');
     const count = parseInt(searchParams.get('count') || '10');
