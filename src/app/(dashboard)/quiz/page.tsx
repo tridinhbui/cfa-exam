@@ -236,12 +236,12 @@ export default function QuizPage() {
                           </span>
                           <Badge
                             className={`text-[10px] font-black font-mono min-w-[45px] justify-center ${topic.accuracy === null
-                                ? 'bg-slate-800 text-slate-500'
-                                : topic.accuracy >= 70
-                                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                  : topic.accuracy >= 50
-                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                                    : 'bg-red-500/10 text-red-500 border-red-500/20'
+                              ? 'bg-slate-800 text-slate-500'
+                              : topic.accuracy >= 70
+                                ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                : topic.accuracy >= 50
+                                  ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                  : 'bg-red-500/10 text-red-500 border-red-500/20'
                               }`}
                           >
                             {topic.accuracy !== null ? `${topic.accuracy}%` : 'N/A'}
@@ -386,7 +386,7 @@ export default function QuizPage() {
                         <span className="font-bold text-foreground text-sm uppercase">
                           {quiz.totalQuestions} Questions
                         </span>
-                        <Badge variant="ghost" className="text-[9px] px-1 py-0 h-4 uppercase font-black bg-muted text-muted-foreground">
+                        <Badge variant="secondary" className="text-[9px] px-1 py-0 h-4 uppercase font-black bg-muted text-muted-foreground">
                           {quiz.mode}
                         </Badge>
                       </div>
@@ -397,10 +397,10 @@ export default function QuizPage() {
                   </div>
                   <Badge
                     className={`text-sm font-black font-mono min-w-[50px] justify-center ${quiz.score >= 70
-                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                        : quiz.score >= 50
-                          ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                          : 'bg-red-500/10 text-red-500 border-red-500/20'
+                      ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                      : quiz.score >= 50
+                        ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                        : 'bg-red-500/10 text-red-500 border-red-500/20'
                       }`}
                   >
                     {quiz.score}%
