@@ -59,9 +59,9 @@ export function PricingSection() {
     }[] = [
             {
                 name: '1 Month',
-                price: 3.99,
-                originalPrice: 5.99,
-                discount: 33,
+                price: 6.99,
+                originalPrice: 9.99,
+                discount: 30,
                 description: 'Perfect for quick revision and last-minute prep.',
                 features: [
                     'Unlimited AI Chatbot',
@@ -75,14 +75,14 @@ export function PricingSection() {
             },
             {
                 name: '6 Months',
-                price: 37.99,
-                originalPrice: 57.99,
+                price: 29.99,
+                originalPrice: 45.99,
                 discount: 35,
                 description: 'Get an extra month free. Most popular for exam cycles.',
                 features: [
                     'All Pro Benefits',
                     '+1 Month Free Gift',
-                    'Save 33% Instantly',
+                    'Save 35% Instantly',
                     'Priority Support',
                 ],
                 cta: 'Choose this plan',
@@ -93,8 +93,8 @@ export function PricingSection() {
             },
             {
                 name: '1 Year',
-                price: 69.99,
-                originalPrice: 115.99,
+                price: 54.99,
+                originalPrice: 91.99,
                 discount: 40,
                 description: 'Maximum value. Buy 1 year, gift 1 year to a friend.',
                 features: [
@@ -111,8 +111,8 @@ export function PricingSection() {
             },
             {
                 name: 'Lifetime',
-                price: 119.99,
-                originalPrice: 239.99,
+                price: 109.99,
+                originalPrice: 219.99,
                 discount: 50,
                 description: 'One-time payment for unlimited access forever.',
                 features: [
