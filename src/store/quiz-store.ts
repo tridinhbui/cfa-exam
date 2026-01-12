@@ -14,6 +14,7 @@ export interface QuizQuestion {
     id: string;
     name: string;
   };
+  isModuleQuiz?: boolean;
 }
 
 interface QuizState {
@@ -22,6 +23,7 @@ interface QuizState {
   isActive: boolean;
   mode: 'PRACTICE' | 'TIMED' | 'EXAM';
   timeLimit: number | null;
+  studyPlanItemId: string | null;
 
   // Questions
   questions: QuizQuestion[];
@@ -40,7 +42,7 @@ interface QuizState {
   flaggedQuestions: string[];
 
   // Actions
-  startQuiz: (quizId: string | null, questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM', timeLimit?: number) => void;
+  startQuiz: (quizId: string | null, questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM', timeLimit?: number, studyPlanItemId?: string | null) => void;
   setAnswer: (questionId: string, answer: string) => void;
   toggleFlag: (questionId: string) => void;
   nextQuestion: () => void;
@@ -63,6 +65,7 @@ export const useQuizStore = create<QuizState>()(
       isActive: false,
       mode: 'PRACTICE',
       timeLimit: null,
+      studyPlanItemId: null,
       questions: [],
       currentIndex: 0,
       answers: {},
@@ -74,7 +77,7 @@ export const useQuizStore = create<QuizState>()(
       timeSpent: 0,
 
       flaggedQuestions: [],
-      startQuiz: (quizId, questions, mode, timeLimit) => {
+      startQuiz: (quizId, questions, mode, timeLimit, studyPlanItemId) => {
         const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM';
         const time = timeLimit ? timeLimit * 60 : questions.length * 90; // 90 seconds per question default
 
@@ -102,6 +105,7 @@ export const useQuizStore = create<QuizState>()(
           showExplanation: false,
           startTime: Date.now(),
           timeSpent: 0,
+          studyPlanItemId: studyPlanItemId || null,
         });
       },
 
@@ -167,6 +171,7 @@ export const useQuizStore = create<QuizState>()(
           isTimerRunning: false,
           isCompleted: false,
           showExplanation: false,
+          studyPlanItemId: null,
         });
       },
 
@@ -206,6 +211,7 @@ export const useQuizStore = create<QuizState>()(
         isCompleted: state.isCompleted,
         startTime: state.startTime,
         timeSpent: state.timeSpent,
+        studyPlanItemId: state.studyPlanItemId,
       }),
     }
   )

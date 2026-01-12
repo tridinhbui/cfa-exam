@@ -48,13 +48,14 @@ function QuizContent() {
     const fetchQuestions = async () => {
       setIsLoading(true);
       try {
+        const studyPlanItemId = searchParams.get('studyPlanItemId');
         const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}&difficulty=${difficulty}&mode=${mode}`);
         const data = await response.json();
 
         if (data.error) throw new Error(data.error);
 
-        const quizId = `session-${topics}-${mode}-${count}-${difficulty}`;
-        startQuiz(quizId, data, mode);
+        const quizId = `session-${topics}-${mode}-${count}-${difficulty}${studyPlanItemId ? `-${studyPlanItemId}` : ''}`;
+        startQuiz(quizId, data, mode, undefined, studyPlanItemId);
       } catch (error) {
         console.error('Failed to load questions:', error);
       } finally {

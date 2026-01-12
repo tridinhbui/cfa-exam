@@ -48,7 +48,8 @@ export async function GET(
             topic: {
                 id: module.reading.id,
                 name: module.reading.title
-            }
+            },
+            isModuleQuiz: true // Mark as module quiz to skip shadow copy
         }));
 
         return NextResponse.json({

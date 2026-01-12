@@ -4,7 +4,7 @@ import { startOfDay, subDays, isSameDay } from 'date-fns';
 
 export async function POST(req: Request) {
     try {
-        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance, date, mode, questions, answers } = await req.json();
+        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance, date, mode, questions, answers, studyPlanItemId, isModuleQuiz } = await req.json();
 
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -156,8 +156,23 @@ export async function POST(req: Request) {
 
         const quizAttempt = results[results.length - 1] as any;
 
-        // 4. SHADOW COPY LOGIC: Save incorrect answers for Error Analysis
-        if (quizAttempt && questions && answers && Array.isArray(questions)) {
+        // 4. STUDY PLAN COMPLETION LOGIC
+        // If this quiz was started from a Study Plan task and the score is >= 70% (21/30)
+        let studyPlanCompleted = false;
+        if (studyPlanItemId && score >= 70) {
+            try {
+                await prisma.studyPlanItem.update({
+                    where: { id: studyPlanItemId },
+                    data: { isCompleted: true }
+                });
+                studyPlanCompleted = true;
+            } catch (e) {
+                console.error("Failed to update study plan item:", e);
+            }
+        }
+
+        // 5. SHADOW COPY LOGIC: Save incorrect answers for Error Analysis
+        if (!isModuleQuiz && quizAttempt && questions && answers && Array.isArray(questions)) {
             try {
                 const incorrectQuestions = questions.filter((q: any) => {
                     const userAns = answers[q.id];

@@ -151,13 +151,17 @@ export function StudyCalendar({
                           'flex items-center gap-1 text-[10px] px-1.5 py-1 rounded font-bold shadow-sm',
                           task.isCompleted
                             ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
-                            : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20'
+                            : (isSameDay(new Date(task.date), new Date()) || new Date(task.date) > new Date())
+                              ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20'
+                              : 'bg-red-500/15 text-red-700 dark:text-red-400 border border-red-500/20'
                         )}
                       >
                         {task.isCompleted ? (
                           <Check className="h-3 w-3" />
-                        ) : (
+                        ) : (isSameDay(new Date(task.date), new Date()) || new Date(task.date) > new Date()) ? (
                           <Clock className="h-3 w-3" />
+                        ) : (
+                          <span className="text-[10px]">⚠️</span>
                         )}
                         <span className="truncate font-medium">{task.topic}</span>
                       </div>
