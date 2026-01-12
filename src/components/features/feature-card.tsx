@@ -30,7 +30,7 @@ export function FeatureCard({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ delay, duration: 0.5 }}
-            className={`relative group rounded-[2.5rem] bg-slate-900/40 border border-white/5 overflow-hidden ${className}`}
+            className={`relative group rounded-[2.5rem] bg-slate-900/40 light:bg-white/40 border border-white/5 light:border-slate-200 overflow-hidden ${className}`}
         >
             <GlowingEffect
                 spread={40}
@@ -41,24 +41,21 @@ export function FeatureCard({
             />
 
             {/* Content Container */}
-            <div className="relative h-full flex flex-col z-10">
-                {/* Visual Mockup Area - grows to fill space, but pushes text down */}
-                <div className="flex-grow relative min-h-[200px] overflow-hidden">
-                    {children}
-
-                    {/* Fade Overlay at bottom of visual to blend with text area if needed */}
-                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-slate-900/90 to-transparent pointer-events-none" />
-                </div>
-
-                {/* Text Details */}
-                <div className="p-8 relative z-10 bg-slate-900/20 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none">
-                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors flex items-center gap-3">
-                        {Icon && <Icon className={`w-6 h-6 ${iconColor}`} />}
-                        {title}
-                    </h3>
-                    <p className="text-slate-400 leading-relaxed text-sm">
-                        {description}
-                    </p>
+            <div className="relative p-8 h-full flex flex-col z-10">
+                <div className="flex-grow">
+                    <div className="mb-6 relative h-48 rounded-2xl overflow-hidden bg-slate-950/50 light:bg-slate-50 border border-white/5 light:border-slate-100 group-hover:border-indigo-500/30 transition-colors">
+                        {children}
+                        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-slate-900/90 light:from-slate-50/90 to-transparent pointer-events-none" />
+                    </div>
+                    <div className="space-y-4">
+                        <h3 className="text-2xl font-bold text-white light:text-slate-900 mb-2 group-hover:text-indigo-400 light:group-hover:text-indigo-600 transition-colors flex items-center gap-3">
+                            {Icon && <Icon className={`w-6 h-6 ${iconColor}`} />}
+                            {title}
+                        </h3>
+                        <p className="text-slate-400 light:text-slate-600 leading-relaxed text-sm">
+                            {description}
+                        </p>
+                    </div>
                 </div>
             </div>
         </motion.div>

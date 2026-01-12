@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+@variant light (&:where(.light, .light *));
 
 :root {
   --background: #ffffff;

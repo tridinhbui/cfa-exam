@@ -92,19 +92,19 @@ export function MissionChat() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="glass rounded-[2rem] overflow-hidden border-white/5 shadow-2xl scale-[0.95] origin-top"
+                className="glass light:bg-white rounded-[2rem] overflow-hidden border border-white/5 light:border-slate-200 shadow-2xl scale-[0.95] origin-top"
             >
                 {/* Fixed Header */}
-                <div className="p-5 sm:p-6 bg-white/5 border-b border-white/5 relative z-10 shadow-xl">
+                <div className="p-5 sm:p-6 bg-white/5 light:bg-slate-50 border-b border-white/5 light:border-slate-200 relative z-10 shadow-xl light:shadow-sm">
                     <div className="flex justify-between items-center mb-4">
-                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-wider">
+                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 light:bg-indigo-50 text-indigo-400 light:text-indigo-600 text-[10px] font-bold uppercase tracking-wider">
                             Question 1 of 10
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                        <span className="px-2.5 py-0.5 rounded-full bg-slate-800 light:bg-slate-100 text-slate-400 light:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
                             Ethics
                         </span>
                     </div>
-                    <h3 className="text-base sm:text-lg font-medium text-slate-200 leading-snug">
+                    <h3 className="text-base sm:text-lg font-medium text-slate-200 light:text-slate-900 leading-snug">
                         According to the CFA Institute Code of Ethics, members and candidates must place the integrity of the investment profession and the interests of clients above their own personal interests. Which of the following actions would most likely violate this principle?
                     </h3>
                 </div>
@@ -123,17 +123,17 @@ export function MissionChat() {
                                 <div
                                     key={opt.id}
                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-500 flex items-start gap-4 ${isSelected
-                                        ? (isCorrect ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-rose-500/10 border-rose-500')
-                                        : 'bg-slate-900/40 border-white/5'
+                                        ? (isCorrect ? 'bg-emerald-500/10 light:bg-emerald-50 border-emerald-500 light:border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-rose-500/10 light:bg-rose-50 border-rose-500 light:border-rose-500/50')
+                                        : 'bg-slate-900/40 light:bg-slate-50/50 border-white/5 light:border-slate-100 shadow-sm'
                                         }`}
                                 >
                                     <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 font-bold transition-colors duration-500 ${isSelected
                                         ? (isCorrect ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white')
-                                        : 'bg-slate-800 text-slate-400'
+                                        : 'bg-slate-800 light:bg-slate-200 text-slate-400 light:text-slate-500'
                                         }`}>
                                         {isSelected && isCorrect ? <CheckCircle2 className="h-5 w-5" /> : opt.id}
                                     </div>
-                                    <span className={`text-sm sm:text-base leading-snug pt-0.5 transition-colors duration-500 ${isSelected ? 'text-white' : 'text-slate-400'
+                                    <span className={`text-sm sm:text-base leading-snug pt-0.5 transition-colors duration-500 ${isSelected ? 'text-white light:text-slate-900' : 'text-slate-400 light:text-slate-500'
                                         }`}>
                                         {opt.text}
                                     </span>
@@ -150,18 +150,18 @@ export function MissionChat() {
                                 exit={{ opacity: 0, y: 20 }}
                                 className="space-y-4 pb-4"
                             >
-                                <div className="mt-2 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-4">
+                                <div className="mt-2 p-5 rounded-2xl bg-emerald-500/10 light:bg-emerald-50 border border-emerald-500/20 light:border-emerald-500/20 flex items-start gap-4">
                                     <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
                                         <CheckCircle2 className="h-6 w-6 text-white" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-emerald-400 mb-1">Correct!</h4>
-                                        <p className="text-sm text-emerald-400/80">Great job on this question.</p>
+                                        <h4 className="font-bold text-emerald-400 light:text-emerald-600 mb-1">Correct!</h4>
+                                        <p className="text-sm text-emerald-400/80 light:text-emerald-600/70">Great job on this question.</p>
                                     </div>
                                 </div>
 
-                                <div className="w-full h-12 rounded-xl border border-white/10 bg-white/5 text-slate-300 text-sm font-medium flex items-center justify-center gap-2">
-                                    <Lightbulb className="h-4 w-4 text-amber-400" />
+                                <div className="w-full h-12 rounded-xl border border-white/10 light:border-slate-100 bg-white/5 light:bg-slate-50 text-slate-300 light:text-slate-500 text-sm font-medium flex items-center justify-center gap-2">
+                                    <Lightbulb className="h-4 w-4 text-amber-400 light:text-amber-500" />
                                     {showExplanation ? 'Explanation Revealed' : 'Show Explanation'}
                                 </div>
 
@@ -170,13 +170,13 @@ export function MissionChat() {
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="p-6 rounded-2xl glass border-indigo-500/20"
+                                            className="p-6 rounded-2xl bg-slate-950/60 light:bg-white/60 border border-indigo-500/20 light:border-indigo-500/10"
                                         >
-                                            <div className="flex items-center gap-2 mb-4 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                                            <div className="flex items-center gap-2 mb-4 text-indigo-400 light:text-indigo-600 font-bold text-xs uppercase tracking-wider">
                                                 <HelpCircle className="h-4 w-4" />
                                                 Explanation
                                             </div>
-                                            <p className="text-slate-300 text-sm leading-relaxed">
+                                            <p className="text-slate-300 light:text-slate-600 text-sm leading-relaxed">
                                                 Standard VI(A) - Disclosure of Conflicts requires members and candidates to make full and fair disclosure of all matters that could reasonably be expected to impair their independence and objectivity. An analyst who recommends a security in which she owns shares without disclosing this ownership is violating this standard by not revealing a potential conflict of interest.
                                             </p>
                                         </motion.div>
@@ -184,11 +184,11 @@ export function MissionChat() {
                                 </AnimatePresence>
 
                                 {/* Footer Nav */}
-                                <div className="mt-8 flex justify-between items-center border-t border-white/5 pt-6">
+                                <div className="mt-8 flex justify-between items-center border-t border-white/5 light:border-slate-100 pt-6">
                                     <div className="text-xs text-slate-500">1 of 10 answered</div>
                                     <div className="flex gap-3">
-                                        <div className="px-4 py-2 rounded-lg bg-slate-800 text-slate-400 text-xs font-bold uppercase tracking-widest leading-none flex items-center">Prev</div>
-                                        <div className="px-6 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center gap-2 uppercase tracking-widest group leading-none">
+                                        <div className="px-4 py-2 rounded-lg bg-slate-800 light:bg-slate-100 text-slate-400 light:text-slate-500 text-xs font-bold uppercase tracking-widest leading-none flex items-center">Prev</div>
+                                        <div className="px-6 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center gap-2 uppercase tracking-widest group leading-none shadow-lg shadow-indigo-500/20">
                                             Next
                                             <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                                         </div>

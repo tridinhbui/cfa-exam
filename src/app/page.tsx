@@ -38,10 +38,11 @@ import { MockExam, MockAnalytics, MockPlanner, MockItemSet } from '@/components/
 import { PricingSection } from '@/components/pricing-section';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Typewriter } from '@/components/ui/typewriter';
-
 import { useAuth } from '@/context/auth-context';
 import { logout } from '@/lib/auth-utils';
 import { useUserStore } from '@/store/user-store';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { useTheme } from 'next-themes';
 
 const features = [
   {
@@ -138,6 +139,12 @@ export default function LandingPage() {
   const { user, preloaderSeen, setPreloaderSeen } = useAuth();
   const dbUser = useUserStore((state) => state.user);
   const [loadingState, setLoadingState] = useState<LoadingState>('loading');
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // If preloader was already seen in this session (internal navigation), skip it
@@ -160,8 +167,8 @@ export default function LandingPage() {
   }, [preloaderSeen, setPreloaderSeen]);
 
   return (
-    <div className="min-h-screen relative">
-      <Starfield />
+    <div className="min-h-screen relative bg-slate-950 light:bg-slate-50 transition-colors duration-500">
+      {mounted && theme === 'dark' && <Starfield />}
       <AnimatePresence>
         {loadingState !== 'complete' && <LoadingScreen isExiting={loadingState === 'exiting'} />}
       </AnimatePresence>
@@ -174,7 +181,7 @@ export default function LandingPage() {
           className="relative z-10"
         >
           {/* Navigation */}
-          <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-slate-950/60 backdrop-blur-xl transition-all duration-300">
+          <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 light:border-slate-200 bg-slate-950/60 light:bg-white/80 backdrop-blur-xl transition-all duration-300">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -210,26 +217,27 @@ export default function LandingPage() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.6, duration: 0.5 }}
-                    className="text-lg font-bold text-white tracking-tight"
+                    className="text-lg font-bold text-white light:text-slate-900 tracking-tight"
                   >
-                    Mentis<span className="text-indigo-400">AI</span>
+                    Mentis<span className="text-indigo-400 light:text-indigo-600">AI</span>
                   </motion.span>
                 </div>
 
                 <div className="hidden md:flex items-center gap-8">
-                  <Link href="#mission" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Mission</Link>
-                  <Link href="#features" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Features</Link>
+                  <Link href="#mission" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Mission</Link>
+                  <Link href="#features" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Features</Link>
                   {dbUser?.subscription !== 'PRO' && (
-                    <Link href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Pricing</Link>
+                    <Link href="#pricing" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Pricing</Link>
                   )}
                 </div>
 
                 <div className="flex items-center gap-4">
+                  <ThemeToggle />
                   {user ? (
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-slate-300 hidden sm:inline-block">Hi, {user.displayName?.split(' ')[0]}</span>
+                      <span className="text-sm text-slate-300 light:text-slate-600 hidden sm:inline-block">Hi, {user.displayName?.split(' ')[0]}</span>
                       <Link href="/dashboard">
-                        <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/5">Dashboard</Button>
+                        <Button variant="ghost" className="text-slate-300 light:text-slate-600 hover:text-white light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-200">Dashboard</Button>
                       </Link>
                       <Button
                         onClick={async () => {
@@ -237,7 +245,7 @@ export default function LandingPage() {
                           window.location.reload();
                         }}
                         variant="ghost"
-                        className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                        className="text-rose-400 light:text-rose-600 hover:text-rose-300 light:hover:text-rose-700 hover:bg-rose-500/10 light:hover:bg-rose-50"
                       >
                         Logout
                       </Button>
@@ -245,10 +253,10 @@ export default function LandingPage() {
                   ) : (
                     <>
                       <Link href="/login">
-                        <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/5">Sign In</Button>
+                        <Button variant="ghost" className="text-slate-300 light:text-slate-600 hover:text-white light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-200">Sign In</Button>
                       </Link>
                       <Link href={user ? "/dashboard" : "/login"}>
-                        <Button className="bg-white text-slate-900 hover:bg-slate-100 font-semibold shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-transform hover:scale-[1.02]">
+                        <Button className="bg-white light:bg-indigo-600 text-slate-900 light:text-white hover:bg-slate-100 light:hover:bg-indigo-700 font-semibold shadow-[0_0_20px_rgba(255,255,255,0.2)] light:shadow-indigo-500/20 transition-transform hover:scale-[1.02]">
                           Get Started
                         </Button>
                       </Link>
@@ -274,18 +282,18 @@ export default function LandingPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8 backdrop-blur-sm"
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-indigo-500/10 light:bg-indigo-50 border border-indigo-500/20 light:border-indigo-100 mb-8 backdrop-blur-sm"
                   >
-                    <Sparkles className="h-4 w-4 text-indigo-400 mr-2" />
-                    <span className="text-indigo-200 text-sm font-medium">AI-Powered CFA Preparation</span>
+                    <Sparkles className="h-4 w-4 text-indigo-400 light:text-indigo-600 mr-2" />
+                    <span className="text-indigo-200 light:text-indigo-600 text-sm font-medium">AI-Powered CFA Preparation</span>
                   </motion.div>
 
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-8">
-                    Study CFA <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400">Smarter.</span> <br />
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white light:text-slate-900 tracking-tight leading-[1.1] mb-8">
+                    Study CFA <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 light:from-indigo-600 light:via-violet-600 light:to-indigo-600">Smarter.</span> <br />
                     Not Harder.
                   </h1>
 
-                  <p className="text-xl sm:text-2xl text-slate-400 mb-10 leading-relaxed font-medium min-h-[1.5em]">
+                  <p className="text-xl sm:text-2xl text-slate-400 light:text-slate-600 mb-10 leading-relaxed font-medium min-h-[1.5em]">
                     <Typewriter
                       text={[
                         "Master the CFA Exam",
@@ -294,31 +302,31 @@ export default function LandingPage() {
                       ]}
                       speed={70}
                       loop={true}
-                      className="text-indigo-400 font-bold"
+                      className="text-indigo-400 light:text-indigo-600 font-bold"
                     />
                   </p>
 
                   <div className="flex flex-wrap gap-x-6 gap-y-3 mb-8">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/5 border border-indigo-500/10 backdrop-blur-sm">
-                      <CheckCircle className="h-4 w-4 text-indigo-400" />
-                      <span className="text-sm font-medium text-indigo-100/80">Free Diagnostic Test</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/5 light:bg-indigo-50 border border-indigo-500/10 light:border-indigo-100 backdrop-blur-sm">
+                      <CheckCircle className="h-4 w-4 text-indigo-400 light:text-indigo-600" />
+                      <span className="text-sm font-medium text-indigo-100/80 light:text-slate-700">Free Diagnostic Test</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/5 border border-cyan-500/10 backdrop-blur-sm">
-                      <CheckCircle className="h-4 w-4 text-cyan-400" />
-                      <span className="text-sm font-medium text-cyan-100/80">24/7 Dedicated Support</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/5 light:bg-cyan-50 border border-cyan-500/10 light:border-cyan-100 backdrop-blur-sm">
+                      <CheckCircle className="h-4 w-4 text-cyan-400 light:text-cyan-600" />
+                      <span className="text-sm font-medium text-cyan-100/80 light:text-slate-700">24/7 Dedicated Support</span>
                     </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-start items-center mb-10">
                     <Link href={user ? "/dashboard" : "/login"}>
-                      <Button size="xl" className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all hover:scale-105 rounded-full w-full sm:w-auto">
+                      <Button size="xl" className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 light:shadow-indigo-500/20 transition-all hover:scale-[1.02] rounded-full w-full sm:w-auto font-bold">
                         Get Started
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
                     </Link>
                     <button
                       onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                      className="h-14 px-8 text-lg border border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/20 backdrop-blur-sm rounded-full transition-all w-full sm:w-auto"
+                      className="h-14 px-8 text-lg border border-white/10 light:border-slate-200 bg-white/5 light:bg-white/50 text-white light:text-slate-900 hover:bg-white/10 light:hover:bg-white/80 hover:border-white/20 light:hover:border-slate-300 backdrop-blur-sm rounded-full transition-all w-full sm:w-auto shadow-sm"
                     >
                       View Demo
                     </button>
@@ -333,8 +341,8 @@ export default function LandingPage() {
                   className="relative group"
                 >
                   <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/20 to-violet-500/20 rounded-[2rem] blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
-                  <div className="relative border border-white/10 p-2 bg-slate-950/50 rounded-[2rem] shadow-2xl backdrop-blur-sm overflow-hidden transform lg:rotate-2 lg:group-hover:rotate-0 transition-transform duration-700">
-                    <div className="h-[400px] overflow-hidden rounded-2xl bg-slate-950 border border-white/5">
+                  <div className="relative border border-white/10 light:border-slate-200 p-2 bg-slate-950/50 light:bg-white/50 rounded-[2rem] shadow-2xl backdrop-blur-sm overflow-hidden transform lg:rotate-2 lg:group-hover:rotate-0 transition-transform duration-700">
+                    <div className="h-[400px] overflow-hidden rounded-2xl bg-slate-950 light:bg-white border border-white/5 light:border-slate-100">
                       <HeroAnalytics />
                     </div>
                   </div>
@@ -343,15 +351,15 @@ export default function LandingPage() {
                   <motion.div
                     animate={{ y: [0, -10, 0] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -top-6 -right-6 p-4 rounded-2xl bg-slate-900/80 border border-white/10 backdrop-blur-md shadow-xl z-20 hidden md:block"
+                    className="absolute -top-6 -right-6 p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 backdrop-blur-md shadow-xl z-20 hidden md:block"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                        <TrendingUp className="h-5 w-5 text-emerald-400" />
+                      <div className="h-10 w-10 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center">
+                        <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-400 font-medium">Daily Progress</p>
-                        <p className="text-sm font-bold text-white">+12.4%</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Daily Progress</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">+12.4%</p>
                       </div>
                     </div>
                   </motion.div>
@@ -362,20 +370,20 @@ export default function LandingPage() {
               <div className="mt-24 relative z-20">
                 <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="h-6 w-6 text-emerald-400" />
-                    <span className="text-slate-400 font-medium whitespace-nowrap">Free 30 Questions Daily</span>
+                    <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">Free 30 Questions Daily</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Clock className="h-6 w-6 text-amber-400" />
-                    <span className="text-slate-400 font-medium whitespace-nowrap">Real Exam Timing</span>
+                    <Clock className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                    <span className="text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">Real Exam Timing</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Target className="h-6 w-6 text-indigo-400" />
-                    <span className="text-slate-400 font-medium whitespace-nowrap">LOS Aligned</span>
+                    <Target className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                    <span className="text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">LOS Aligned</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Users className="h-6 w-6 text-violet-400" />
-                    <span className="text-slate-400 font-medium whitespace-nowrap">50,000+ Users</span>
+                    <Users className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                    <span className="text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">50,000+ Users</span>
                   </div>
                 </div>
               </div>
@@ -385,7 +393,7 @@ export default function LandingPage() {
 
 
           {/* Mission Section */}
-          <section id="mission" className="py-24 bg-slate-950/50 relative overflow-hidden">
+          <section id="mission" className="py-24 bg-white/40 dark:bg-slate-950/50 border-y border-slate-200 dark:border-white/5 relative overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="grid lg:grid-cols-2 gap-16 items-center">
                 <motion.div
@@ -394,8 +402,8 @@ export default function LandingPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6 }}
                 >
-                  <p className="text-sm font-bold text-indigo-400 tracking-widest uppercase mb-4">Our Mission</p>
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+                  <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-widest uppercase mb-4">Our Mission</p>
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
                     Making CFA Prep <br />
                     <CyclingBadge />
                   </h2>
@@ -404,11 +412,11 @@ export default function LandingPage() {
                   <div className="space-y-6 mb-10">
                     <div className="flex items-start gap-4">
                       <div className="mt-1 h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
-                      <p className="text-slate-400"><span className="text-slate-200 font-medium">Curated Content:</span> Rigorously reviewed by charterholders to ensure accuracy and relevance.</p>
+                      <p className="text-slate-600 dark:text-slate-400"><span className="text-slate-900 dark:text-slate-200 font-bold">Curated Content:</span> Rigorously reviewed by charterholders to ensure accuracy and relevance.</p>
                     </div>
                     <div className="flex items-start gap-4">
                       <div className="mt-1 h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
-                      <p className="text-slate-400"><span className="text-slate-200 font-medium">Real Conditions:</span> Interface designed to mirror the actual computer-based testing environment.</p>
+                      <p className="text-slate-600 dark:text-slate-400"><span className="text-slate-900 dark:text-slate-200 font-bold">Real Conditions:</span> Interface designed to mirror the actual computer-based testing environment.</p>
                     </div>
                   </div>
 
@@ -429,14 +437,14 @@ export default function LandingPage() {
           </section>
 
           {/* Features Section */}
-          <section id="features" className="py-24 relative bg-slate-900/30">
+          <section id="features" className="py-24 relative bg-slate-100/50 dark:bg-slate-900/30">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-20">
-                <span className="text-indigo-400 font-semibold tracking-wider uppercase text-sm">Features</span>
-                <h2 className="text-4xl lg:text-5xl font-bold text-white mt-3 mb-6">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm">Features</span>
+                <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mt-3 mb-6">
                   Designed for CFA Exam Success
                 </h2>
-                <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+                <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
                   Our comprehensive platform covers all CFA levels with AI-driven tools designed
                   to maximize your learning efficiency.
                 </p>
@@ -508,20 +516,20 @@ export default function LandingPage() {
                   glowingVariant="amber"
                 >
                   <div className="absolute inset-0 flex items-center justify-center p-6 pb-0 overflow-hidden">
-                    <div className="w-full bg-slate-900 border border-white/10 rounded-t-xl p-4 shadow-2xl transform translate-y-4">
-                      <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
+                    <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-t-xl p-4 shadow-2xl transform translate-y-4">
+                      <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-white/5">
                         <div className="flex items-center gap-2">
                           <Clock className="w-3 h-3 text-amber-500" />
-                          <span className="text-[10px] text-slate-400 font-bold uppercase">02:14:55</span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">02:14:55</span>
                         </div>
-                        <Badge variant="outline" className="text-[8px] bg-emerald-500/5 text-emerald-400 border-emerald-500/20">Active Session</Badge>
+                        <Badge variant="outline" className="text-[8px] bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">Active Session</Badge>
                       </div>
                       <div className="space-y-3">
-                        <div className="h-2 w-3/4 bg-slate-800 rounded-full" />
-                        <div className="h-2 w-1/2 bg-slate-800 rounded-full" />
+                        <div className="h-2 w-3/4 bg-slate-100 dark:bg-slate-800 rounded-full" />
+                        <div className="h-2 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-full" />
                         <div className="grid grid-cols-2 gap-2 pt-2">
-                          <div className="h-8 rounded-lg bg-slate-800/50 border border-white/5" />
-                          <div className="h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30" />
+                          <div className="h-8 rounded-lg bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-white/5" />
+                          <div className="h-8 rounded-lg bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-500/20 dark:border-indigo-500/30" />
                         </div>
                       </div>
                     </div>
@@ -540,16 +548,16 @@ export default function LandingPage() {
                 >
                   {/* Using a smaller version of MissionChat essentially */}
                   <div className="absolute inset-0 flex items-center justify-center p-6">
-                    <div className="bg-slate-900 border border-indigo-500/30 rounded-2xl p-4 w-full max-w-[250px] shadow-lg">
+                    <div className="bg-white dark:bg-slate-900 border border-indigo-500/20 dark:border-indigo-500/30 rounded-2xl p-4 w-full max-w-[250px] shadow-lg">
                       <div className="flex gap-3 mb-3">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                          <Sparkles className="w-4 h-4 text-indigo-400" />
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 flex items-center justify-center">
+                          <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <div className="text-xs text-slate-300">
-                          Can you explain <span className="text-indigo-400">convexity</span>?
+                        <div className="text-xs text-slate-600 dark:text-slate-300">
+                          Can you explain <span className="text-indigo-600 dark:text-indigo-400">convexity</span>?
                         </div>
                       </div>
-                      <div className="bg-slate-800/50 rounded-xl p-3 text-xs text-slate-400 leading-relaxed border border-white/5">
+                      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 text-xs text-slate-500 dark:text-slate-400 leading-relaxed border border-slate-100 dark:border-white/5">
                         Convexity measures the curvature in the relationship between bond prices and yields...
                       </div>
                     </div>
@@ -564,8 +572,8 @@ export default function LandingPage() {
           <section className="py-24 relative overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-16">
-                <span className="text-indigo-400 font-semibold tracking-wider uppercase text-sm">The Advantage</span>
-                <h2 className="text-4xl font-bold text-white mt-3 mb-6">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm">The Advantage</span>
+                <h2 className="text-4xl font-bold text-slate-900 dark:text-white mt-3 mb-6">
                   Why MentisAI?
                 </h2>
               </div>
@@ -589,14 +597,14 @@ export default function LandingPage() {
                       className="group relative rounded-3xl overflow-hidden"
                     >
                       <GlowingEffect variant={glowVariant as any} />
-                      <div className="relative p-8 rounded-3xl bg-slate-900/40 border border-white/5 backdrop-blur-sm h-full flex flex-col transition-all duration-300 group-hover:bg-slate-900/60">
+                      <div className="relative p-8 rounded-3xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 backdrop-blur-sm h-full flex flex-col transition-all duration-300 group-hover:bg-slate-50 dark:group-hover:bg-slate-900/60 shadow-sm">
                         <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${benefit.color} p-3.5 mb-6 shadow-lg shadow-indigo-500/10`}>
                           <Icon className="w-full h-full text-white" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-3 tracking-tight">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
                           {benefit.title}
                         </h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
                           {benefit.description}
                         </p>
                       </div>
@@ -609,12 +617,12 @@ export default function LandingPage() {
 
 
           {/* Levels Section */}
-          <section className="py-24 bg-slate-950 relative">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/10 via-slate-950 to-slate-950 pointer-events-none" />
+          <section className="py-24 bg-white dark:bg-slate-950 relative border-y border-slate-200 dark:border-white/5">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/5 dark:from-indigo-500/10 via-white dark:via-slate-950 to-white dark:to-slate-950 pointer-events-none" />
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-16">
-                <span className="text-indigo-400 font-semibold tracking-wider uppercase text-sm">Curriculum</span>
-                <h2 className="text-4xl font-bold text-white mt-3 mb-6">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm">Curriculum</span>
+                <h2 className="text-4xl font-bold text-slate-900 dark:text-white mt-3 mb-6">
                   Prepare for CFA Level 1
                 </h2>
               </div>
@@ -641,23 +649,23 @@ export default function LandingPage() {
                       className="group relative rounded-3xl overflow-hidden"
                     >
                       <GlowingEffect variant={glowVariant as any} />
-                      <div className="h-full relative p-8 rounded-3xl bg-slate-900/40 border border-white/5 backdrop-blur-sm transition-all duration-300 group-hover:bg-slate-900/60 flex flex-col">
+                      <div className="h-full relative p-8 rounded-3xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 backdrop-blur-sm transition-all duration-300 group-hover:bg-slate-50 dark:group-hover:bg-slate-900/60 flex flex-col shadow-sm">
                         <div className="flex justify-start mb-6">
-                          <Badge className={`${badgeColors} border px-3 py-1 font-medium rounded-full text-xs`}>
-                            {level.level}
+                          <Badge className={`${badgeColors} dark:border px-3 py-1 font-medium rounded-full text-xs`}>
+                            {badgeColors.includes('indigo') ? 'Level I' : level.level}
                           </Badge>
                         </div>
 
-                        <h3 className="text-2xl font-bold text-white mb-4">
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                           CFA {level.level}
                         </h3>
 
-                        <p className="text-slate-400 text-sm mb-10 leading-relaxed flex-grow">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm mb-10 leading-relaxed flex-grow">
                           {level.topics}
                         </p>
 
                         <Link href={user ? "/dashboard" : "/login"} className="block w-full mt-auto">
-                          <Button variant="outline" className="w-full h-12 border-white/10 hover:border-white/20 hover:bg-white/5 text-white font-medium flex items-center justify-center gap-2 rounded-xl transition-all">
+                          <Button variant="outline" className="w-full h-12 border-slate-200 dark:border-white/10 hover:border-indigo-500/30 dark:hover:border-white/20 hover:bg-indigo-50 dark:hover:bg-white/5 text-slate-900 dark:text-white font-medium flex items-center justify-center gap-2 rounded-xl transition-all">
                             Start {level.level}
                             <ChevronRight className="h-4 w-4" />
                           </Button>
@@ -704,7 +712,7 @@ export default function LandingPage() {
           </section>
 
           {/* Footer */}
-          <footer className="py-12 bg-slate-950 border-t border-white/5">
+          <footer className="py-12 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-white/5">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-3">
@@ -714,10 +722,10 @@ export default function LandingPage() {
                       alt="Logo"
                       width={24}
                       height={24}
-                      className="h-6 w-6 object-contain brightness-125 saturate-125"
+                      className="h-6 w-6 object-contain dark:brightness-125 dark:saturate-125"
                     />
                   </div>
-                  <span className="font-bold text-slate-300">MentisAI</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-300">MentisAI</span>
                 </div>
 
                 <div className="flex gap-8 text-sm text-slate-500">

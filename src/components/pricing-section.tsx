@@ -131,17 +131,18 @@ export function PricingSection() {
     return (
         <PayPalScriptProvider options={{
             clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "",
+            currency: "USD",
             locale: "en_US",
             intent: "capture"
         }}>
-            <section id="pricing" className="py-24 relative overflow-hidden bg-slate-950/20">
+            <section id="pricing" className="py-24 relative overflow-hidden bg-slate-950/20 light:bg-white">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="text-center mb-16">
-                        <span className="text-indigo-400 font-semibold tracking-wider uppercase text-sm">Investment</span>
-                        <h2 className="text-4xl lg:text-5xl font-bold text-white mt-3 mb-6">
+                        <span className="text-indigo-400 light:text-indigo-600 font-semibold tracking-wider uppercase text-sm">Investment</span>
+                        <h2 className="text-4xl lg:text-5xl font-bold text-white light:text-slate-900 mt-3 mb-6">
                             Unlock All Features & Unlimited Learning
                         </h2>
-                        <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+                        <p className="text-xl text-slate-400 light:text-slate-600 max-w-2xl mx-auto">
                             Invest in your future. Our AI-powered platform helps you study smarter, not harder.
                         </p>
                     </div>
@@ -155,9 +156,9 @@ export function PricingSection() {
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1 }}
                                 className={`relative flex flex-col p-6 rounded-[2.5rem] ${plan.highlight
-                                    ? 'bg-gradient-to-br from-indigo-900/40 to-slate-900/40 border-indigo-500/40'
-                                    : 'bg-slate-900/40 border-white/5'
-                                    } border backdrop-blur-sm transition-all duration-300 ${selectedPlan?.name === plan.name ? '' : 'hover:scale-[1.02]'} group h-full`}
+                                    ? 'bg-gradient-to-br from-indigo-900/40 light:from-indigo-50 to-slate-900/40 light:to-white border-indigo-500/40 light:border-indigo-200'
+                                    : 'bg-slate-900/40 light:bg-white/60 border-white/5 light:border-slate-200'
+                                    } border backdrop-blur-sm transition-all duration-300 ${selectedPlan?.name === plan.name ? '' : 'hover:scale-[1.02]'} group h-full shadow-sm`}
                             >
                                 <GlowingEffect
                                     spread={40}
@@ -174,18 +175,18 @@ export function PricingSection() {
                                     )}
 
                                     <div className="mb-6 text-center">
-                                        <h3 className="text-2xl font-bold text-white mb-4">{plan.name}</h3>
+                                        <h3 className="text-2xl font-bold text-white light:text-slate-900 mb-4">{plan.name}</h3>
 
                                         <div className="flex flex-col items-center gap-1 mb-2">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-slate-500 line-through text-sm font-medium">${plan.originalPrice}</span>
-                                                <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                <span className="text-slate-500 light:text-slate-400 line-through text-sm font-medium">${plan.originalPrice}</span>
+                                                <span className="bg-emerald-500/20 light:bg-emerald-50 text-emerald-400 light:text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
                                                     -{plan.discount}%
                                                 </span>
                                             </div>
                                             <div className="flex items-baseline gap-1">
-                                                <span className="text-4xl font-extrabold text-white">$</span>
-                                                <span className="text-4xl font-extrabold text-white">
+                                                <span className="text-4xl font-extrabold text-white light:text-slate-900">$</span>
+                                                <span className="text-4xl font-extrabold text-white light:text-slate-900">
                                                     <NumberFlow value={plan.price} />
                                                 </span>
                                             </div>
@@ -195,10 +196,10 @@ export function PricingSection() {
                                     <div className="space-y-4 mb-8 flex-grow">
                                         {plan.features.map((feature) => (
                                             <div key={feature} className="flex items-start gap-3">
-                                                <div className={`mt-0.5 rounded-full p-1 ${plan.highlight ? 'bg-indigo-500/20' : 'bg-slate-800'}`}>
-                                                    <Check className={`h-3 w-3 ${plan.highlight ? 'text-indigo-400' : 'text-slate-400'}`} />
+                                                <div className={`mt-0.5 rounded-full p-1 ${plan.highlight ? 'bg-indigo-500/20 light:bg-indigo-500/10' : 'bg-slate-800 light:bg-slate-100'}`}>
+                                                    <Check className={`h-3 w-3 ${plan.highlight ? 'text-indigo-400 light:text-indigo-600' : 'text-slate-400'}`} />
                                                 </div>
-                                                <span className="text-sm text-slate-300 font-medium leading-tight">{feature}</span>
+                                                <span className="text-sm text-slate-300 light:text-slate-600 font-medium leading-tight">{feature}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -209,7 +210,7 @@ export function PricingSection() {
                                                 {/* Custom Card Button */}
                                                 <Button
                                                     onClick={() => router.push(`/checkout?plan=${encodeURIComponent(plan.name)}&price=${plan.price}`)}
-                                                    className="w-full h-12 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
+                                                    className="w-full h-12 bg-white light:bg-slate-900 text-slate-900 light:text-white hover:bg-slate-100 light:hover:bg-slate-800 font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
                                                 >
                                                     <CreditCard className="h-4 w-4" />
                                                     Debit or Credit Card
@@ -261,8 +262,8 @@ export function PricingSection() {
                                                     setSelectedPlan(plan);
                                                 }}
                                                 className={`w-full h-12 rounded-xl font-bold text-sm transition-all ${plan.highlight
-                                                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/30'
-                                                    : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
+                                                    ? 'bg-blue-600 light:bg-indigo-600 hover:bg-blue-500 light:hover:bg-indigo-700 text-white shadow-xl shadow-blue-600/30 light:shadow-indigo-600/30'
+                                                    : 'bg-white/5 light:bg-slate-100 hover:bg-white/10 light:hover:bg-slate-200 text-white light:text-slate-900 border border-white/10 light:border-slate-200'
                                                     }`}
                                             >
                                                 {plan.cta}
@@ -275,8 +276,8 @@ export function PricingSection() {
                     </div>
 
                     <div className="mt-20 text-center max-w-3xl mx-auto">
-                        <h3 className="text-2xl font-bold text-white mb-4">Need help with your payment?</h3>
-                        <p className="text-slate-400 mb-8 font-medium">Do not hesitate to contact our support team for any questions or issues.</p>
+                        <h3 className="text-2xl font-bold text-white light:text-slate-900 mb-4">Need help with your payment?</h3>
+                        <p className="text-slate-400 light:text-slate-600 mb-8 font-medium">Do not hesitate to contact our support team for any questions or issues.</p>
 
                         <div className="mt-16">
                             <p className="text-slate-500 text-[10px] max-w-2xl mx-auto leading-relaxed uppercase tracking-widest font-medium opacity-60">
