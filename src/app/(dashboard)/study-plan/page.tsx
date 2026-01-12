@@ -19,6 +19,10 @@ import { Progress } from '@/components/ui/progress';
 import { StudyCalendar } from '@/components/study-plan/study-calendar';
 import { WeeklyTasks, WeeklyTask } from '@/components/study-plan/weekly-tasks';
 import { addDays } from 'date-fns';
+import { ExamWindowSelector } from '@/components/study-plan/exam-window-selector';
+import { useExamStore } from '@/store/exam-store';
+import { useAuth } from '@/context/auth-context';
+import { updateStudyPlanExamDate } from '@/app/actions/study-plan';
 
 // Mock task data (keep existing tasks for now)
 const today = new Date();
@@ -50,46 +54,23 @@ const milestones = [
 ];
 
 export default function StudyPlanPage() {
+  const { user } = useAuth();
   const [currentWeek] = useState(1);
-  const [examInfo, setExamInfo] = useState<{ date: Date | null; label: string; daysRemaining: number }>({
-    date: null,
-    label: 'Loading...',
-    daysRemaining: 0,
-  });
+  const { date: examDate, label: examLabel, setExam, daysRemaining } = useExamStore();
+  const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+
+  // Derived state
+  const daysLeft = daysRemaining();
 
   useEffect(() => {
-    const fetchExamDate = async () => {
-      try {
-        const res = await fetch('/api/exam-date');
-        if (res.ok) {
-          const data = await res.json();
-          const examDate = new Date(data.date); // API returns ISO string
-          const now = new Date();
-          const diffTime = examDate.getTime() - now.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-          setExamInfo({
-            date: examDate,
-            label: data.label,
-            daysRemaining: diffDays > 0 ? diffDays : 0
-          });
-        }
-      } catch (error) {
-        console.error("Failed to fetch exam date", error);
-        // Fallback or error state could go here
-        setExamInfo({
-          date: new Date('2026-02-17'),
-          label: 'Feb 17, 2026 (Est)',
-          daysRemaining: 0
-        });
-      }
-    };
-
-    fetchExamDate();
-  }, []);
+    // If global store has no date, open dialog
+    if (!examDate) {
+      setIsCustomizeOpen(true);
+    }
+  }, [examDate]);
 
   // Use state values or defaults
-  const weeksUntilExam = Math.ceil((examInfo.daysRemaining) / 7);
+  const weeksUntilExam = Math.ceil(daysLeft / 7);
 
   const handleTaskComplete = (taskId: string) => {
     console.log('Task completed:', taskId);
@@ -97,6 +78,17 @@ export default function StudyPlanPage() {
 
   const handleStartTask = (task: WeeklyTask) => {
     console.log('Starting task:', task);
+  };
+
+  const handleExamSelect = async (date: Date, label: string) => {
+    setExam(date, label);
+    if (user?.uid) {
+      try {
+        await updateStudyPlanExamDate(user.uid, date);
+      } catch (error) {
+        console.error('Failed to update study plan:', error);
+      }
+    }
   };
 
   return (
@@ -120,10 +112,16 @@ export default function StudyPlanPage() {
             <Bell className="h-4 w-4 mr-2" />
             Reminders
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setIsCustomizeOpen(true)}>
             <Settings className="h-4 w-4 mr-2" />
             Customize
           </Button>
+          <ExamWindowSelector
+            open={isCustomizeOpen}
+            onOpenChange={setIsCustomizeOpen}
+            currentSelectedDate={examDate}
+            onSelect={handleExamSelect}
+          />
         </div>
       </div>
 
@@ -143,9 +141,9 @@ export default function StudyPlanPage() {
                 <div>
                   <p className="text-sm text-amber-600 font-medium">Exam Date</p>
                   <p className="text-3xl font-bold text-foreground">
-                    {examInfo.date ? `${examInfo.daysRemaining} days` : '...'}
+                    {examDate ? `${daysLeft} days` : '...'}
                   </p>
-                  <p className="text-sm text-muted-foreground">{examInfo.label}</p>
+                  <p className="text-sm text-muted-foreground">{examLabel}</p>
                 </div>
               </div>
             </CardContent>
@@ -262,7 +260,7 @@ export default function StudyPlanPage() {
       >
         <StudyCalendar
           tasks={studyTasks}
-          examDate={examInfo.date || new Date()}
+          examDate={examDate || new Date()}
           onTaskClick={(task) => console.log('Task clicked:', task)}
         />
       </motion.div>
@@ -296,7 +294,6 @@ export default function StudyPlanPage() {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </div >
   );
 }
-

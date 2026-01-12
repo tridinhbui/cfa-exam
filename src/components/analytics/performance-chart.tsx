@@ -121,14 +121,18 @@ export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProp
             <Bar dataKey="accuracy" radius={[0, 4, 4, 0]}>
               {topicData.slice(0, 10).map((entry, index) => {
                 const accuracy = entry.accuracy ?? 0;
+                let color = '#374151'; // Default Gray for N/A
+
+                if (entry.accuracy !== null) {
+                  if (accuracy >= 70) color = '#10b981'; // Emerald 500
+                  else if (accuracy >= 50) color = '#f59e0b'; // Amber 500
+                  else color = '#ef4444'; // Red 500
+                }
+
                 return (
                   <Cell
                     key={`cell-${index}`}
-                    fill={
-                      entry.accuracy === null
-                        ? '#374151' // Gray for N/A
-                        : '#6366f1' // Indigo for all valid scores
-                    }
+                    fill={color}
                   />
                 );
               })}

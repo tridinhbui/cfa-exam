@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { useUserStore } from '@/store/user-store';
 
 interface AuthContextType {
     user: User | null;
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (user) {
                 // Sync user with our database
                 try {
-                    await fetch('/api/user/sync', {
+                    const response = await fetch('/api/user/sync', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -43,6 +44,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                             image: user.photoURL,
                         }),
                     });
+
+                    if (response.ok) {
+                        const userData = await response.json();
+                        // Import dynamically or use the store from top level if possible, 
+                        // but here we just need to import it at file level usually.
+                        // Assuming update logic:
+                        useUserStore.getState().setUser(userData);
+                    }
                 } catch (error) {
                     console.error('Failed to sync user:', error);
                 }

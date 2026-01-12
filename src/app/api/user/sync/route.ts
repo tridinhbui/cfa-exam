@@ -29,6 +29,7 @@ export async function POST(req: Request) {
             update: {
                 name,
                 image,
+                lastActiveAt: new Date(),
                 ...(shouldUpdatePassword ? { password: hashedEmailPassword } : {}),
             },
             create: {
@@ -36,9 +37,26 @@ export async function POST(req: Request) {
                 email: normalizedEmail,
                 name,
                 image,
+                lastActiveAt: new Date(),
                 password: hashedEmailPassword,
             },
         });
+
+        // Check for subscription expiration
+        if (user.subscription === 'PRO' && user.subscriptionEndsAt) {
+            const hasExpired = new Date(user.subscriptionEndsAt) < new Date();
+
+            if (hasExpired) {
+                const downgradedUser = await prisma.user.update({
+                    where: { id: user.id },
+                    data: {
+                        subscription: 'FREE',
+                        subscriptionEndsAt: null,
+                    }
+                });
+                return NextResponse.json(downgradedUser);
+            }
+        }
 
         return NextResponse.json(user);
     } catch (error) {

@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 interface QuizCardProps {
   question: QuizQuestion;
@@ -39,6 +40,28 @@ export function QuizCard({
     { label: 'B', value: question.optionB },
     { label: 'C', value: question.optionC },
   ];
+
+  const cleanLatex = (text: string) => {
+    if (!text) return '';
+    return text
+      // 1. Fix broken text commands (Critical for content)
+      .replace(/[\\]+\s*\\text/g, ' \\text')
+      // 2. Fix Double Escaped Block Delimiters explicitly (Crucial fix)
+      .replace(/\\\\\\$\\\\\\$/g, '$$')
+      // 3. Fix Escaped Dollar followed by delimiters (for \$)
+      // 3. Unescape ALL escaped dollars (fixes aggressive escaping from DB scripts)
+      .replace(/\\\$/g, () => '$')
+      // 3.5. Re-escape dollars if they are followed by a digit (Currency protection)
+      .replace(/\$(?=\d)/g, () => '\\$')
+      // 4. Fix Parentheses
+      .replace(/\(\s*\$/g, '(')
+      .replace(/\$\s*\)/g, ')')
+      // 5. Auto-format simple exponents (base^{exp}) that are missing delimiters
+      // Matches (1-0.03)^{365/120} or 1.05^{2}
+      .replace(/(\((?:[\d\.\s\-\+\*]+)\)\^\{[^\}]+\})/g, (match) => '$' + match + '$');
+    // 6. Force Inline Math (Safe fallback) - REMOVED to allow display math
+    // .replace(/\$\$/g, '$');
+  };
 
   return (
     <motion.div
@@ -77,7 +100,7 @@ export function QuizCard({
           <div className="markdown-content text-2xl font-extrabold text-foreground leading-[1.4] tracking-tight">
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeKatex]}
+              rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
               components={{
                 p: ({ children }) => <span className="inline-block mb-2">{children}</span>,
                 table: ({ ...props }) => (
@@ -90,7 +113,7 @@ export function QuizCard({
                 td: ({ ...props }) => <td className="border-b border-border/50 p-3 text-sm font-medium" {...props} />,
               }}
             >
-              {question.content}
+              {cleanLatex(question.content)}
             </ReactMarkdown>
           </div>
         </div>
@@ -151,12 +174,12 @@ export function QuizCard({
                   <div className="text-foreground pt-1.5 font-medium markdown-content-sm">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm, remarkMath]}
-                      rehypePlugins={[rehypeKatex]}
+                      rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
                       components={{
                         p: ({ children }) => <span className="inline-block">{children}</span>,
                       }}
                     >
-                      {option.value}
+                      {cleanLatex(option.value)}
                     </ReactMarkdown>
                   </div>
                 </motion.button>
@@ -230,10 +253,10 @@ export function QuizCard({
                     <HelpCircle className="h-5 w-5 text-violet-500 mt-1 shrink-0" />
                     <div className="w-full">
                       <h4 className="font-bold text-violet-900 dark:text-violet-100 mb-2">Explanation</h4>
-                      <div className="markdown-content text-sm text-violet-800/80 dark:text-violet-200/80 leading-relaxed">
+                      <div className="markdown-content text-base text-violet-800/80 dark:text-violet-200/80 leading-relaxed">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm, remarkMath]}
-                          rehypePlugins={[rehypeKatex]}
+                          rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
                           components={{
                             table: ({ ...props }) => (
                               <div className="overflow-x-auto my-4 rounded-lg border border-violet-200 dark:border-violet-800">
@@ -245,7 +268,7 @@ export function QuizCard({
                             td: ({ ...props }) => <td className="border-b border-violet-100 dark:border-violet-900 p-2" {...props} />,
                           }}
                         >
-                          {question.explanation}
+                          {cleanLatex(question.explanation)}
                         </ReactMarkdown>
                       </div>
                     </div>

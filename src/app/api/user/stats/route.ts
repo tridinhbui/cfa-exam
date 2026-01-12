@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { startOfDay, startOfWeek, endOfWeek, subWeeks, subDays, addDays, format } from 'date-fns';
+import { startOfDay, startOfWeek, endOfWeek, subWeeks, subDays, addDays, format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 
 export async function GET(req: Request) {
     try {
@@ -52,6 +52,38 @@ export async function GET(req: Request) {
         const averageScore = totalQuestions > 0
             ? Math.round((totalCorrect / totalQuestions) * 100)
             : 0;
+
+        // Current Month Study Time
+        const monthStart = startOfMonth(now);
+        const monthEnd = endOfMonth(now);
+        const monthProgress = await prisma.dailyProgress.aggregate({
+            where: {
+                userId,
+                date: { gte: monthStart, lte: monthEnd }
+            },
+            _sum: { timeSpent: true }
+        });
+        const timeSpentThisMonth = monthProgress._sum.timeSpent || 0;
+
+        // Last Month Study Time (for Trend)
+        const lastMonthStart = startOfMonth(subMonths(now, 1));
+        const lastMonthEnd = endOfMonth(subMonths(now, 1));
+        const lastMonthProgress = await prisma.dailyProgress.aggregate({
+            where: {
+                userId,
+                date: { gte: lastMonthStart, lte: lastMonthEnd }
+            },
+            _sum: { timeSpent: true }
+        });
+        const timeSpentLastMonth = lastMonthProgress._sum.timeSpent || 0;
+
+        // Calculate Trend %
+        let monthlyTimeTrend = 0;
+        if (timeSpentLastMonth > 0) {
+            monthlyTimeTrend = Math.round(((timeSpentThisMonth - timeSpentLastMonth) / timeSpentLastMonth) * 100);
+        } else if (timeSpentThisMonth > 0) {
+            monthlyTimeTrend = 100; // 100% growth if started from 0
+        }
 
         // Weekly Accuracy Logic
         const weekStart = startOfWeek(now, { weekStartsOn: 1 });
@@ -130,6 +162,8 @@ export async function GET(req: Request) {
             questionsToday: dailyProgress?.questionsAnswered || 0,
             correctToday: dailyProgress?.correctAnswers || 0,
             timeSpentToday: dailyProgress?.timeSpent || 0,
+            timeSpentThisMonth,
+            monthlyTimeTrend,
             averageScore,
             totalQuestions,
             weeklyAccuracy,
@@ -137,7 +171,79 @@ export async function GET(req: Request) {
             chartData
         };
 
-        return NextResponse.json(stats);
+        // Error Analysis Logic
+        // 1. Fetch Quiz Mistakes
+        const quizMistakes = await prisma.quizQuestion.findMany({
+            where: {
+                quizAttempt: { userId },
+                isCorrect: false,
+            },
+            include: { question: true }
+        });
+
+        // 2. Fetch Item Set Mistakes
+        const itemSetMistakes = await prisma.itemSetAnswer.findMany({
+            where: {
+                attempt: { userId },
+                isCorrect: false,
+            },
+            include: { question: true }
+        });
+
+        let calcErrors = 0;
+        let conceptErrors = 0;
+
+        // Helper to analyze a question
+        const analyzeMistake = (q: any) => {
+            if (!q) return;
+            const content = q.content.toLowerCase();
+
+            // Check explanation and options too for stronger signal
+            const combinedText = [
+                q.content,
+                q.explanation,
+                q.optionA,
+                q.optionB,
+                q.optionC
+            ].join(' ').toLowerCase();
+
+            // Heuristic: If question contains math keywords/symbols, assume Calculation Mistake
+            const isCalculation =
+                content.includes('calculate') ||
+                content.includes('compute') ||
+                content.includes('value of') ||
+                content.includes('closest to') ||
+                combinedText.includes('$') ||
+                combinedText.includes('\\') || // LaTeX
+                combinedText.includes('%') ||
+                /[0-9]/.test(content);    // Contains numbers in prompt
+
+            if (isCalculation) {
+                calcErrors++;
+            } else {
+                conceptErrors++;
+            }
+        };
+
+        // Analyze both sources
+        quizMistakes.forEach(m => analyzeMistake(m.question));
+        itemSetMistakes.forEach(m => analyzeMistake(m.question));
+
+        const totalMistakes = calcErrors + conceptErrors;
+        const errorAnalysis = [
+            {
+                type: 'Conceptual Error',
+                count: conceptErrors,
+                percentage: totalMistakes > 0 ? Math.round((conceptErrors / totalMistakes) * 100) : 0
+            },
+            {
+                type: 'Calculation Mistake',
+                count: calcErrors,
+                percentage: totalMistakes > 0 ? Math.round((calcErrors / totalMistakes) * 100) : 0
+            }
+        ];
+
+        return NextResponse.json({ ...stats, errorAnalysis });
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

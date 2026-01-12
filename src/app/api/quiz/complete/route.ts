@@ -4,7 +4,7 @@ import { startOfDay, subDays, isSameDay } from 'date-fns';
 
 export async function POST(req: Request) {
     try {
-        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance, date, mode } = await req.json();
+        const { userId, correctAnswers, totalQuestions, timeSpent, topicPerformance, date, mode, questions, answers } = await req.json();
 
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -52,6 +52,8 @@ export async function POST(req: Request) {
 
         // Prepare TopicPerformance updates
         const topicUpdates: any[] = [];
+        /* 
+        // DISABLED per user request: Only update DailyProgress, not TopicPerformance
         if (topicPerformance) {
             const topicIds = Object.keys(topicPerformance);
 
@@ -96,6 +98,7 @@ export async function POST(req: Request) {
                 );
             }
         }
+        */
 
         // Create QuizAttempt
         // We'll create it even if we don't have detailed questionsData, just to track history.
@@ -113,9 +116,8 @@ export async function POST(req: Request) {
             }
         });
 
-
         // 3. Update User, DailyProgress, TopicPerformance, and create QuizAttempt in a transaction
-        await prisma.$transaction([
+        const results = await prisma.$transaction([
             // Update User streaks
             prisma.user.update({
                 where: { id: userId },
@@ -151,6 +153,89 @@ export async function POST(req: Request) {
             ...topicUpdates,
             quizAttemptCreate
         ]);
+
+        const quizAttempt = results[results.length - 1] as any;
+
+        // 4. SHADOW COPY LOGIC: Save incorrect answers for Error Analysis
+        if (quizAttempt && questions && answers && Array.isArray(questions)) {
+            try {
+                const incorrectQuestions = questions.filter((q: any) => {
+                    const userAns = answers[q.id];
+                    return userAns && userAns !== q.correctAnswer;
+                });
+
+                if (incorrectQuestions.length > 0) {
+                    // Cache a fallback topic ID in case questions don't have one
+                    const fallbackTopic = await prisma.topic.findFirst();
+
+                    for (const badQ of incorrectQuestions) {
+                        // Check if this question content already exists in 'Question' table
+                        let questionRecord = await prisma.question.findFirst({
+                            where: { content: badQ.content }
+                        });
+
+                        if (!questionRecord && user.cfaLevel) {
+                            try {
+                                // Validate Topic ID before insertion
+                                let validTopicId = badQ.topic?.id;
+
+                                // Check if topic exists in Topic table (it might be a Reading ID from Module Quiz)
+                                if (validTopicId) {
+                                    const topicExists = await prisma.topic.findUnique({
+                                        where: { id: validTopicId },
+                                        select: { id: true }
+                                    });
+                                    if (!topicExists) {
+                                        validTopicId = null;
+                                    }
+                                }
+
+                                // Use fallback if invalid
+                                if (!validTopicId) {
+                                    validTopicId = fallbackTopic?.id;
+                                }
+
+                                if (validTopicId) {
+                                    questionRecord = await prisma.question.create({
+                                        data: {
+                                            content: badQ.content,
+                                            optionA: badQ.optionA,
+                                            optionB: badQ.optionB,
+                                            optionC: badQ.optionC,
+                                            correctAnswer: badQ.correctAnswer,
+                                            explanation: badQ.explanation || '',
+                                            difficulty: 'MEDIUM',
+                                            topicId: validTopicId,
+                                            cfaLevel: user.cfaLevel,
+                                        }
+                                    });
+                                } else {
+                                    console.warn("Skipping shadow copy: No valid topic found (and no fallback) for question", badQ.id);
+                                }
+                            } catch (e) {
+                                console.warn("Skipping shadow copy creation for question:", badQ.id, e);
+                            }
+                        }
+
+                        if (questionRecord) {
+                            // Create the history record
+                            await prisma.quizQuestion.create({
+                                data: {
+                                    quizAttemptId: quizAttempt.id,
+                                    questionId: questionRecord.id, // Link to the Question table record
+                                    order: 0,
+                                    userAnswer: answers[badQ.id],
+                                    isCorrect: false,
+                                    answeredAt: now
+                                }
+                            });
+                        }
+                    }
+                }
+            } catch (shadowError) {
+                console.error("Shadow Copy Error:", shadowError);
+            }
+        }
 
         return NextResponse.json({
             success: true,

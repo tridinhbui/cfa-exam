@@ -41,6 +41,7 @@ import { Typewriter } from '@/components/ui/typewriter';
 
 import { useAuth } from '@/context/auth-context';
 import { logout } from '@/lib/auth-utils';
+import { useUserStore } from '@/store/user-store';
 
 const features = [
   {
@@ -135,6 +136,7 @@ type LoadingState = 'loading' | 'exiting' | 'complete';
 
 export default function LandingPage() {
   const { user, preloaderSeen, setPreloaderSeen } = useAuth();
+  const dbUser = useUserStore((state) => state.user);
   const [loadingState, setLoadingState] = useState<LoadingState>('loading');
 
   useEffect(() => {
@@ -216,7 +218,9 @@ export default function LandingPage() {
                 <div className="hidden md:flex items-center gap-8">
                   <Link href="#mission" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Mission</Link>
                   <Link href="#features" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Features</Link>
-                  <Link href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Pricing</Link>
+                  {dbUser?.subscription !== 'PRO' && (
+                    <Link href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Pricing</Link>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -227,7 +231,10 @@ export default function LandingPage() {
                         <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/5">Dashboard</Button>
                       </Link>
                       <Button
-                        onClick={() => logout()}
+                        onClick={async () => {
+                          await logout();
+                          window.location.reload();
+                        }}
                         variant="ghost"
                         className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
                       >
@@ -374,33 +381,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* Stats Section from Image */}
-          <section className="relative py-12 overflow-hidden">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                {stats.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="relative group"
-                  >
-                    <div className="absolute -inset-px bg-gradient-to-r from-indigo-500/20 to-violet-500/20 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative h-full p-8 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm text-center transition-all duration-300 group-hover:bg-slate-900/60 group-hover:border-white/10 group-hover:-translate-y-1">
-                      <p className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400 mb-2">
-                        {stat.value}
-                      </p>
-                      <p className="text-sm font-medium text-slate-500 tracking-wide uppercase group-hover:text-slate-400 transition-colors">
-                        {stat.label}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
+
 
           {/* Mission Section */}
           <section id="mission" className="py-24 bg-slate-950/50 relative overflow-hidden">
@@ -688,8 +669,8 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* Pricing Section */}
-          <PricingSection />
+          {/* Pricing Section - Hide if user is PRO */}
+          {dbUser?.subscription !== 'PRO' && <PricingSection />}
 
           {/* CTA Section */}
           <section className="py-32 relative overflow-hidden">
@@ -751,7 +732,8 @@ export default function LandingPage() {
             </div>
           </footer>
         </motion.div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

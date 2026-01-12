@@ -39,13 +39,6 @@ const quizModes = [
     icon: Clock,
     color: 'from-amber-600 to-orange-600',
   },
-  {
-    id: 'exam',
-    name: 'Exam Simulation',
-    description: 'Full exam conditions with continuous timer',
-    icon: Zap,
-    color: 'from-red-600 to-rose-600',
-  },
 ];
 
 interface Topic {
@@ -146,7 +139,7 @@ export default function QuizPage() {
         transition={{ delay: 0.1 }}
       >
         <h2 className="text-lg font-semibold text-foreground mb-4">Select Mode</h2>
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           {quizModes.map((mode) => {
             const Icon = mode.icon;
             const isSelected = selectedMode === mode.id;
@@ -310,27 +303,54 @@ export default function QuizPage() {
             </div>
 
             {/* Start Button */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
-              <Button
-                size="lg"
-                className="flex-1"
-                onClick={startQuiz}
-                disabled={selectedTopics.length === 0}
-              >
-                <Play className="h-5 w-5 mr-2" />
-                Start Quiz ({selectedTopics.length} topic{selectedTopics.length !== 1 ? 's' : ''})
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  const allTopicIds = topics.map((t) => t.id);
-                  window.location.href = `/quiz/session?topics=${allTopicIds.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}`;
-                }}
-              >
-                <Shuffle className="h-5 w-5 mr-2" />
-                Quick Random Quiz
-              </Button>
+            {/* Start Button */}
+            <div className="flex flex-col gap-4 pt-4 border-t border-border">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  size="lg"
+                  className="flex-1"
+                  onClick={startQuiz}
+                  disabled={selectedTopics.length === 0}
+                >
+                  <Play className="h-5 w-5 mr-2" />
+                  Start Quiz ({selectedTopics.length} topic{selectedTopics.length !== 1 ? 's' : ''})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    const allTopicIds = topics.map((t) => t.id);
+                    window.location.href = `/quiz/session?topics=${allTopicIds.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}`;
+                  }}
+                >
+                  <Shuffle className="h-5 w-5 mr-2" />
+                  Quick Random Quiz
+                </Button>
+              </div>
+
+              {/* Start Exam Button */}
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-rose-600 rounded-lg blur opacity-25 group-hover:opacity-60 transition duration-200" />
+                <Button
+                  size="lg"
+                  className="relative w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white border-none h-14"
+                  onClick={() => {
+                    const allTopicIds = topics.map((t) => t.id);
+                    // Force exam mode settings
+                    window.location.href = `/quiz/session?topics=${allTopicIds.join(',')}&mode=exam&count=180&difficulty=all`;
+                  }}
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center">
+                      <Zap className="h-5 w-5 mr-2 fill-white" />
+                      <span className="text-lg font-bold">Start Full Mock Exam</span>
+                    </div>
+                    <span className="text-xs text-red-100 opacity-90 font-normal">
+                      Comprehensive simulation with all topics and exam conditions
+                    </span>
+                  </div>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

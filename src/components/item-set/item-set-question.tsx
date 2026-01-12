@@ -5,6 +5,10 @@ import { Check, X, ArrowLeft, ArrowRight, Send } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 interface ItemSetQuestionProps {
   question: {
@@ -47,6 +51,26 @@ export function ItemSetQuestion({
     { label: 'C', value: question.optionC },
   ];
 
+  const cleanLatex = (text: string) => {
+    if (!text) return '';
+    return text
+      // Simplifying: Collapse any combo of backslashes/spaces before "text" into a single command
+      .replace(/[\\ ]+\\text/g, ' \\text')
+      // Standard cleanup
+      // 3. Unescape ALL escaped dollars globally
+      .replace(/\\\$/g, () => '$')
+      // 3.5. Re-escape dollars if they are followed by a digit (Currency protection)
+      // We use double backslash to ensure it survives one pass of markdown processing if needed, 
+      // but usually single \ is enough. However, sticking to single \ for now with function replacement.
+      .replace(/\$(?=\d)/g, () => '\\$')
+      .replace(/\(\s*\$/g, '(')
+      .replace(/\$\s*\)/g, ')')
+      // 5. Auto-format simple exponents (base^{exp}) that are missing delimiters
+      .replace(/(\((?:[\d\.\s\-\+\*]+)\)\^\{[^\}]+\})/g, (match) => '$' + match + '$');
+    // .replace(/\$\s*\\frac/g, '\\frac')
+    // .replace(/\$\$/g, '$');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -70,8 +94,8 @@ export function ItemSetQuestion({
                     i + 1 === questionNumber
                       ? 'bg-indigo-500'
                       : i + 1 < questionNumber
-                      ? 'bg-slate-600'
-                      : 'bg-slate-800'
+                        ? 'bg-slate-600'
+                        : 'bg-slate-800'
                   )}
                 />
               ))}
@@ -79,9 +103,12 @@ export function ItemSetQuestion({
           </div>
 
           {/* Question Content */}
-          <p className="text-white text-lg leading-relaxed mb-6">
-            {question.content}
-          </p>
+          {/* Question Content */}
+          <div className="text-white text-lg leading-relaxed mb-6 [&>p]:mb-4">
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}>
+              {cleanLatex(question.content)}
+            </ReactMarkdown>
+          </div>
 
           {/* Options */}
           <div className="space-y-3 mb-6">
@@ -99,10 +126,10 @@ export function ItemSetQuestion({
                     showResult && isCorrect
                       ? 'border-emerald-500 bg-emerald-500/10'
                       : showResult && isWrong
-                      ? 'border-red-500 bg-red-500/10'
-                      : isSelected
-                      ? 'border-indigo-500 bg-indigo-500/10'
-                      : 'border-slate-700 hover:border-slate-600'
+                        ? 'border-red-500 bg-red-500/10'
+                        : isSelected
+                          ? 'border-indigo-500 bg-indigo-500/10'
+                          : 'border-slate-700 hover:border-slate-600'
                   )}
                   whileHover={!showResult ? { scale: 1.01 } : {}}
                   whileTap={!showResult ? { scale: 0.99 } : {}}
@@ -114,10 +141,10 @@ export function ItemSetQuestion({
                       showResult && isCorrect
                         ? 'bg-emerald-500 text-white'
                         : showResult && isWrong
-                        ? 'bg-red-500 text-white'
-                        : isSelected
-                        ? 'bg-indigo-500 text-white'
-                        : 'bg-slate-800 text-slate-400'
+                          ? 'bg-red-500 text-white'
+                          : isSelected
+                            ? 'bg-indigo-500 text-white'
+                            : 'bg-slate-800 text-slate-400'
                     )}
                   >
                     {showResult && isCorrect ? (
@@ -128,7 +155,11 @@ export function ItemSetQuestion({
                       option.label
                     )}
                   </div>
-                  <p className="text-slate-300 pt-1">{option.value}</p>
+                  <div className="text-slate-300 pt-1 w-full">
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}>
+                      {cleanLatex(option.value)}
+                    </ReactMarkdown>
+                  </div>
                 </motion.button>
               );
             })}
@@ -141,10 +172,13 @@ export function ItemSetQuestion({
               animate={{ opacity: 1, y: 0 }}
               className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 mb-6"
             >
-              <h4 className="font-semibold text-white mb-2">Explanation</h4>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                {question.explanation}
-              </p>
+              <h4 className="font-semibold text-white mb-2 text-lg">Explanation</h4>
+
+              <div className="text-slate-300 text-base leading-relaxed [&>p]:mb-4">
+                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}>
+                  {cleanLatex(question.explanation)}
+                </ReactMarkdown>
+              </div>
             </motion.div>
           )}
 

@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Settings, CreditCard } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useUserStore } from '@/store/user-store';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -46,6 +47,7 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
+  const dbUser = useUserStore((state) => state.user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -113,12 +115,19 @@ export function Navbar() {
               Level I
             </Badge>
 
-            <Link href="/pricing">
-              <Button variant="outline" size="sm" className="hidden sm:flex gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-foreground">
-                <Crown className="h-4 w-4 text-amber-400" />
-                Upgrade
+            {dbUser?.subscription === 'PRO' ? (
+              <Button variant="ghost" size="sm" className="hidden sm:flex gap-2 text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 cursor-default">
+                <Crown className="h-4 w-4 fill-cyan-400" />
+                Pro Plan
               </Button>
-            </Link>
+            ) : (
+              <Link href="/pricing">
+                <Button variant="outline" size="sm" className="hidden sm:flex gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-foreground">
+                  <Crown className="h-4 w-4 text-amber-400" />
+                  Upgrade
+                </Button>
+              </Link>
+            )}
 
             <ThemeToggle />
 

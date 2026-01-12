@@ -60,6 +60,8 @@ export function QuizResults() {
             topicPerformance,
             date: new Date().toLocaleDateString('en-CA'), // Sends YYYY-MM-DD in local time
             mode,
+            questions, // Sent for shadow copy logic
+            answers, // Add answers map for detailed analysis
           }),
         });
       } catch (error) {

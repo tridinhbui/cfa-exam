@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { useExamStore } from '@/store/exam-store';
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -37,6 +38,9 @@ import { useState, useEffect } from 'react';
 export function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { date: examDate, label: examLabel, daysRemaining } = useExamStore();
+  const daysLeft = daysRemaining();
+
   const [stats, setStats] = useState({
     currentStreak: 0,
     questionsToday: 0,
@@ -126,14 +130,16 @@ export function Sidebar() {
         </nav>
 
         {/* Exam Countdown */}
-        <div className="my-4 p-4 rounded-xl bg-orange-500/5 border border-orange-500/10">
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className="h-4 w-4 text-orange-500" />
-            <span className="text-sm font-medium text-orange-600">Exam Countdown</span>
+        {examDate && (
+          <div className="my-4 p-4 rounded-xl bg-orange-500/5 border border-orange-500/10">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-4 w-4 text-orange-500" />
+              <span className="text-sm font-medium text-orange-600">Exam Countdown</span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{daysLeft} days</p>
+            <p className="text-xs text-muted-foreground mt-1">{examLabel}</p>
           </div>
-          <p className="text-2xl font-bold text-foreground">87 days</p>
-          <p className="text-xs text-muted-foreground mt-1">February 2025 Exam</p>
-        </div>
+        )}
 
         {/* Bottom Navigation */}
         <div className="pt-4 border-t border-border space-y-1">
