@@ -78,7 +78,13 @@ export async function POST(req: Request) {
 
             const performanceMap = new Map(existingPerformances.map((p: any) => [p.topicId, p]));
 
+            // Only update TopicPerformance for valid Topics (skip for Readings/Modules)
+            const allTopics = await prisma.topic.findMany({ select: { id: true } });
+            const validTopicIds = new Set(allTopics.map(t => t.id));
+
             for (const [topicId, stats] of Object.entries(topicPerformance) as [string, { correct: number, total: number }][]) {
+                if (!validTopicIds.has(topicId)) continue;
+
                 const existing = performanceMap.get(topicId);
                 const currentTotal = (existing?.totalAttempts || 0);
                 const currentCorrect = (existing?.correctCount || 0);
