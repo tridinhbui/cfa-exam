@@ -51,7 +51,8 @@ export function Sidebar() {
     const fetchStats = async () => {
       if (!user) return;
       try {
-        const res = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const localDate = new Date().toLocaleDateString('en-CA');
+        const res = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`);
         const data = await res.json();
         if (!data.error) {
           setStats(data);

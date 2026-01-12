@@ -31,6 +31,8 @@ interface TopicData {
   attempts: number;
 }
 
+import { useExamStore } from '@/store/exam-store';
+
 const quickActions = [
   {
     title: 'Practice Quiz',
@@ -53,6 +55,9 @@ import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { label: examLabel, daysRemaining } = useExamStore();
+  const daysLeft = daysRemaining();
+
   const [stats, setStats] = useState({
     name: '',
     currentStreak: 0,
@@ -82,8 +87,11 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       if (!user) return;
       try {
+        // Get local date string for timezone-safe stats (Jan 12, 2026 -> 2026-01-12)
+        const localDate = new Date().toLocaleDateString('en-CA');
+
         // Fetch user stats
-        const statsRes = await fetch(`/api/user/stats?userId=${user.uid}`);
+        const statsRes = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`);
         const statsData = await statsRes.json();
         if (!statsData.error) {
           setStats(statsData);
@@ -141,7 +149,7 @@ export default function DashboardPage() {
             Welcome Back, {displayName} 👋
           </motion.h1>
           <p className="text-muted-foreground mt-2 text-lg">
-            It&apos;s <span className="text-indigo-400 font-semibold">87 days</span> until your Feb 2025 exam
+            It&apos;s <span className="text-indigo-400 font-semibold">{daysLeft} days</span> until your {examLabel}
           </p>
         </div>
 

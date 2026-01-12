@@ -6,6 +6,7 @@ export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const userId = searchParams.get('userId');
+        const clientDate = searchParams.get('date'); // YYYY-MM-DD
 
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -26,8 +27,8 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        // Get today's progress
-        const now = new Date();
+        // Use client date if provided to align with user's timezone
+        const now = clientDate ? new Date(clientDate) : new Date();
         const today = startOfDay(now);
         const dailyProgress = await prisma.dailyProgress.findUnique({
             where: {
