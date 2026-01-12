@@ -6,8 +6,8 @@ if (!admin.apps.length) {
             credential: admin.credential.cert({
                 projectId: process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                // Thay thế các ký tự \n trong private key để tránh lỗi formatting
-                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+                // Tự động xử lý: xóa khoảng trắng, xóa dấu ngoặc kép thừa và convert \n
+                privateKey: process.env.FIREBASE_PRIVATE_KEY?.trim().replace(/^"(.*)"$/, '$1').replace(/\\n/g, '\n'),
             }),
         });
         console.log('Firebase Admin initialized successfully');
