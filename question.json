@@ -1,0 +1,41 @@
+[
+  {
+    "content": "A fixed income security’s current price is 101.45. You estimate that the price will rise to 103.28 if interest rates decrease 0.25% and fall to 100.81 if interest rates increase 0.25%. The security’s effective duration is closest to:",
+    "optionA": "1.22",
+    "optionB": "4.87",
+    "optionC": "9.74",
+    "correctAnswer": "B",
+    "explanation": "Effective duration is calculated as (PV− − PV+) / (2 × Δy × P0). Using the values: (103.28 − 100.81) / (2 × 0.0025 × 101.45) = 4.87.",
+    "formula": "Effective Duration = (PV− − PV+) / (2 × Δy × P0)",
+    "difficulty": "MEDIUM",
+    "topicId": "fixed_income",
+    "losId": null,
+    "cfaLevel": "LEVEL_1"
+  },
+  {
+    "content": "A perfectly hedged position consisting of a derivative and its underlying asset will most likely yield a return that is:",
+    "optionA": "smaller than the risk-free rate",
+    "optionB": "equal to the risk-free rate",
+    "optionC": "greater than the risk-free rate",
+    "correctAnswer": "B",
+    "explanation": "A perfectly hedged position is risk-free. If it earned more or less than the risk-free rate, arbitrage would exist and be eliminated. Therefore it must earn the risk-free rate.",
+    "formula": null,
+    "difficulty": "EASY",
+    "topicId": "derivatives",
+    "losId": null,
+    "cfaLevel": "LEVEL_1"
+  },
+  {
+    "content": "If the price of a commodity futures contract is below the spot price, it is most likely that the:",
+    "optionA": "roll yield is negative",
+    "optionB": "convenience yield exceeds storage costs",
+    "optionC": "cost of carry exceeds the convenience yield",
+    "correctAnswer": "B",
+    "explanation": "A futures price below the spot price implies that the convenience yield is greater than the cost of carry. This results in backwardation, where holding the physical commodity is more valuable than holding the futures contract.",
+    "formula": "Futures Price ≈ Spot × (1 + r) + Storage Cost − Convenience Yield",
+    "difficulty": "MEDIUM",
+    "topicId": "derivatives",
+    "losId": null,
+    "cfaLevel": "LEVEL_1"
+  }
+]
