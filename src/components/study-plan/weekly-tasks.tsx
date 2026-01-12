@@ -119,22 +119,33 @@ export function WeeklyTasks({
 
                 {/* Task Info */}
                 <div className="flex-1 min-w-0">
-                  <p
-                    className={cn(
-                      'font-medium truncate',
-                      task.isCompleted
-                        ? 'text-muted-foreground/60 line-through'
-                        : 'text-foreground'
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p
+                      className={cn(
+                        'font-medium truncate',
+                        task.isCompleted
+                          ? 'text-muted-foreground/60 line-through'
+                          : 'text-foreground'
+                      )}
+                    >
+                      {task.topic}
+                    </p>
+                    {(!task.isCompleted && new Date(task.targetDate) < new Date(new Date().setHours(0, 0, 0, 0))) && (
+                      <Badge variant="destructive" className="text-[9px] h-4 px-1.5 animate-pulse">
+                        Overdue
+                      </Badge>
                     )}
-                  >
-                    {task.topic}
-                  </p>
+                  </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Badge variant="outline" className="text-[10px]">
                       {config.label}
                     </Badge>
                     <span>•</span>
-                    <span>{formatDate(task.targetDate)}</span>
+                    <span className={cn(
+                      (!task.isCompleted && new Date(task.targetDate) < new Date(new Date().setHours(0, 0, 0, 0))) && "text-red-400 font-semibold"
+                    )}>
+                      {formatDate(task.targetDate)}
+                    </span>
                     <span>•</span>
                     <span>{task.estimatedTime} min</span>
                   </div>
