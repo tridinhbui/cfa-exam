@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { Check, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -205,9 +205,25 @@ export function PricingSection() {
 
                                     <div className="mt-auto">
                                         {selectedPlan?.name === plan.name ? (
-                                            <div className="space-y-3">
+                                            <div className="space-y-4">
+                                                {/* Custom Card Button */}
+                                                <Button
+                                                    onClick={() => router.push(`/checkout?plan=${encodeURIComponent(plan.name)}&price=${plan.price}`)}
+                                                    className="w-full h-12 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
+                                                >
+                                                    <CreditCard className="h-4 w-4" />
+                                                    Debit or Credit Card
+                                                </Button>
+
+                                                <div className="relative flex items-center gap-2 my-2 py-1">
+                                                    <div className="h-[1px] flex-1 bg-white/10" />
+                                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Or Pay with</span>
+                                                    <div className="h-[1px] flex-1 bg-white/10" />
+                                                </div>
+
                                                 <PayPalButtons
                                                     style={{ layout: "vertical", shape: "rect", height: 48, label: 'pay' }}
+                                                    fundingSource="paypal"
                                                     createOrder={(data, actions) => {
                                                         return actions.order.create({
                                                             intent: "CAPTURE",
@@ -229,10 +245,10 @@ export function PricingSection() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="w-full text-slate-400 hover:text-white"
+                                                    className="w-full text-slate-500 hover:text-slate-400 hover:bg-transparent"
                                                     onClick={() => setSelectedPlan(null)}
                                                 >
-                                                    Cancel
+                                                    Change Plan
                                                 </Button>
                                             </div>
                                         ) : (
