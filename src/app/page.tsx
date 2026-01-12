@@ -200,6 +200,7 @@ export default function LandingPage() {
                         alt="Logo"
                         width={32}
                         height={32}
+                        priority
                         className="h-8 w-8 object-contain brightness-125 saturate-150 drop-shadow-[0_0_8px_rgba(34,197,253,0.5)]"
                       />
                     </motion.div>

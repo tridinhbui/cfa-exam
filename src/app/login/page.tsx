@@ -100,6 +100,7 @@ export default function LoginPage() {
                                 alt="Logo"
                                 width={48}
                                 height={48}
+                                priority
                                 className="h-12 w-12 object-contain brightness-125 saturate-150 drop-shadow-[0_0_12px_rgba(34,197,253,0.6)]"
                             />
                         </motion.div>

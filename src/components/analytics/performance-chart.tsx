@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   AreaChart,
   Area,
@@ -13,7 +13,6 @@ import {
   Bar,
   Cell,
 } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface PerformanceData {
@@ -36,7 +35,15 @@ interface PerformanceChartProps {
 const COLORS = ['#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e'];
 
 export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProps) {
+  const [isMounted, setIsMounted] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="h-[300px] w-full bg-slate-900/10 animate-pulse rounded-xl border border-white/5" />;
+  }
 
   return (
     <Tabs defaultValue="trend">
@@ -106,7 +113,7 @@ export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProp
               stroke="var(--muted-foreground)"
               fontSize={11}
               width={120}
-              tickFormatter={(value) =>
+              tickFormatter={(value: string) =>
                 value.length > 15 ? value.slice(0, 15) + '...' : value
               }
             />
@@ -140,10 +147,6 @@ export function PerformanceChart({ weeklyData, topicData }: PerformanceChartProp
           </BarChart>
         </ResponsiveContainer>
       </TabsContent>
-
-
     </Tabs>
   );
 }
-
-
