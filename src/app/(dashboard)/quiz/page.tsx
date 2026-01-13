@@ -235,14 +235,8 @@ export default function QuizPage() {
                             {topic.questions} Qs
                           </span>
                           <Badge
-                            className={`text-[10px] font-black font-mono min-w-[45px] justify-center ${topic.accuracy === null
-                              ? 'bg-slate-800 text-slate-500'
-                              : topic.accuracy >= 70
-                                ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                : topic.accuracy >= 50
-                                  ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                                  : 'bg-red-500/10 text-red-500 border-red-500/20'
-                              }`}
+                            variant={topic.accuracy === null ? "default" : topic.accuracy >= 70 ? "success" : topic.accuracy >= 50 ? "warning" : "destructive"}
+                            className="text-[10px] font-black font-mono min-w-[45px] justify-center"
                           >
                             {topic.accuracy !== null ? `${topic.accuracy}%` : 'N/A'}
                           </Badge>
@@ -396,12 +390,8 @@ export default function QuizPage() {
                     </div>
                   </div>
                   <Badge
-                    className={`text-sm font-black font-mono min-w-[50px] justify-center ${quiz.score >= 70
-                      ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                      : quiz.score >= 50
-                        ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                        : 'bg-red-500/10 text-red-500 border-red-500/20'
-                      }`}
+                    variant={quiz.score >= 70 ? "success" : quiz.score >= 50 ? "warning" : "destructive"}
+                    className="text-sm font-black font-mono min-w-[50px] justify-center"
                   >
                     {quiz.score}%
                   </Badge>
