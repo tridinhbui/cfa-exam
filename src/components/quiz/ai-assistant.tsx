@@ -25,6 +25,19 @@ interface QuizAIAssistantProps {
     currentIndex: number;
 }
 
+// Helper to clean and format LaTeX from AI responses
+const formatMath = (content: string) => {
+    return content
+        // Replace \[ math \] with $$ math $$
+        .replace(/\\\[/g, '$$$$')
+        .replace(/\\\]/g, '$$$$')
+        // Replace \( math \) with $ math $
+        .replace(/\\\(/g, '$')
+        .replace(/\\\)/g, '$')
+        // Fix double backslashes if any (often happens in JSON strings)
+        .replace(/\\\\/g, '\\');
+};
+
 export function QuizAIAssistant({ question, explanation, topic, currentIndex }: QuizAIAssistantProps) {
     const { user } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
@@ -143,7 +156,7 @@ export function QuizAIAssistant({ question, explanation, topic, currentIndex }: 
                                                 li: ({ children }) => <li className="mb-1">{children}</li>,
                                             }}
                                         >
-                                            {m.content}
+                                            {formatMath(m.content)}
                                         </ReactMarkdown>
                                     </div>
                                 ) : (

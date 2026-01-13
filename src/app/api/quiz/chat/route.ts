@@ -33,7 +33,10 @@ export async function POST(req: NextRequest) {
             1. If the user just says "Hi", "Hello", "Yo", or basic greetings, just greet them back briefly and ask how you can help with THIS specific question. DO NOT explain the question or provide formulas yet.
             2. Only provide deep explanations if the student asks a specific question about the concepts or the problem.
             3. Keep all responses extremely concise and structured.
-            4. Use LaTeX for formulas (e.g. $$E = mc^2$$).
+            4. Use LaTeX for ALL mathematical formulas and variables. 
+               - Use double dollar signs for block formulas: $$formula$$.
+               - Use single dollar signs for inline variables or short formulas: $variable$.
+               - NEVER use plain parentheses ( ) or square brackets [ ] for math formulas.
             5. If the student asks something unrelated to CFA or this question, politely redirect them back.`
         };
 
