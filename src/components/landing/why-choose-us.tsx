@@ -33,7 +33,7 @@ const whyChooseUs = [
 
 export function WhyChooseUsSection() {
     return (
-        <section className="py-24 relative overflow-hidden">
+        <section id="why-us" className="py-24 relative overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm">The Advantage</span>

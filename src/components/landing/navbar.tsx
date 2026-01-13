@@ -56,6 +56,8 @@ export function LandingNavbar({ user, dbUserSubscription, loadingState }: Landin
                     <div className="hidden md:flex items-center gap-8">
                         <Link href="#mission" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Mission</Link>
                         <Link href="#features" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Features</Link>
+                        <Link href="#why-us" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Why MentisAI?</Link>
+                        <Link href="#curriculum" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Curriculum</Link>
                         {dbUserSubscription !== 'PRO' && (
                             <Link href="#pricing" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Pricing</Link>
                         )}

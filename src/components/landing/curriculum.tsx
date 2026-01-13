@@ -21,7 +21,7 @@ interface CurriculumSectionProps {
 
 export function CurriculumSection({ user }: CurriculumSectionProps) {
     return (
-        <section className="py-24 bg-white dark:bg-slate-950 relative border-y border-slate-200 dark:border-white/5">
+        <section id="curriculum" className="py-24 bg-white dark:bg-slate-950 relative border-y border-slate-200 dark:border-white/5">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/5 dark:from-indigo-500/10 via-white dark:via-slate-950 to-white dark:to-slate-950 pointer-events-none" />
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-16">
