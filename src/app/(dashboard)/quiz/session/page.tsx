@@ -200,6 +200,11 @@ function QuizContent() {
             <QuizAIAssistant
               question={currentQuestion.content}
               explanation={currentQuestion.explanation || ''}
+              options={{
+                A: currentQuestion.optionA,
+                B: currentQuestion.optionB,
+                C: currentQuestion.optionC
+              }}
               topic={topics}
               currentIndex={currentIndex}
             />

@@ -21,6 +21,11 @@ interface Message {
 interface QuizAIAssistantProps {
     question: string;
     explanation: string;
+    options: {
+        A: string;
+        B: string;
+        C: string;
+    };
     topic?: string;
     currentIndex: number;
 }
@@ -38,7 +43,7 @@ const formatMath = (content: string) => {
         .replace(/\\\\/g, '\\');
 };
 
-export function QuizAIAssistant({ question, explanation, topic, currentIndex }: QuizAIAssistantProps) {
+export function QuizAIAssistant({ question, explanation, options, topic, currentIndex }: QuizAIAssistantProps) {
     const { user } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
@@ -79,6 +84,7 @@ export function QuizAIAssistant({ question, explanation, topic, currentIndex }: 
                     messages: newMessages,
                     question,
                     explanation,
+                    options,
                     topic: topic || 'General CFA'
                 }),
             });

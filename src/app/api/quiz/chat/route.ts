@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         const userId = authResult.uid;
 
         const body = await req.json();
-        const { messages, question, explanation, topic } = body;
+        const { messages, question, explanation, topic, options } = body;
 
         if (!messages || !Array.isArray(messages)) {
             return NextResponse.json({ error: 'Invalid messages' }, { status: 400 });
@@ -27,6 +27,11 @@ export async function POST(req: NextRequest) {
             role: 'system',
             content: `You are an expert CFA tutor at MentisAI. 
             Context: The student is working on the question: "${question}".
+            Options:
+            - A: ${options?.A}
+            - B: ${options?.B}
+            - C: ${options?.C}
+            
             Official Explanation: "${explanation}".
             
             INSTRUCTIONS:

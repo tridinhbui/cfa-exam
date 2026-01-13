@@ -189,6 +189,11 @@ function ModuleQuizContent() {
                         <QuizAIAssistant
                             question={currentQuestion.content}
                             explanation={currentQuestion.explanation || ''}
+                            options={{
+                                A: currentQuestion.optionA,
+                                B: currentQuestion.optionB,
+                                C: currentQuestion.optionC
+                            }}
                             topic={moduleInfo?.title}
                             currentIndex={currentIndex}
                         />
