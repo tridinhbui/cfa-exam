@@ -6,22 +6,25 @@ import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { uid, email, password } = body;
+        const { password } = body;
 
-        const authResult = await verifyAuth(req, uid);
+        const authResult = await verifyAuth(req);
         if (authResult.error) return authErrorResponse(authResult);
+        // Never trust identifying information (like email or uid) sent in the request body 
+        // for sensitive operations like password changes.
+        const secureUid = authResult.uid;
 
-        console.log('Update Password Request:', { uid, email, hasPassword: !!password });
+        console.log('Update Password Request for UID:', secureUid);
 
-        if (!password || (!uid && !email)) {
-            return NextResponse.json({ error: 'Missing information for password reset' }, { status: 400 });
+        if (!password) {
+            return NextResponse.json({ error: 'Missing new password' }, { status: 400 });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         try {
             const user = await prisma.user.update({
-                where: uid ? { id: uid } : { email: email.toLowerCase() },
+                where: { id: secureUid },
                 data: { password: hashedPassword },
             });
             console.log('Password updated in Supabase for:', user.email);

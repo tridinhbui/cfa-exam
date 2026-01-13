@@ -124,7 +124,7 @@ export default function DashboardPage() {
               <Skeleton className="h-6 w-64 rounded-md" />
             ) : (
               <p className="text-muted-foreground text-lg">
-                It&apos;s <span className="text-indigo-400 font-semibold">{daysLeft} days</span> until your {examLabel}
+                It&apos;s <span className="text-indigo-400 font-semibold">{daysLeft} days</span> until {examLabel === 'My Custom Study Plan' || examLabel === 'Select Date' ? 'your exam' : examLabel}
               </p>
             )}
           </div>
