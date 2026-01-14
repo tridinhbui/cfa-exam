@@ -16,6 +16,29 @@ export async function POST(req: NextRequest) {
         }
         const userId = authResult.uid;
 
+        // 2. Check Subscription & Apply Strict Rate Limit for FREE users
+        const { prisma } = await import('@/lib/prisma');
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { subscription: true }
+        });
+
+        const isFree = !user || user.subscription === 'FREE';
+
+        if (isFree) {
+            const limitResult = rateLimit(`chat_free_${userId}`, {
+                limit: 3,         // Only 3 messages
+                window: 3600000   // per hour
+            });
+
+            if (!limitResult.success) {
+                return NextResponse.json({
+                    error: 'Free tier quota: 3 messages per hour. Upgrade to PRO to chat as much as you want!',
+                    isFree: true
+                }, { status: 429 });
+            }
+        }
+
         const body = await req.json();
         const { messages, question, explanation, topic, options } = body;
 
