@@ -41,6 +41,16 @@ interface QuizState {
   timeSpent: number; // in seconds
   flaggedQuestions: string[];
   isSynced: boolean;
+  savedExamSession: {
+    quizId: string | null;
+    questions: QuizQuestion[];
+    currentIndex: number;
+    answers: Record<string, string>;
+    flaggedQuestions: string[];
+    timeRemaining: number;
+    startTime: number | null;
+    studyPlanItemId: string | null;
+  } | null;
 
   // Actions
   startQuiz: (quizId: string | null, questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM', timeLimit?: number, studyPlanItemId?: string | null) => void;
@@ -56,6 +66,8 @@ interface QuizState {
   tick: () => void;
   pauseTimer: () => void;
   resumeTimer: () => void;
+  resumeExamSession: () => void;
+  clearSavedExam: () => void;
 }
 
 import { persist, createJSONStorage } from 'zustand/middleware';
@@ -78,17 +90,32 @@ export const useQuizStore = create<QuizState>()(
       startTime: null,
       timeSpent: 0,
       isSynced: false,
-
+      savedExamSession: null, // Added this line
       flaggedQuestions: [],
-      startQuiz: (quizId, questions, mode, timeLimit, studyPlanItemId) => {
-        const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM';
-        const time = timeLimit ? timeLimit * 60 : questions.length * 90; // 90 seconds per question default
 
-        // If we are already active on this quiz, don't reset!
+      startQuiz: (quizId, questions, mode, timeLimit, studyPlanItemId) => { // Correctly wrapped startQuiz logic
+        const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM';
+        const time = timeLimit ? timeLimit * 60 : questions.length * 90;
+
         const state = get();
+        // If we are currently in an EXAM and starting something else, SAVE the exam progress
+        if (state.isActive && state.mode === 'EXAM' && upperMode !== 'EXAM') {
+          set({
+            savedExamSession: {
+              quizId: state.quizId,
+              questions: state.questions,
+              currentIndex: state.currentIndex,
+              answers: state.answers,
+              flaggedQuestions: state.flaggedQuestions,
+              timeRemaining: state.timeRemaining,
+              startTime: state.startTime,
+              studyPlanItemId: state.studyPlanItemId
+            }
+          });
+        }
+
+        // If we are already active on THIS specific quiz, don't reset answers
         if (state.isActive && state.quizId === quizId) {
-          // Update questions with latest data from server to reflect any text fixes
-          // This allows fixing typos/formatting while user is in the quiz
           set({ questions });
           return;
         }
@@ -152,14 +179,20 @@ export const useQuizStore = create<QuizState>()(
       },
 
       submitQuiz: () => {
-        const { startTime } = get();
+        const { startTime, mode } = get();
         const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+
         set({
           isCompleted: true,
-          isActive: false, // Mark as inactive once completed
+          isActive: false,
           isTimerRunning: false,
           timeSpent,
         });
+
+        // If we completed an exam, we should clear any saved exam session
+        if (mode === 'EXAM') {
+          set({ savedExamSession: null });
+        }
       },
 
       setSynced: (synced: boolean) => {
@@ -205,10 +238,35 @@ export const useQuizStore = create<QuizState>()(
       resumeTimer: () => {
         set({ isTimerRunning: true });
       },
+
+      resumeExamSession: () => {
+        const { savedExamSession } = get();
+        if (!savedExamSession) {
+          // If no background saved session, but current active IS an exam, we just stay
+          const state = get();
+          if (state.isActive && state.mode === 'EXAM') return;
+          return;
+        }
+
+        set({
+          ...savedExamSession,
+          isActive: true,
+          mode: 'EXAM',
+          isCompleted: false,
+          isTimerRunning: true,
+          isSynced: false,
+          showExplanation: false,
+          savedExamSession: null, // Move from background to active
+        });
+      },
+
+      clearSavedExam: () => {
+        set({ savedExamSession: null });
+      }
     }),
     {
       name: 'quiz-storage',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         quizId: state.quizId,
         isActive: state.isActive,
@@ -223,6 +281,7 @@ export const useQuizStore = create<QuizState>()(
         startTime: state.startTime,
         timeSpent: state.timeSpent,
         studyPlanItemId: state.studyPlanItemId,
+        savedExamSession: state.savedExamSession,
       }),
     }
   )

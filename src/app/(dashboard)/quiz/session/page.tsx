@@ -24,6 +24,7 @@ import { useAuth } from '@/context/auth-context';
 function QuizContent() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const searchParams = useSearchParams();
   const {
     questions,
     currentIndex,
@@ -38,16 +39,37 @@ function QuizContent() {
     toggleExplanation,
     flaggedQuestions,
     toggleFlag,
+    mode: storedMode,
+    isActive,
   } = useQuizStore();
 
-  const searchParams = useSearchParams();
-  const topics = searchParams.get('topics') || 'all';
-  const rawMode = searchParams.get('mode')?.toUpperCase() || 'PRACTICE';
-  const mode = (rawMode as 'PRACTICE' | 'TIMED' | 'EXAM');
+  const queryTopics = searchParams.get('topics') || 'all';
+  const queryRawMode = searchParams.get('mode')?.toUpperCase() || 'PRACTICE';
+  const queryMode = (queryRawMode as 'PRACTICE' | 'TIMED' | 'EXAM');
   const count = searchParams.get('count') || '10';
   const difficulty = searchParams.get('difficulty') || 'all';
 
+  // Use stored state if active, otherwise use query params
+  const currentMode = isActive ? storedMode : queryMode;
+  const currentTopicsDisplay = isActive && questions.length > 0
+    ? (questions[0]?.topic?.name || 'Various Topics')
+    : (queryTopics.charAt(0).toUpperCase() + queryTopics.slice(1).replace('_', ' '));
+
   useEffect(() => {
+    // RESUME LOGIC: STRICTLY ONLY for EXAM mode
+    const { isActive, questions: storedQuestions, mode: storedMode } = useQuizStore.getState();
+
+    // Only skip fetching if:
+    // 1. Current request is for EXAM mode
+    // 2. We have an active session in the store
+    // 3. That active session is ALSO EXAM mode
+    if (queryMode === 'EXAM' && isActive && storedQuestions.length > 0 && storedMode === 'EXAM') {
+      setIsLoading(false);
+      return;
+    }
+
+    // For all other cases (including Practice/Timed), ALWAYS fetch fresh questions.
+
     const fetchQuestions = async () => {
       if (!user) return;
 
@@ -55,7 +77,7 @@ function QuizContent() {
       try {
         const token = await user.getIdToken();
         const studyPlanItemId = searchParams.get('studyPlanItemId');
-        const response = await fetch(`/api/quiz/questions?topics=${topics}&count=${count}&difficulty=${difficulty}&mode=${mode}`, {
+        const response = await fetch(`/api/quiz/questions?topics=${queryTopics}&count=${count}&difficulty=${difficulty}&mode=${queryMode}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -64,8 +86,8 @@ function QuizContent() {
 
         if (data.error) throw new Error(data.error);
 
-        const quizId = `session-${topics}-${mode}-${count}-${difficulty}${studyPlanItemId ? `-${studyPlanItemId}` : ''}`;
-        startQuiz(quizId, data, mode, undefined, studyPlanItemId);
+        const quizId = `session-${queryTopics}-${queryMode}-${count}-${difficulty}${studyPlanItemId ? `-${studyPlanItemId}` : ''}`;
+        startQuiz(quizId, data, queryMode, undefined, studyPlanItemId);
       } catch (error) {
         console.error('Failed to load questions:', error);
       } finally {
@@ -74,7 +96,7 @@ function QuizContent() {
     };
 
     fetchQuestions();
-  }, [user, topics, mode, count, difficulty, startQuiz, searchParams]);
+  }, [user, queryTopics, queryMode, count, difficulty, startQuiz, searchParams]);
 
   if (isLoading || !user) {
     return (
@@ -106,10 +128,10 @@ function QuizContent() {
             </Link>
             <div className="flex-1 px-4">
               <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-                {mode === 'EXAM' ? 'Exam Mode' : mode === 'TIMED' ? 'Timed Quiz' : 'Practice Quiz'}
+                {currentMode === 'EXAM' ? 'Exam Mode' : currentMode === 'TIMED' ? 'Timed Quiz' : 'Practice Quiz'}
               </h2>
               <h1 className="text-xl font-black text-foreground">
-                Topic: {topics.charAt(0).toUpperCase() + topics.slice(1).replace('_', ' ')}
+                Topic: {currentTopicsDisplay}
               </h1>
             </div>
             <div className="flex items-center gap-3">
@@ -205,7 +227,7 @@ function QuizContent() {
                 B: currentQuestion.optionB,
                 C: currentQuestion.optionC
               }}
-              topic={topics}
+              topic={currentTopicsDisplay}
               currentIndex={currentIndex}
             />
           )}

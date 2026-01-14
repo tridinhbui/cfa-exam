@@ -24,7 +24,16 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthenticatedSWR } from '@/hooks/use-authenticated-swr';
 import { useUserStore } from '@/store/user-store';
-import { Lock } from 'lucide-react';
+import { useQuizStore } from '@/store/quiz-store';
+import { Lock, RotateCcw, PlayCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const quizModes = [
   {
@@ -69,6 +78,17 @@ export default function QuizPage() {
   const [questionCount, setQuestionCount] = useState('10');
   const [difficulty, setDifficulty] = useState('all');
 
+  const {
+    isActive: hasActiveQuiz,
+    mode: activeMode,
+    resetQuiz,
+    savedExamSession,
+    resumeExamSession,
+    clearSavedExam
+  } = useQuizStore();
+  const [showContinueDialog, setShowContinueDialog] = useState(false);
+  const [pendingQuizUrl, setPendingQuizUrl] = useState<string | null>(null);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -101,9 +121,26 @@ export default function QuizPage() {
     }
   };
 
+  const handleQuizStart = (url: string, isExamRequest: boolean = false) => {
+    // We only show the CONTINUE dialog if the user is explicitly trying to start/access an EXAM
+    // AND we have either an active exam or a saved background exam.
+    const hasExistingExam = (hasActiveQuiz && activeMode === 'EXAM') || savedExamSession !== null;
+
+    if (isExamRequest && hasExistingExam) {
+      setPendingQuizUrl(url);
+      setShowContinueDialog(true);
+    } else {
+      // For practice/timed sessions, we just go there.
+      // The store's startQuiz will automatically back up any active exam into savedExamSession.
+      window.location.href = url;
+    }
+  };
+
   const startQuiz = () => {
     if (selectedTopics.length === 0) return;
-    window.location.href = `/quiz/session?topics=${selectedTopics.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}&v=${Date.now()}`;
+    const isExamSelected = selectedMode === 'exam';
+    const url = `/quiz/session?topics=${selectedTopics.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}&v=${Date.now()}`;
+    handleQuizStart(url, isExamSelected);
   };
 
   if (!isMounted) return null;
@@ -333,7 +370,7 @@ export default function QuizPage() {
                     onClick={() => {
                       if (!topics) return;
                       const allTopicIds = topics.map((t) => t.id);
-                      window.location.href = `/quiz/session?topics=${allTopicIds.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}&v=${Date.now()}`;
+                      handleQuizStart(`/quiz/session?topics=${allTopicIds.join(',')}&mode=${selectedMode}&count=${questionCount}&difficulty=${difficulty}&v=${Date.now()}`, selectedMode === 'exam');
                     }}
                   >
                     <Shuffle className="h-5 w-5 mr-3" />
@@ -350,7 +387,7 @@ export default function QuizPage() {
                       if (isFreeUser) return;
                       if (!topics) return;
                       const allTopicIds = topics.map((t) => t.id);
-                      window.location.href = `/quiz/session?topics=${allTopicIds.join(',')}&mode=exam&count=180&difficulty=all`;
+                      handleQuizStart(`/quiz/session?topics=${allTopicIds.join(',')}&mode=exam&count=180&difficulty=all`, true);
                     }}
                     disabled={isFreeUser}
                   >
@@ -430,6 +467,62 @@ export default function QuizPage() {
           </div>
         </section>
       </div>
+
+      {/* Continue Dialog */}
+      <Dialog open={showContinueDialog} onOpenChange={setShowContinueDialog}>
+        <DialogContent className="sm:max-w-md bg-slate-950 border-slate-800 text-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black text-white flex items-center gap-2">
+              <PlayCircle className="h-6 w-6 text-indigo-500" />
+              IN-PROGRESS SESSION
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 font-medium">
+              You have an active quiz session. Would you like to continue where you left off or start a new one?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-4">
+            <Button
+              className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-indigo-500/20"
+              onClick={() => {
+                // If the exam is already the active one, just go there.
+                // If it was stashed in savedExamSession, restore it first.
+                if (savedExamSession) {
+                  resumeExamSession();
+                }
+                window.location.href = '/quiz/session?mode=exam';
+              }}
+            >
+              <PlayCircle className="h-6 w-6 fill-white" />
+              CONTINUE SESSION
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full h-14 border-slate-800 hover:bg-slate-900 text-slate-300 font-bold rounded-2xl flex items-center justify-center gap-3"
+              onClick={() => {
+                // To restart: wipe both active and saved exam state
+                resetQuiz();
+                clearSavedExam();
+                if (pendingQuizUrl) {
+                  window.location.href = pendingQuizUrl;
+                }
+              }}
+            >
+              <RotateCcw className="h-5 w-5" />
+              RESTART FRESH
+            </Button>
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-slate-500 font-bold hover:text-slate-300 hover:bg-transparent"
+              onClick={() => setShowContinueDialog(false)}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
