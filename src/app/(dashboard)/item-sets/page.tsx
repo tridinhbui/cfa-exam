@@ -3,12 +3,15 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import {
   Book as BookIcon,
   ChevronRight,
   BookOpen,
   ArrowLeft,
   Loader2,
+  Lock,
+  Crown,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,6 +38,7 @@ interface Book {
   title: string;
   description: string | null;
   level: string | null;
+  isLocked: boolean;
   readings: Reading[];
 }
 
@@ -163,7 +167,25 @@ function ItemSetsContent() {
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {books.map((book) => (
-              <Card key={book.id} className="overflow-hidden hover:border-primary/50 transition-all group border-2 border-border/50 bg-card/50 backdrop-blur-sm">
+              <Card
+                key={book.id}
+                className={cn(
+                  "overflow-hidden transition-all group border-2 bg-card/50 backdrop-blur-sm relative",
+                  book.isLocked
+                    ? "border-muted opacity-85 grayscale-[0.5]"
+                    : "hover:border-primary/50 border-border/50"
+                )}
+              >
+                {book.isLocked && (
+                  <div className="absolute inset-0 z-10 bg-background/20 backdrop-blur-[2px] flex items-center justify-center">
+                    <div className="bg-slate-900/90 border border-slate-700 p-4 rounded-2xl shadow-2xl flex flex-col items-center gap-2 transform -rotate-2">
+                      <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <Lock className="h-5 w-5 text-amber-500" />
+                      </div>
+                      <span className="text-white font-black text-sm tracking-tight">PRO FEATURE</span>
+                    </div>
+                  </div>
+                )}
                 <CardContent className="p-0">
                   <div className="h-32 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 flex items-center justify-center border-b border-border/50">
                     <div className="p-4 rounded-full bg-background/50 backdrop-blur-md shadow-xl">
@@ -191,11 +213,31 @@ function ItemSetsContent() {
                     </p>
 
                     <Button
-                      className="w-full h-12 text-lg font-bold shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all rounded-xl"
-                      onClick={() => handleSelectBook(book)}
+                      className={cn(
+                        "w-full h-12 text-lg font-bold shadow-lg transition-all rounded-xl",
+                        book.isLocked
+                          ? "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"
+                          : "shadow-primary/10 hover:shadow-primary/20"
+                      )}
+                      onClick={() => {
+                        if (book.isLocked) {
+                          router.push('/pricing');
+                        } else {
+                          handleSelectBook(book);
+                        }
+                      }}
                     >
-                      Study Now
-                      <ChevronRight className="h-5 w-5 ml-2" />
+                      {book.isLocked ? (
+                        <>
+                          <Crown className="h-5 w-5 mr-2" />
+                          Upgrade to PRO
+                        </>
+                      ) : (
+                        <>
+                          Study Now
+                          <ChevronRight className="h-5 w-5 ml-2" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>

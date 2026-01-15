@@ -8,37 +8,47 @@ export function proxy(request: NextRequest) {
         const ip = getIP(request);
         const path = request.nextUrl.pathname;
 
-        // 1. Strict limit for AI Chat and Auth-sensitive actions
-        if (path.includes('/api/quiz/chat') || path.includes('/update-password')) {
-            const result = rateLimit(`strict_${ip}`, { limit: 10, window: 60000 });
+        // 1. Strict limit for Auth-sensitive actions (Password update)
+        if (path.includes('/api/user/update-password')) {
+            const result = rateLimit(`password_upd_${ip}`, {
+                limit: 3,
+                window: 3600 * 1000 // 3 times per hour
+            });
             if (!result.success) {
                 return NextResponse.json(
-                    { error: 'Too many requests. Please slow down.' },
+                    { error: 'Too many password update attempts. Please try again in an hour.' },
                     { status: 429 }
                 );
             }
+            return NextResponse.next(); // Priority handled, skip global
         }
 
-        // 2. Medium limit for Database mutations (POST/PUT/DELETE) and Quiz Generation
-        else if (['POST', 'PUT', 'DELETE'].includes(request.method) || path.includes('/api/quiz/questions')) {
-            const result = rateLimit(`medium_${ip}`, { limit: 30, window: 60000 });
+        // 2. Strict limit for Quiz Questions (Protecting database/content)
+        if (path.includes('/api/quiz/questions')) {
+            const result = rateLimit(`q_limit_${ip}`, {
+                limit: 5,
+                window: 60 * 1000 // 5 times per minute
+            });
             if (!result.success) {
                 return NextResponse.json(
-                    { error: 'System is busy. Please try again in a minute.' },
+                    { error: 'Too many requests for questions. Please slow down.' },
                     { status: 429 }
                 );
             }
+            return NextResponse.next(); // Priority handled, skip global
         }
 
-        // 3. General limit for all other API calls (GET)
-        else {
-            const result = rateLimit(`general_${ip}`, { limit: 150, window: 60000 });
-            if (!result.success) {
-                return NextResponse.json(
-                    { error: 'General rate limit exceeded.' },
-                    { status: 429 }
-                );
-            }
+        // 3. Global Baseline for all other API calls
+        const globalResult = rateLimit(`global_api_${ip}`, {
+            limit: 30,
+            window: 60 * 1000 // 30 requests per minute total
+        });
+
+        if (!globalResult.success) {
+            return NextResponse.json(
+                { error: 'System is busy (Global rate limit exceeded). Please try again in a minute.' },
+                { status: 429 }
+            );
         }
     }
 

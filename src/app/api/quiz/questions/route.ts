@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
+import { rateLimit, getIP } from '@/lib/rate-limit';
 
 export async function GET(request: Request) {
+    // 1. Auth Check
     const authResult = await verifyAuth(request);
     if (authResult.error) return authErrorResponse(authResult);
 
