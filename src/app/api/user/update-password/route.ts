@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
+import { rateLimit, getIP } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
     try {
