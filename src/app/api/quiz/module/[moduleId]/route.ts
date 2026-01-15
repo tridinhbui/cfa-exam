@@ -37,6 +37,22 @@ export async function GET(
             return NextResponse.json({ error: 'Module not found' }, { status: 404 });
         }
 
+        // --- Subscription Lock Check ---
+        const user = await prisma.user.findUnique({
+            where: { id: authResult.uid },
+            select: { subscription: true }
+        });
+
+        const isFree = !user || user.subscription === 'FREE';
+        const bookId = module.reading.book.id;
+
+        if (isFree && (bookId === 'book-2' || bookId === 'book-3' || bookId === 'book-4')) {
+            return NextResponse.json({
+                error: 'This curriculum material is reserved for PRO members. Please upgrade to continue learning.',
+                isLocked: true
+            }, { status: 403 });
+        }
+
         const questions = module.quizHeader?.questions || [];
 
         // Map ModuleQuiz to QuizQuestion interface for frontend compatibility

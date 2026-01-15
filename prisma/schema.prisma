@@ -293,6 +293,21 @@ model ExamWindow {
   updatedAt   DateTime @default(now())
 }
 
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  orderId   String   @unique
+  planName  String
+  amount    Float
+  currency  String   @default("USD")
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 enum CFALevel {
   LEVEL_1
   LEVEL_2
@@ -320,20 +335,4 @@ enum AnswerChoice {
   A
   B
   C
-}
-
-model Transaction {
-  id          String   @id @default(cuid())
-  userId      String   
-  orderId     String   @unique
-  planName    String   
-  amount      Float    
-  currency    String   @default("USD")
-  status      String   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
