@@ -10,7 +10,11 @@ interface Star {
     speed?: number;
 }
 
-export function Starfield() {
+interface StarfieldProps {
+    isDark?: boolean;
+}
+
+export function Starfield({ isDark = true }: StarfieldProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -36,22 +40,23 @@ export function Starfield() {
                 y: Math.random() * height - height / 2,
                 z: Math.random() * width,
                 pz: 0,
-                // Variable speed for each star to create more organic depth
                 speed: 0.2 + Math.random() * 0.8
             }));
         };
 
         const update = () => {
-            // Clear with semi-transparent dark blue/black for trail effect
-            // Matching Lumist's deep space tone
-            ctx.fillStyle = "rgba(6, 3, 19, 0.4)";
+            // Adaptive background color based on theme
+            if (isDark) {
+                ctx.fillStyle = "rgba(6, 3, 19, 0.4)";
+            } else {
+                ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+            }
             ctx.fillRect(0, 0, width, height);
 
             const cx = width / 2;
             const cy = height / 2;
 
             stars.forEach((star) => {
-                // Use individual star speed
                 star.z -= star.speed || 0.5;
 
                 if (star.z <= 0) {
@@ -66,8 +71,13 @@ export function Starfield() {
 
                 const size = (1 - star.z / width) * 2.5;
 
-                // Slightly blue-ish white stars
-                ctx.fillStyle = `rgba(220, 230, 255, ${0.8 - (star.z / width) * 0.5})`;
+                // Adaptive star color: White for Dark Mode, Dark Gray/Black for Light Mode
+                if (isDark) {
+                    ctx.fillStyle = `rgba(220, 230, 255, ${0.8 - (star.z / width) * 0.5})`;
+                } else {
+                    ctx.fillStyle = `rgba(15, 23, 42, ${0.6 - (star.z / width) * 0.4})`;
+                }
+
                 ctx.beginPath();
                 ctx.arc(x, y, size > 0 ? size : 0, 0, Math.PI * 2);
                 ctx.fill();
@@ -88,13 +98,13 @@ export function Starfield() {
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener('resize', handleResize);
         };
-    }, []);
+    }, [isDark]); // Re-run effect when theme changes
 
     return (
         <canvas
             ref={canvasRef}
             className="fixed inset-0 z-0 pointer-events-none"
-            style={{ background: '#060313' }} // Specific dark background
+            style={{ background: isDark ? '#060313' : '#ffffff' }}
         />
     );
 }

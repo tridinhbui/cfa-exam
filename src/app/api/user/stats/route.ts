@@ -42,6 +42,7 @@ export async function GET(req: Request) {
                 cfaLevel: true,
                 lastActiveAt: true,
                 name: true,
+                coins: true,
             }
         });
 
@@ -178,6 +179,7 @@ export async function GET(req: Request) {
             totalQuestions,
             weeklyAccuracy,
             weeklyTrend,
+            coins: user.coins,
             chartData
         };
 

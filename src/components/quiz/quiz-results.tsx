@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Home,
   BookOpen,
+  Coins,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,14 +16,19 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn, getGradeColor } from '@/lib/utils';
 import { useQuizStore } from '@/store/quiz-store';
+import { useUserStore } from '@/store/user-store';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 
 export function QuizResults() {
-  const { questions, answers, resetQuiz, timeSpent, mode, studyPlanItemId, isSynced, setSynced } = useQuizStore();
+  const { questions, answers, resetQuiz, timeSpent, mode, studyPlanItemId, isSynced,
+    setSynced,
+  } = useQuizStore();
   const { user } = useAuth();
+  const { user: dbUser, setUser: setDbUser } = useUserStore();
   const syncRef = useRef(false);
+  const [coinsAwarded, setCoinsAwarded] = useState(0);
 
   const correctCount = questions.filter(
     (q) => answers[q.id] === q.correctAnswer
@@ -70,7 +76,15 @@ export function QuizResults() {
         });
 
         if (response.ok) {
+          const data = await response.json();
           setSynced(true);
+          if (data.coinsAwarded > 0) {
+            setCoinsAwarded(data.coinsAwarded);
+            // Update local user store with new coins
+            if (dbUser) {
+              setDbUser({ ...dbUser, coins: data.newTotalCoins });
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to sync quiz results:', error);
@@ -143,6 +157,17 @@ export function QuizResults() {
           >
             {getScoreMessage()}
           </motion.p>
+
+          {coinsAwarded > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 inline-flex items-center gap-2 bg-amber-400/20 text-amber-400 px-4 py-1.5 rounded-full border border-amber-400/20"
+            >
+              <Coins className="h-4 w-4 fill-amber-400" />
+              <span className="text-sm font-bold tracking-tight">+ {coinsAwarded} Coins Earned!</span>
+            </motion.div>
+          )}
         </div>
 
         <CardContent className="p-6">

@@ -35,148 +35,125 @@ export async function POST(req: Request) {
         const today = new Date(todayStr + 'T00:00:00Z');
         const now = new Date();
 
-        const lastActiveDateStr = user.lastActiveAt
-            ? new Date(user.lastActiveAt).toLocaleDateString('en-CA')
-            : null;
-
+        const lastActiveDateStr = user.lastActiveAt ? new Date(user.lastActiveAt).toLocaleDateString('en-CA') : null;
         let newStreak = user.currentStreak || 0;
-
-        if (!lastActiveDateStr) {
-            // First time ever
-            newStreak = 1;
-        } else if (todayStr === lastActiveDateStr) {
-            // Already active today, maintain streak (ensure it's at least 1)
-            newStreak = Math.max(user.currentStreak || 0, 1);
-        } else {
-            // Different day, check if it was yesterday
+        if (!lastActiveDateStr) newStreak = 1;
+        else if (todayStr === lastActiveDateStr) newStreak = Math.max(user.currentStreak || 0, 1);
+        else {
             const yesterdayDate = new Date(today);
             yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
-            const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
-
-            if (lastActiveDateStr === yesterdayStr) {
-                // Consecutive day
-                newStreak = (user.currentStreak || 0) + 1;
-            } else {
-                // Streak broken
-                newStreak = 1;
-            }
+            newStreak = (lastActiveDateStr === yesterdayDate.toISOString().split('T')[0]) ? (user.currentStreak || 0) + 1 : 1;
         }
-
         const newLongestStreak = Math.max(newStreak, user.longestStreak);
 
-        // Prepare TopicPerformance updates
-        const topicUpdates: any[] = [];
-        if (topicPerformance && typeof topicPerformance === 'object') {
-            const topicIds = Object.keys(topicPerformance);
+        // Calculate coins server-side
+        let coinsAwarded = 0;
+        if (Array.isArray(questions) && answers) {
+            const questionIds = questions.map((q: any) => q.id).filter(Boolean);
+            const dbQuestions = await prisma.question.findMany({
+                where: { id: { in: questionIds } },
+                select: { id: true, correctAnswer: true, difficulty: true }
+            });
+            const dbQuestionMap = new Map(dbQuestions.map(q => [q.id, q]));
 
-            const existingPerformances = await prisma.topicPerformance.findMany({
-                where: {
-                    userId,
-                    topicId: { in: topicIds }
+            questions.forEach((q: any) => {
+                const dbQ = dbQuestionMap.get(q.id);
+                const userAns = answers[q.id];
+                const correctAns = dbQ ? dbQ.correctAnswer : q.correctAnswer;
+                const difficulty = (dbQ?.difficulty || q.difficulty || 'MEDIUM').toUpperCase();
+
+                const uAns = userAns?.toString().trim().toUpperCase();
+                const cAns = correctAns?.toString().trim().toUpperCase();
+
+                if (uAns && uAns === cAns) {
+                    if (difficulty === 'EASY') coinsAwarded += 1;
+                    else if (difficulty === 'HARD') coinsAwarded += 5;
+                    else coinsAwarded += 3;
                 }
             });
-
-            const performanceMap = new Map(existingPerformances.map((p: any) => [p.topicId, p]));
-
-            // Only update TopicPerformance for valid Topics (skip for Readings/Modules)
-            const allTopics = await prisma.topic.findMany({ select: { id: true } });
-            const validTopicIds = new Set(allTopics.map(t => t.id));
-
-            for (const [topicId, stats] of Object.entries(topicPerformance) as [string, { correct: number, total: number }][]) {
-                if (!validTopicIds.has(topicId)) continue;
-
-                const existing = performanceMap.get(topicId);
-                const currentTotal = (existing?.totalAttempts || 0);
-                const currentCorrect = (existing?.correctCount || 0);
-
-                const newTotal = currentTotal + stats.total;
-                const newCorrect = currentCorrect + stats.correct;
-                const newAccuracy = newTotal > 0 ? (newCorrect / newTotal) * 100 : 0;
-
-                topicUpdates.push(
-                    prisma.topicPerformance.upsert({
-                        where: {
-                            userId_topicId: { userId, topicId }
-                        },
-                        update: {
-                            totalAttempts: newTotal,
-                            correctCount: newCorrect,
-                            accuracy: newAccuracy,
-                            lastPracticed: now,
-                        },
-                        create: {
-                            userId,
-                            topicId,
-                            totalAttempts: stats.total,
-                            correctCount: stats.correct,
-                            accuracy: newAccuracy,
-                            lastPracticed: now,
-                        }
-                    })
-                );
-            }
         }
 
-        // Create QuizAttempt
-        // We'll create it even if we don't have detailed questionsData, just to track history.
-        const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
-        const quizAttemptCreate = prisma.quizAttempt.create({
-            data: {
-                userId,
-                cfaLevel: user.cfaLevel || 'LEVEL_1', // Default or fetch from user
-                mode: mode ? mode.toUpperCase() : 'PRACTICE',
-                startedAt: new Date(now.getTime() - (timeSpent * 1000)), // Approximate start time
-                completedAt: now,
-                score,
-                totalQuestions,
-                correctAnswers,
-            }
-        });
+        // 3. EXECUTE IN INTERACTIVE TRANSACTION
+        const scoreValue = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
 
-        // 3. Update User, DailyProgress, TopicPerformance, and create QuizAttempt in a transaction
-        const results = await prisma.$transaction([
-            // Update User streaks
-            prisma.user.update({
+        const finalResults = await prisma.$transaction(async (tx) => {
+            // Update User
+            const updatedUser = await (tx.user as any).update({
                 where: { id: userId },
                 data: {
                     currentStreak: newStreak,
                     longestStreak: newLongestStreak,
                     lastActiveAt: now,
+                    coins: { increment: coinsAwarded }
                 }
-            }),
-            // Upsert DailyProgress
-            prisma.dailyProgress.upsert({
-                where: {
-                    userId_date: {
-                        userId,
-                        date: today,
-                    }
-                },
+            });
+
+            // Daily Progress
+            await tx.dailyProgress.upsert({
+                where: { userId_date: { userId, date: today } },
                 update: {
-                    questionsAnswered: { increment: totalQuestions },
-                    correctAnswers: { increment: correctAnswers },
+                    questionsAnswered: { increment: totalQuestions || 0 },
+                    correctAnswers: { increment: correctAnswers || 0 },
                     timeSpent: { increment: timeSpent || 0 },
                     sessionsCount: { increment: 1 },
                 },
                 create: {
                     userId,
                     date: today,
-                    questionsAnswered: totalQuestions,
-                    correctAnswers: correctAnswers,
+                    questionsAnswered: totalQuestions || 0,
+                    correctAnswers: correctAnswers || 0,
                     timeSpent: timeSpent || 0,
                     sessionsCount: 1,
                 }
-            }),
-            ...topicUpdates,
-            quizAttemptCreate
-        ]);
+            });
 
-        const quizAttempt = results[results.length - 1] as any;
+            // Topic Performance (skip invalid topics)
+            if (topicPerformance && typeof topicPerformance === 'object') {
+                const allTopics = await tx.topic.findMany({ select: { id: true } });
+                const validTopicIds = new Set(allTopics.map(t => t.id));
+
+                for (const [topicId, stats] of Object.entries(topicPerformance) as [string, { correct: number, total: number }][]) {
+                    if (!validTopicIds.has(topicId)) continue;
+
+                    const existing = await tx.topicPerformance.findUnique({
+                        where: { userId_topicId: { userId, topicId } }
+                    });
+
+                    const newTotal = (existing?.totalAttempts || 0) + stats.total;
+                    const newCorrect = (existing?.correctCount || 0) + stats.correct;
+                    const newAccuracy = newTotal > 0 ? (newCorrect / newTotal) * 100 : 0;
+
+                    await tx.topicPerformance.upsert({
+                        where: { userId_topicId: { userId, topicId } },
+                        update: { totalAttempts: newTotal, correctCount: newCorrect, accuracy: newAccuracy, lastPracticed: now },
+                        create: { userId, topicId, totalAttempts: stats.total, correctCount: stats.correct, accuracy: newAccuracy, lastPracticed: now }
+                    });
+                }
+            }
+
+            // Create Quiz Attempt
+            const attempt = await (tx.quizAttempt as any).create({
+                data: {
+                    userId,
+                    cfaLevel: user.cfaLevel || 'LEVEL_1',
+                    mode: mode ? mode.toUpperCase() : 'PRACTICE',
+                    startedAt: new Date(now.getTime() - ((timeSpent || 0) * 1000)),
+                    completedAt: now,
+                    score: scoreValue,
+                    totalQuestions: totalQuestions || 0,
+                    correctAnswers: correctAnswers || 0,
+                }
+            });
+
+            return { updatedUser, attempt };
+        });
+
+        const { updatedUser, attempt: quizAttempt } = finalResults;
 
         // 4. STUDY PLAN COMPLETION LOGIC
         // If this quiz was started from a Study Plan task and the score is >= 70% (21/30)
         let studyPlanCompleted = false;
-        if (studyPlanItemId && score >= 70) {
+        if (studyPlanItemId && scoreValue >= 70) {
             try {
                 await prisma.studyPlanItem.update({
                     where: { id: studyPlanItemId },
@@ -272,11 +249,16 @@ export async function POST(req: Request) {
         return NextResponse.json({
             success: true,
             currentStreak: newStreak,
-            longestStreak: newLongestStreak
+            longestStreak: newLongestStreak,
+            coinsAwarded,
+            newTotalCoins: updatedUser.coins || 0
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error completing quiz:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({
+            success: false,
+            error: error.message || 'Internal Server Error'
+        }, { status: 500 });
     }
 }

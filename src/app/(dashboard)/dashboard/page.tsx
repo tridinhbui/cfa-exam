@@ -22,6 +22,7 @@ import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useAuthenticatedSWR } from '@/hooks/use-authenticated-swr';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Leaderboard } from '@/components/dashboard/leaderboard';
 
 const PerformanceChart = dynamic(() => import('@/components/analytics/performance-chart').then(mod => mod.PerformanceChart), {
   ssr: false,
@@ -253,64 +254,70 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Focus Areas */}
-        <Card className="bg-card border-border rounded-2xl overflow-hidden flex flex-col">
-          <CardHeader className="border-b border-border p-6 text-sm">
-            <CardTitle className="text-xl font-bold flex items-center gap-3 text-foreground">
-              <div className="p-2 rounded-lg bg-red-500/10">
-                <Target className="h-5 w-5 text-red-400" />
-              </div>
-              Focus Areas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5 flex-1 overflow-y-auto">
-            {weakTopics.length > 0 ? (
-              weakTopics.map((topic, index) => (
-                <motion.div
-                  key={topic.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className="group cursor-default"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
-                    </div>
-                  </div>
-                  <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${topic.accuracy}%` }}
-                      transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
-                      className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${(topic.accuracy || 0) >= 60
-                        ? 'from-amber-500 to-orange-500'
-                        : 'from-red-500 to-rose-500'
-                        }`}
-                    />
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                <div className="p-3 rounded-full bg-emerald-500/10 mb-3">
-                  <Award className="h-6 w-6 text-emerald-500" />
+        {/* Sidebar: Focus Areas & Leaderboard */}
+        <div className="space-y-6">
+          {/* Focus Areas */}
+          <Card className="bg-card border-border rounded-2xl overflow-hidden flex flex-col">
+            <CardHeader className="border-b border-border p-6 text-sm">
+              <CardTitle className="text-xl font-bold flex items-center gap-3 text-foreground">
+                <div className="p-2 rounded-lg bg-red-500/10">
+                  <Target className="h-5 w-5 text-red-400" />
                 </div>
-                <p className="text-foreground font-medium mb-1">No Weak Areas!</p>
-                <p className="text-sm text-muted-foreground">You&apos;re maintaining &gt;50% accuracy across all practiced topics.</p>
-              </div>
-            )}
-          </CardContent>
-          <div className="p-6 pt-0 mt-auto">
-            <Link href="/quiz?topics=weak" className="block w-full">
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
-                Sharpen Weak Topics
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </Card>
+                Focus Areas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-5 flex-1 overflow-y-auto max-h-[300px]">
+              {weakTopics.length > 0 ? (
+                weakTopics.map((topic, index) => (
+                  <motion.div
+                    key={topic.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 + index * 0.1 }}
+                    className="group cursor-default"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-bold text-foreground group-hover:text-indigo-400 transition-colors uppercase text-xs tracking-wider">{topic.name}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-foreground font-mono font-bold text-sm tracking-tighter">{topic.accuracy}%</span>
+                      </div>
+                    </div>
+                    <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${topic.accuracy}%` }}
+                        transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                        className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${(topic.accuracy || 0) >= 60
+                          ? 'from-amber-500 to-orange-500'
+                          : 'from-red-500 to-rose-500'
+                          }`}
+                      />
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                  <div className="p-3 rounded-full bg-emerald-500/10 mb-3">
+                    <Award className="h-6 w-6 text-emerald-500" />
+                  </div>
+                  <p className="text-foreground font-medium mb-1">No Weak Areas!</p>
+                  <p className="text-sm text-muted-foreground">You&apos;re maintaining &gt;50% accuracy across all practiced topics.</p>
+                </div>
+              )}
+            </CardContent>
+            <div className="p-6 pt-0 mt-auto">
+              <Link href="/quiz?topics=weak" className="block w-full">
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+                  Sharpen Weak Topics
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </Card>
+
+          {/* Leaderboard Widget */}
+          <Leaderboard />
+        </div>
       </div>
 
       {/* Recent Activity */}

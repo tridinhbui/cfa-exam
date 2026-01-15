@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Target,
   Clock,
+  Coins,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -34,6 +35,7 @@ const bottomNavItems = [
 
 import { useAuth } from '@/context/auth-context';
 import { useState, useEffect } from 'react';
+import { useUserStore } from '@/store/user-store';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -45,7 +47,9 @@ export function Sidebar() {
     currentStreak: 0,
     questionsToday: 0,
     correctToday: 0,
+    coins: 0,
   });
+  const dbUser = useUserStore((state) => state.user);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -88,24 +92,31 @@ export function Sidebar() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="p-3 rounded-lg bg-card border border-border">
-            <div className="flex items-center gap-2 text-emerald-500 mb-1">
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          <div className="p-2 rounded-lg bg-card border border-border">
+            <div className="flex flex-col items-center gap-1 text-emerald-500 mb-1">
               <Target className="h-4 w-4" />
-              <span className="text-xs">Daily Accuracy</span>
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Accuracy</span>
             </div>
-            <p className="text-lg font-bold text-foreground">
+            <p className="text-sm font-bold text-foreground text-center">
               {stats.questionsToday > 0
                 ? `${Math.round((stats.correctToday / stats.questionsToday) * 100)}%`
                 : '0%'}
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-card border border-border">
-            <div className="flex items-center gap-2 text-amber-500 mb-1">
+          <div className="p-2 rounded-lg bg-card border border-border">
+            <div className="flex flex-col items-center gap-1 text-amber-500 mb-1">
               <Clock className="h-4 w-4" />
-              <span className="text-xs">Streak</span>
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Streak</span>
             </div>
-            <p className="text-lg font-bold text-foreground">{stats.currentStreak} days</p>
+            <p className="text-sm font-bold text-foreground text-center">{stats.currentStreak}d</p>
+          </div>
+          <div className="p-2 rounded-lg bg-card border border-border">
+            <div className="flex flex-col items-center gap-1 text-indigo-400 mb-1">
+              <Coins className="h-4 w-4 fill-indigo-400/20" />
+              <span className="text-[10px] font-bold uppercase tracking-tighter">Coins</span>
+            </div>
+            <p className="text-sm font-bold text-foreground text-center">{dbUser?.coins || 0}</p>
           </div>
         </div>
 

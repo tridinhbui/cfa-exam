@@ -66,17 +66,23 @@ function ItemSetsContent() {
           }
         });
         const data = await response.json();
-        setBooks(data);
 
-        if (bookId) {
-          const book = data.find((b: Book) => b.id === bookId);
-          if (book) {
-            setSelectedBook(book);
-            if (readingId) {
-              const reading = book.readings.find((r: Reading) => r.id === readingId);
-              if (reading) setSelectedReading(reading);
+        if (response.ok && Array.isArray(data)) {
+          setBooks(data);
+
+          if (bookId) {
+            const book = data.find((b: Book) => b.id === bookId);
+            if (book) {
+              setSelectedBook(book);
+              if (readingId) {
+                const reading = book.readings.find((r: Reading) => r.id === readingId);
+                if (reading) setSelectedReading(reading);
+              }
             }
           }
+        } else {
+          console.error('Failed to fetch books or data is not an array:', data);
+          setBooks([]);
         }
       } catch (error) {
         console.error('Failed to fetch books:', error);
@@ -187,10 +193,20 @@ function ItemSetsContent() {
                   </div>
                 )}
                 <CardContent className="p-0">
-                  <div className="h-32 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 flex items-center justify-center border-b border-border/50">
-                    <div className="p-4 rounded-full bg-background/50 backdrop-blur-md shadow-xl">
-                      <BookIcon className="h-10 w-10 text-primary" />
-                    </div>
+                  <div className="h-48 relative overflow-hidden border-b border-border/50">
+                    {['book-1', 'book-2', 'book-3', 'book-4'].includes(book.id) ? (
+                      <img
+                        src={`/images/books/${book.id}.jpg`}
+                        alt={book.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-indigo-600/20 to-purple-600/20 flex items-center justify-center">
+                        <div className="p-4 rounded-full bg-background/50 backdrop-blur-md shadow-xl">
+                          <BookIcon className="h-10 w-10 text-primary" />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="p-6 space-y-4">
                     <div className="space-y-2">

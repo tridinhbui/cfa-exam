@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { GraduationCap, Mail, Lock, ArrowRight, Github, User } from 'lucide-react';
+import { GraduationCap, Mail, Lock, ArrowLeft, ArrowRight, Github, User } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,6 +79,16 @@ export default function LoginPage() {
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/10 rounded-full blur-[120px]" />
+            </div>
+
+            {/* Back to Home Button */}
+            <div className="absolute top-8 left-8 z-20">
+                <Link href="/">
+                    <Button variant="ghost" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 px-4 py-2 hover:bg-white/5 rounded-full border border-white/5">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Home
+                    </Button>
+                </Link>
             </div>
 
             <motion.div

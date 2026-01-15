@@ -90,7 +90,7 @@ export const useQuizStore = create<QuizState>()(
       startTime: null,
       timeSpent: 0,
       isSynced: false,
-      savedExamSession: null, // Added this line
+      savedExamSession: null,
       flaggedQuestions: [],
 
       startQuiz: (quizId, questions, mode, timeLimit, studyPlanItemId) => { // Correctly wrapped startQuiz logic
@@ -109,7 +109,7 @@ export const useQuizStore = create<QuizState>()(
               flaggedQuestions: state.flaggedQuestions,
               timeRemaining: state.timeRemaining,
               startTime: state.startTime,
-              studyPlanItemId: state.studyPlanItemId
+              studyPlanItemId: state.studyPlanItemId,
             }
           });
         }
@@ -286,5 +286,3 @@ export const useQuizStore = create<QuizState>()(
     }
   )
 );
-
-

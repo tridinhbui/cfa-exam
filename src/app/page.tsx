@@ -52,7 +52,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen relative bg-slate-950 light:bg-slate-50 transition-colors duration-500">
-      {mounted && theme === 'dark' && <Starfield />}
+      {mounted && <Starfield isDark={theme === 'dark'} />}
 
       <AnimatePresence>
         {loadingState !== 'complete' && <LoadingScreen isExiting={loadingState === 'exiting'} />}

@@ -89,6 +89,23 @@ export const verifyResetCode = async (code: string) => {
     }
 };
 
+export const updateUserProfile = async (name: string, photoURL?: string) => {
+    try {
+        if (auth.currentUser) {
+            await updateProfile(auth.currentUser, {
+                displayName: name,
+                ...(photoURL ? { photoURL } : {})
+            });
+            return auth.currentUser;
+        } else {
+            throw new Error("No user is currently signed in.");
+        }
+    } catch (error) {
+        console.error("Error updating profile", error);
+        throw error;
+    }
+};
+
 export const logout = async () => {
     try {
         await signOut(auth);

@@ -17,6 +17,7 @@ import {
   Crown,
   Home,
   Key,
+  Coins,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,7 @@ import {
 import { Settings, CreditCard } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useUserStore } from '@/store/user-store';
+import { ProfileModal } from '@/components/profile-modal';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -49,6 +51,7 @@ export function Navbar() {
   const { user } = useAuth();
   const dbUser = useUserStore((state) => state.user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -130,6 +133,15 @@ export function Navbar() {
               </Link>
             )}
 
+            {/* Coins Display */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500"
+            >
+              <Coins className="h-4 w-4 fill-amber-500" />
+              <span className="text-sm font-bold">{dbUser?.coins || 0}</span>
+            </motion.div>
+
             <ThemeToggle />
 
             <DropdownMenu>
@@ -156,6 +168,13 @@ export function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem
+                  className="focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                  onClick={() => setIsProfileModalOpen(true)}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
                 <Link href="/">
                   <DropdownMenuItem className="focus:bg-accent focus:text-accent-foreground cursor-pointer">
                     <Home className="mr-2 h-4 w-4" />
@@ -197,6 +216,12 @@ export function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
