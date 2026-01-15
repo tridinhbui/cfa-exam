@@ -40,8 +40,8 @@ export function proxy(request: NextRequest) {
 
         // 3. Global Baseline for all other API calls
         const globalResult = rateLimit(`global_api_${ip}`, {
-            limit: 30,
-            window: 60 * 1000 // 30 requests per minute total
+            limit: 100,
+            window: 60 * 1000 // 100 requests per minute total
         });
 
         if (!globalResult.success) {

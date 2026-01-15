@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         // --- Rate Limiting ---
         const ip = getIP(req);
         const { success, remaining, reset } = rateLimit(ip, {
-            limit: 20, // 20 requests
+            limit: 50, // 50 requests
             window: 60 * 1000 // per 1 minute
         });
 
