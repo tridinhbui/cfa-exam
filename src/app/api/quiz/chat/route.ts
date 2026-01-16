@@ -109,7 +109,10 @@ export async function POST(req: NextRequest) {
             ${relatedContext}
             
             INSTRUCTIONS:
-            1. If the user just says "Hi", "Hello", "Yo", or basic greetings, just greet them back briefly and ask how you can help with THIS specific question.
+            GO BACK TO THE TOPIC IF STUDENTS ASK UNRELATED QUESTIONS.
+            DO NOT REVEAL THE ANSWER CHOICE (A, B, or C) UNLESS THE STUDENT ASK YOU TO "CHECK MY ANSWER" OR "TELL ME THE ANSWER".
+            DO NOT EXPLAIN THE ANSWER CHOICE (A, B, or C) UNLESS THE STUDENT ASK YOU TO DO SO.
+            1. If the user just says "Hi", "Hello", "Yo", or basic greetings, just greet them back briefly and DO NOTHING.
             2. Only provide deep explanations if requested. Focus on the "Why" and "How" of the underlying financial concepts.
             3. Keep all responses extremely concise, professional, and structured.
             4. Use LaTeX for ALL mathematical formulas and variables. 
