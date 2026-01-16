@@ -29,9 +29,9 @@ export async function GET(request: Request) {
         if (mode === 'EXAM' && examIndex > 1) {
             return NextResponse.json({ error: 'Mock Exam 2 and 3 are only available for PRO users' }, { status: 403 });
         }
-        // 2. Limit PRACTICE/TIMED to 20 questions (but allow 180 for EXAM 1)
-        if (requestedCount > 20 && (mode !== 'EXAM' && mode !== 'exam')) {
-            return NextResponse.json({ error: 'FREE users are limited to 20 questions per session' }, { status: 403 });
+        // 2. Limit PRACTICE/TIMED to 5 questions (but allow 180 for EXAM 1)
+        if (requestedCount > 5 && (mode !== 'EXAM' && mode !== 'exam')) {
+            return NextResponse.json({ error: 'FREE users are limited to 5 questions per session' }, { status: 403 });
         }
     }
 

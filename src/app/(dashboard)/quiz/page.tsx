@@ -75,7 +75,7 @@ export default function QuizPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState('practice');
-  const [questionCount, setQuestionCount] = useState('10');
+  const [questionCount, setQuestionCount] = useState(isFreeUser ? '5' : '10');
   const [difficulty, setDifficulty] = useState('all');
 
   const {
@@ -92,7 +92,10 @@ export default function QuizPage() {
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (isFreeUser) {
+      setQuestionCount('5');
+    }
+  }, [isFreeUser]);
 
   // Use SWR for fetching data
   const { data: topics, isLoading: topicsLoading } = useAuthenticatedSWR<Topic[]>(
@@ -327,10 +330,17 @@ export default function QuizPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="10">10 Questions</SelectItem>
-                      <SelectItem value="20">
+                      <SelectItem value="5">5 Questions</SelectItem>
+                      <SelectItem value="10" disabled={isFreeUser}>
+                        <div className="flex items-center justify-between w-full gap-2">
+                          <span>10 Questions</span>
+                          {isFreeUser && <Badge variant="secondary" className="bg-slate-800 text-slate-400 text-[8px] h-4 px-1 border-slate-700 ml-auto">PRO</Badge>}
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="20" disabled={isFreeUser}>
                         <div className="flex items-center justify-between w-full gap-2">
                           <span>20 Questions</span>
+                          {isFreeUser && <Badge variant="secondary" className="bg-slate-800 text-slate-400 text-[8px] h-4 px-1 border-slate-700 ml-auto">PRO</Badge>}
                         </div>
                       </SelectItem>
                       <SelectItem value="30" disabled={isFreeUser}>
