@@ -51,16 +51,16 @@ export function Leaderboard() {
 
     const getRankColor = (index: number) => {
         switch (index) {
-            case 0: return 'border-amber-400/50 bg-amber-400/5';
-            case 1: return 'border-slate-300/50 bg-slate-300/5';
-            case 2: return 'border-amber-700/50 bg-amber-700/5';
-            default: return 'border-slate-800 bg-slate-800/50';
+            case 0: return 'border-amber-400/50 bg-amber-400/5 dark:bg-amber-400/10';
+            case 1: return 'border-slate-300/50 bg-slate-300/5 dark:bg-slate-300/10';
+            case 2: return 'border-amber-700/50 bg-amber-700/5 dark:bg-amber-700/10';
+            default: return 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50';
         }
     };
 
     if (loading) {
         return (
-            <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-sm shadow-xl">
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 backdrop-blur-sm shadow-xl">
                 <CardHeader>
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-amber-400" />
@@ -83,7 +83,7 @@ export function Leaderboard() {
     }
 
     return (
-        <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-sm shadow-xl overflow-hidden">
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 backdrop-blur-sm shadow-xl overflow-hidden">
             <CardHeader className="pb-2">
                 <CardTitle className="text-xl font-bold flex items-center gap-2">
                     <Trophy className="h-5 w-5 text-amber-400" />
@@ -104,15 +104,15 @@ export function Leaderboard() {
                                 {index + 1}
                             </div>
 
-                            <Avatar className="h-10 w-10 border-2 border-slate-700">
+                            <Avatar className="h-10 w-10 border-2 border-slate-200 dark:border-slate-700">
                                 <AvatarImage src={user.image || ''} />
-                                <AvatarFallback className="bg-slate-800 text-slate-400">
+                                <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                                     {user.name?.[0] || '?'}
                                 </AvatarFallback>
                             </Avatar>
 
                             <div className="flex-1 min-w-0">
-                                <p className="font-bold text-white truncate">
+                                <p className="font-bold text-slate-900 dark:text-white truncate">
                                     {user.name || 'Anonymous User'}
                                 </p>
                                 <div className="flex items-center gap-1.5 text-xs text-amber-400 font-medium">
