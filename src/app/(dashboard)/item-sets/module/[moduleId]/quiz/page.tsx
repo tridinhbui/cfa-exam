@@ -8,6 +8,11 @@ import {
     Flag,
     X,
     Loader2,
+    BookOpen,
+    Lightbulb,
+    Info,
+    ChevronDown,
+    ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -20,11 +25,35 @@ import { useQuizStore } from '@/store/quiz-store';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { useAuthenticatedSWR } from '@/hooks/use-authenticated-swr';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
+
+const cleanLatex = (text: string) => {
+    if (!text) return '';
+    return text
+        // 1. Fix broken text commands
+        .replace(/[\\]+\s*\\text/g, ' \\text')
+        // 2. Fix Double Escaped Block Delimiters
+        .replace(/\\\\\\$\\\\\\$/g, '$$')
+        // 3. Unescape ALL escaped dollars
+        .replace(/\\\$/g, () => '$')
+        // 3.5. Re-escape dollars if they are followed by a digit (Currency protection)
+        .replace(/\$(?=\d)/g, () => '\\$')
+        // 4. Fix Parentheses
+        .replace(/\(\s*\$/g, '(')
+        .replace(/\$\s*\)/g, ')')
+        // 5. Auto-format simple exponents
+        .replace(/(\((?:[\d\.\s\-\+\*]+)\)\^\{[^\}]+\})/g, (match) => '$' + match + '$');
+};
 
 function ModuleQuizContent() {
     const { user } = useAuth();
     const { moduleId } = useParams();
     const router = useRouter();
+    const [showNotes, setShowNotes] = useState(true);
 
     const {
         questions,
@@ -114,6 +143,96 @@ function ModuleQuizContent() {
                             </Button>
                         </div>
                     </div>
+
+                    {/* Module Specific Notes (Dynamic from DB) - Content Protected */}
+                    {data?.studyNotes && Array.isArray(data.studyNotes) && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-8 overflow-hidden rounded-3xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl transition-all duration-300 select-none"
+                            onCopy={(e) => e.preventDefault()}
+                            onContextMenu={(e) => e.preventDefault()}
+                        >
+                            <button
+                                onClick={() => setShowNotes(!showNotes)}
+                                className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-colors border-b border-white/5"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-500/20">
+                                        <BookOpen className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h3 className="text-sm font-black text-white tracking-tight">VIP Study Flashcards</h3>
+                                        <p className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest italic">
+                                            Module {moduleInfo?.code} • Exclusive Summary
+                                        </p>
+                                    </div>
+                                </div>
+                                {showNotes ? <ChevronUp className="h-5 w-5 text-slate-500" /> : <ChevronDown className="h-5 w-5 text-slate-500" />}
+                            </button>
+
+                            <AnimatePresence>
+                                {showNotes && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {(data.studyNotes as any[]).map((standard, idx) => (
+                                                <div key={idx} className="space-y-4 p-5 rounded-2xl bg-slate-900/60 border border-white/5 hover:border-indigo-500/20 transition-all shadow-inner relative overflow-hidden group">
+                                                    {/* Decorative background element */}
+                                                    <div className="absolute -top-4 -right-2 p-1 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
+                                                        <div className="text-6xl font-black italic">{standard.standardId}</div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 relative z-10">
+                                                        <div className="flex h-6 min-w-[1.5rem] px-2 items-center justify-center rounded-lg bg-indigo-600 text-white text-[10px] font-black shadow-lg shadow-indigo-500/20 whitespace-nowrap">
+                                                            {standard.standardId}
+                                                        </div>
+                                                        <h4 className="font-black text-indigo-100 text-sm tracking-tight line-clamp-1">{standard.standardTitle}</h4>
+                                                    </div>
+
+                                                    <div className="space-y-3 relative z-10">
+                                                        {(standard.notes as any[]).map((note, nIdx) => (
+                                                            <div key={nIdx} className="bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/5 shadow-sm">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    {note.type === 'lightbulb' ? (
+                                                                        <div className="p-1 bg-amber-500/20 rounded-md">
+                                                                            <Lightbulb className="h-3 w-3 text-amber-400" />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="p-1 bg-indigo-500/20 rounded-md">
+                                                                            <Info className="h-3 w-3 text-indigo-400" />
+                                                                        </div>
+                                                                    )}
+                                                                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">
+                                                                        {note.label}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-xs leading-relaxed text-slate-200 font-medium markdown-content-sm">
+                                                                    <ReactMarkdown
+                                                                        remarkPlugins={[remarkGfm, remarkMath]}
+                                                                        rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
+                                                                        components={{
+                                                                            p: ({ children }) => <span className="inline-block">{children}</span>,
+                                                                        }}
+                                                                    >
+                                                                        {cleanLatex(note.text)}
+                                                                    </ReactMarkdown>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
 
                     {/* Navigation & Progress Hub */}
                     <div className="mb-8 space-y-4 bg-card/30 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl shadow-indigo-500/5">
