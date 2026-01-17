@@ -176,67 +176,72 @@ function ModuleQuizContent() {
                                         className="overflow-hidden"
                                     >
                                         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {(data.studyNotes as any[]).map((standard, idx) => (
-                                                <div key={idx} className="space-y-4 p-5 rounded-2xl bg-slate-900/60 border border-white/5 hover:border-indigo-500/20 transition-all shadow-inner relative overflow-hidden group">
+                                            {(data.studyNotes as any[]).flatMap((standard) =>
+                                                (standard.notes as any[]).map((note, nIdx) => ({
+                                                    ...note,
+                                                    standardId: standard.standardId,
+                                                    standardTitle: standard.standardTitle,
+                                                    noteIdx: nIdx
+                                                }))
+                                            ).map((flattenedNote, idx) => (
+                                                <div key={idx} className="space-y-4 p-5 rounded-2xl bg-slate-900/60 border border-white/5 hover:border-indigo-500/20 transition-all shadow-inner relative overflow-hidden group h-full flex flex-col">
                                                     {/* Decorative background element */}
                                                     <div className="absolute -top-4 -right-2 p-1 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
-                                                        <div className="text-6xl font-black italic">{standard.standardId}</div>
+                                                        <div className="text-6xl font-black italic">{flattenedNote.standardId}</div>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2 relative z-10">
+                                                    <div className="flex items-center gap-2 relative z-10 flex-shrink-0">
                                                         <div className="flex h-6 min-w-[1.5rem] px-2 items-center justify-center rounded-lg bg-indigo-600 text-white text-[10px] font-black shadow-lg shadow-indigo-500/20 whitespace-nowrap">
-                                                            {standard.standardId}
+                                                            {flattenedNote.standardId}
                                                         </div>
-                                                        <h4 className="font-black text-indigo-100 text-sm tracking-tight line-clamp-1">{standard.standardTitle}</h4>
+                                                        <h4 className="font-black text-indigo-100 text-[11px] uppercase tracking-wider opacity-60">
+                                                            {flattenedNote.standardTitle}
+                                                        </h4>
                                                     </div>
 
-                                                    <div className="space-y-3 relative z-10">
-                                                        {(standard.notes as any[]).map((note, nIdx) => (
-                                                            <div key={nIdx} className="bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/5 shadow-sm">
-                                                                <div className="flex items-center gap-2 mb-2">
-                                                                    {note.type === 'lightbulb' ? (
-                                                                        <div className="p-1 bg-amber-500/20 rounded-md">
-                                                                            <Lightbulb className="h-3 w-3 text-amber-400" />
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className="p-1 bg-indigo-500/20 rounded-md">
-                                                                            <Info className="h-3 w-3 text-indigo-400" />
-                                                                        </div>
-                                                                    )}
-                                                                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">
-                                                                        <ReactMarkdown
-                                                                            remarkPlugins={[remarkMath]}
-                                                                            rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
-                                                                            components={{
-                                                                                p: ({ children }) => <span className="inline-block">{children}</span>,
-                                                                            }}
-                                                                        >
-                                                                            {note.label}
-                                                                        </ReactMarkdown>
-                                                                    </span>
+                                                    <div className="flex-1 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/5 shadow-sm relative z-10">
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            {flattenedNote.type === 'lightbulb' ? (
+                                                                <div className="p-1 bg-amber-500/20 rounded-md">
+                                                                    <Lightbulb className="h-3 w-3 text-amber-400" />
                                                                 </div>
-                                                                <div className="text-xs leading-relaxed text-slate-200 font-medium markdown-content-sm">
-                                                                    <ReactMarkdown
-                                                                        remarkPlugins={[remarkGfm, remarkMath]}
-                                                                        rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
-                                                                        components={{
-                                                                            p: ({ children }) => <p className="mb-2 last:mb-0 inline-block w-full">{children}</p>,
-                                                                            table: ({ children }) => (
-                                                                                <div className="my-4 overflow-x-auto rounded-xl border border-white/10">
-                                                                                    <table className="w-full text-left border-collapse">{children}</table>
-                                                                                </div>
-                                                                            ),
-                                                                            thead: ({ children }) => <thead className="bg-white/5">{children}</thead>,
-                                                                            th: ({ children }) => <th className="p-3 text-[10px] font-black uppercase text-indigo-300 border-b border-white/10">{children}</th>,
-                                                                            td: ({ children }) => <td className="p-3 text-[11px] border-b border-white/5 text-slate-300">{children}</td>,
-                                                                            tr: ({ children }) => <tr className="hover:bg-white/5 transition-colors">{children}</tr>,
-                                                                        }}
-                                                                    >
-                                                                        {cleanLatex(note.text)}
-                                                                    </ReactMarkdown>
+                                                            ) : (
+                                                                <div className="p-1 bg-indigo-500/20 rounded-md">
+                                                                    <Info className="h-3 w-3 text-indigo-400" />
                                                                 </div>
-                                                            </div>
-                                                        ))}
+                                                            )}
+                                                            <span className="text-[10px] font-black uppercase text-indigo-300 tracking-widest">
+                                                                <ReactMarkdown
+                                                                    remarkPlugins={[remarkMath]}
+                                                                    rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
+                                                                    components={{
+                                                                        p: ({ children }) => <span className="inline-block">{children}</span>,
+                                                                    }}
+                                                                >
+                                                                    {flattenedNote.label}
+                                                                </ReactMarkdown>
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-xs leading-relaxed text-slate-200 font-medium markdown-content-sm">
+                                                            <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm, remarkMath]}
+                                                                rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
+                                                                components={{
+                                                                    p: ({ children }) => <p className="mb-2 last:mb-0 inline-block w-full">{children}</p>,
+                                                                    table: ({ children }) => (
+                                                                        <div className="my-4 overflow-x-auto rounded-xl border border-white/10">
+                                                                            <table className="w-full text-left border-collapse">{children}</table>
+                                                                        </div>
+                                                                    ),
+                                                                    thead: ({ children }) => <thead className="bg-white/5">{children}</thead>,
+                                                                    th: ({ children }) => <th className="p-3 text-[10px] font-black uppercase text-indigo-300 border-b border-white/10">{children}</th>,
+                                                                    td: ({ children }) => <td className="p-3 text-[11px] border-b border-white/5 text-slate-300">{children}</td>,
+                                                                    tr: ({ children }) => <tr className="hover:bg-white/5 transition-colors">{children}</tr>,
+                                                                }}
+                                                            >
+                                                                {cleanLatex(flattenedNote.text).replace(/\\n/g, '\n')}
+                                                            </ReactMarkdown>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
