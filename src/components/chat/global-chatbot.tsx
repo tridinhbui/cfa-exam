@@ -347,7 +347,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className="max-w-[98vw] w-[1600px] h-[90vh] p-0 overflow-hidden border-0 bg-[#171717] rounded-[2.5rem] shadow-2xl flex flex-col gap-0 outline-none select-none [&>button]:hidden z-[60]"
+                className="max-w-[98vw] w-[1600px] h-[90vh] p-0 overflow-hidden border border-border bg-background rounded-[2.5rem] shadow-2xl flex flex-col gap-0 outline-none select-none [&>button]:hidden z-[60]"
             >
                 {/* Drag Overlay */}
                 <AnimatePresence>
@@ -375,36 +375,36 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                 initial={{ width: 0, opacity: 0 }}
                                 animate={{ width: 280, opacity: 1 }}
                                 exit={{ width: 0, opacity: 0 }}
-                                className="bg-[#171717] flex flex-col overflow-hidden border-r border-white/5 shrink-0"
+                                className="bg-muted/30 dark:bg-[#171717] flex flex-col overflow-hidden border-r border-border shrink-0"
                             >
                                 <div className="p-4 space-y-4">
                                     <Button
                                         onClick={createNewChat}
-                                        className="w-full justify-between items-center h-11 rounded-xl bg-transparent hover:bg-white/5 text-white/90 border border-white/10 font-medium transition-all text-sm px-4 group"
+                                        className="w-full justify-between items-center h-11 rounded-xl bg-transparent hover:bg-accent text-foreground border border-border font-medium transition-all text-sm px-4 group"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+                                            <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center">
                                                 <Sparkles className="w-3.5 h-3.5" />
                                             </div>
                                             <span>New Chat</span>
                                         </div>
-                                        <div className="p-1 rounded bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="p-1 rounded bg-accent opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Send className="w-3 h-3" />
                                         </div>
                                     </Button>
 
                                     <div className="relative group">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-indigo-400 transition-colors" />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50 group-focus-within:text-indigo-500 transition-colors" />
                                         <input
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             placeholder="Search chats..."
-                                            className="w-full bg-white/5 border border-white/5 rounded-lg text-xs text-white/60 placeholder-white/20 focus:ring-1 focus:ring-white/10 pl-9 pr-8 h-9 outline-none transition-all"
+                                            className="w-full bg-accent/50 dark:bg-white/5 border border-border rounded-lg text-xs text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-indigo-500/20 pl-9 pr-8 h-9 outline-none transition-all"
                                         />
                                         {searchQuery && (
                                             <button
                                                 onClick={() => setSearchQuery('')}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:text-white text-white/20 transition-colors"
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:text-foreground text-muted-foreground/30 transition-colors"
                                             >
                                                 <X className="w-3 h-3" />
                                             </button>
@@ -413,7 +413,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-1 custom-scrollbar-thick">
-                                    <div className="px-3 pt-4 pb-2 text-[11px] font-bold text-white/30 uppercase tracking-widest">
+                                    <div className="px-3 pt-4 pb-2 text-[11px] font-bold text-muted-foreground/50 uppercase tracking-widest">
                                         {searchQuery ? `Search Results (${filteredSessions.length})` : 'Chat History'}
                                     </div>
                                     {filteredSessions.map((s) => (
@@ -421,11 +421,11 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                             key={s.id}
                                             onClick={() => editingSessionId !== s.id && loadSession(s.id)}
                                             className={`group relative py-2.5 px-3 rounded-xl cursor-pointer transition-all flex items-center gap-3 ${currentSessionId === s.id
-                                                ? 'bg-white/[0.08] text-white'
-                                                : 'hover:bg-white/5 text-white/60 hover:text-white'
+                                                ? 'bg-accent text-foreground'
+                                                : 'hover:bg-accent/50 text-muted-foreground hover:text-foreground'
                                                 }`}
                                         >
-                                            <MessageCircle className={`w-4 h-4 shrink-0 ${currentSessionId === s.id ? 'text-white' : 'text-white/30'}`} />
+                                            <MessageCircle className={`w-4 h-4 shrink-0 ${currentSessionId === s.id ? 'text-indigo-500' : 'text-muted-foreground/30'}`} />
                                             {editingSessionId === s.id ? (
                                                 <div className="flex-1 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                     <input
@@ -447,7 +447,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                                                 renameSession(s.id, editingTitle);
                                                             }
                                                         }}
-                                                        className="flex-1 bg-white/10 border-none rounded px-2 py-1 text-xs text-white focus:ring-1 focus:ring-indigo-500 outline-none w-full"
+                                                        className="flex-1 bg-accent border border-border rounded px-2 py-1 text-xs text-foreground focus:ring-1 focus:ring-indigo-500 outline-none w-full"
                                                     />
                                                     <button
                                                         onMouseDown={(e) => {
@@ -493,18 +493,18 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                     )}
                                 </div>
 
-                                <div className="p-3 border-t border-white/5">
-                                    <div className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-all group cursor-pointer">
-                                        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-[11px] font-bold text-white uppercase ring-1 ring-white/10 shadow-lg shrink-0">
+                                <div className="p-3 border-t border-border">
+                                    <div className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-accent transition-all group cursor-pointer">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-[11px] font-bold text-white uppercase ring-1 ring-border shadow-lg shrink-0">
                                             {getInitials(dbUser?.name || firebaseUser?.displayName)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-bold text-white truncate">{dbUser?.name || firebaseUser?.displayName || 'Guest User'}</p>
-                                            <p className="text-[10px] text-white/40 truncate font-medium uppercase tracking-wider">
+                                            <p className="text-xs font-bold text-foreground truncate">{dbUser?.name || firebaseUser?.displayName || 'Guest User'}</p>
+                                            <p className="text-[10px] text-muted-foreground truncate font-medium uppercase tracking-wider">
                                                 {dbUser?.subscription === 'PRO' ? 'CFA Pro Member' : 'Free Account'}
                                             </p>
                                         </div>
-                                        <Settings className="w-4 h-4 text-white/20 group-hover:text-white/60 transition-colors" />
+                                        <Settings className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                                     </div>
                                 </div>
                             </motion.div>
@@ -512,25 +512,25 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                     </AnimatePresence>
 
                     {/* Main Chat Area */}
-                    <div className="flex-1 flex flex-col relative overflow-hidden bg-[#212121]">
+                    <div className="flex-1 flex flex-col relative overflow-hidden bg-card/50 dark:bg-[#212121]">
                         {/* Compact Header */}
-                        <header className="h-14 border-b border-white/5 flex items-center justify-between px-4 bg-[#212121]/80 backdrop-blur-md z-10 shrink-0">
+                        <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-background/80 backdrop-blur-md z-10 shrink-0">
                             <div className="flex items-center gap-3">
                                 {!isSidebarOpen && (
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => setIsSidebarOpen(true)}
-                                        className="text-white/60 hover:text-white hover:bg-white/5"
+                                        className="text-muted-foreground hover:text-foreground hover:bg-accent"
                                     >
                                         <History className="w-5 h-5" />
                                     </Button>
                                 )}
-                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
-                                    <DialogTitle className="font-bold text-white/90 text-sm">
+                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-accent cursor-pointer transition-colors">
+                                    <DialogTitle className="font-bold text-foreground text-sm">
                                         CFA AI Advisor
                                     </DialogTitle>
-                                    <ChevronDown className="w-4 h-4 text-white/40" />
+                                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                 </div>
 
                                 {isActive && currentQuestion && (
@@ -547,7 +547,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                     variant="ghost"
                                     size="icon"
                                     onClick={onClose}
-                                    className="w-10 h-10 rounded-xl hover:bg-white/5 transition-colors text-white/40 hover:text-white"
+                                    className="w-10 h-10 rounded-xl hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
                                 >
                                     <X className="w-6 h-6" />
                                 </Button>
@@ -561,17 +561,17 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                             <div className="max-w-4xl mx-auto py-8">
                                 {messages.length === 0 && (
                                     <div className="flex flex-col items-center justify-center py-32 text-center space-y-6">
-                                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 border border-white/5">
+                                        <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-muted-foreground/30 border border-border">
                                             <Bot className="w-8 h-8" />
                                         </div>
-                                        <h2 className="text-3xl font-bold tracking-tight text-white/90">
+                                        <h2 className="text-3xl font-bold tracking-tight text-foreground">
                                             How can I help you?
                                         </h2>
                                     </div>
                                 )}
 
                                 {messages.map((m, idx) => (
-                                    <div key={idx} className={`group w-full border-b border-white/[0.03] last:border-0 ${m.role === 'user' ? 'bg-white/[0.02]' : ''}`}>
+                                    <div key={idx} className={`group w-full border-b border-border/30 last:border-0 ${m.role === 'user' ? 'bg-muted/30' : ''}`}>
                                         <div className={`max-w-3xl mx-auto px-4 py-8 flex gap-4 md:gap-6 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                                             <div className="shrink-0">
                                                 {m.role === 'assistant' ? (
@@ -585,10 +585,10 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                                 )}
                                             </div>
                                             <div className={`flex-1 min-w-0 space-y-2 ${m.role === 'user' ? 'text-right' : ''}`}>
-                                                <div className={`font-bold text-[13px] text-white/50 flex items-center gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                                <div className={`font-bold text-[13px] text-muted-foreground flex items-center gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                                                     {m.role === 'assistant' ? 'AI Advisor' : 'You'}
                                                 </div>
-                                                <div className="prose prose-invert prose-indigo max-w-none break-words text-[15px] leading-relaxed text-white/90">
+                                                <div className="prose dark:prose-invert prose-indigo max-w-none break-words text-[15px] leading-relaxed text-foreground antialiased shadow-indigo-500/10">
                                                     {m.image && (
                                                         <motion.div
                                                             initial={{ opacity: 0, scale: 0.95 }}
@@ -619,14 +619,14 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                     <div className="group w-full">
                                         <div className="max-w-3xl mx-auto px-4 py-8 flex gap-6">
                                             <div className="shrink-0 animate-pulse">
-                                                <div className="w-8 h-8 rounded-lg bg-emerald-600/50 flex items-center justify-center border border-white/10">
+                                                <div className="w-8 h-8 rounded-lg bg-emerald-600/50 flex items-center justify-center border border-border">
                                                     <Bot className="w-5 h-5 text-white/50" />
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1.5 py-2">
-                                                <div className="w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                                                <div className="w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                                                <div className="w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce" />
+                                                <div className="w-1.5 h-1.5 bg-muted-foreground/20 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                                <div className="w-1.5 h-1.5 bg-muted-foreground/20 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                                <div className="w-1.5 h-1.5 bg-muted-foreground/20 rounded-full animate-bounce" />
                                             </div>
                                         </div>
                                     </div>
@@ -636,11 +636,11 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                         </div>
 
                         {/* Floating Input Bar */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#212121] via-[#212121]/90 to-transparent pt-12 pb-8 px-4">
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-12 pb-8 px-4">
                             <div className="max-w-3xl mx-auto relative">
                                 <form
                                     onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-                                    className="relative flex items-end gap-2 bg-[#2f2f2f] rounded-[24px] p-2 pl-4 pr-3 shadow-2xl border border-white/5 focus-within:border-white/10 transition-all"
+                                    className="relative flex items-end gap-2 bg-muted/80 dark:bg-[#2f2f2f] backdrop-blur-xl rounded-[24px] p-2 pl-4 pr-3 shadow-2xl border border-border focus-within:border-indigo-500/30 transition-all"
                                 >
                                     <input
                                         type="file"
@@ -655,7 +655,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="mb-1 h-9 w-9 text-white/40 hover:text-white/90 hover:bg-white/5 rounded-full shrink-0"
+                                        className="mb-1 h-9 w-9 text-muted-foreground/60 hover:text-foreground hover:bg-accent rounded-full shrink-0"
                                     >
                                         <Paperclip className="w-5 h-5" />
                                     </Button>
@@ -674,14 +674,14 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                         onPaste={handlePaste}
                                         placeholder="Message CFA AI Advisor..."
                                         rows={1}
-                                        className="flex-1 bg-transparent border-0 focus:ring-0 text-white placeholder-white/20 py-3.5 resize-none max-h-48 custom-scrollbar min-h-[52px] text-[15px] leading-relaxed"
+                                        className="flex-1 bg-transparent border-0 focus:ring-0 text-foreground placeholder:text-muted-foreground/30 py-3.5 resize-none max-h-48 custom-scrollbar min-h-[52px] text-[15px] leading-relaxed"
                                     />
 
                                     <Button
                                         type="submit"
                                         disabled={isLoading || (!input.trim() && !selectedImage)}
                                         size="icon"
-                                        className="mb-1 h-9 w-9 rounded-full bg-white text-black hover:bg-white/90 disabled:bg-white/10 disabled:text-white/20 shadow-lg shrink-0"
+                                        className="mb-1 h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/90 disabled:bg-accent disabled:text-muted-foreground/30 shadow-lg shrink-0"
                                     >
                                         {isLoading ? (
                                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -697,7 +697,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                                 initial={{ opacity: 0, y: 10, scale: 0.9 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, scale: 0.9 }}
-                                                className="absolute bottom-full mb-4 left-4 p-2 bg-[#2f2f2f] border border-white/10 rounded-2xl shadow-2xl z-20 flex items-center gap-3 pr-4"
+                                                className="absolute bottom-full mb-4 left-4 p-2 bg-card border border-border rounded-2xl shadow-2xl z-20 flex items-center gap-3 pr-4"
                                             >
                                                 <div className="relative">
                                                     <img src={selectedImage} alt="Preview" className="h-12 w-12 object-cover rounded-lg" />
@@ -709,14 +709,14 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                                     </button>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs font-bold text-white">Image Attached</p>
-                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">Ready for AI</p>
+                                                    <p className="text-xs font-bold text-foreground">Image Attached</p>
+                                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Ready for AI</p>
                                                 </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
                                 </form>
-                                <p className="text-[10px] text-white/20 text-center mt-3 font-medium">
+                                <p className="text-[10px] text-muted-foreground/30 text-center mt-3 font-medium">
                                     CFA AI Bot can make mistakes. Always check important info.
                                 </p>
                             </div>
