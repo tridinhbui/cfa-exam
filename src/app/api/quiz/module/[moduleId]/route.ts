@@ -78,6 +78,7 @@ export async function GET(
             readingTitle: module.reading.title,
             readingId: module.reading.id,
             bookId: module.reading.book.id,
+            studyNotes: module.quizHeader?.studyNotes,
             questions: mappedQuizzes
         });
     } catch (error) {

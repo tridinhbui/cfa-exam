@@ -20,7 +20,7 @@ import {
   Coins,
   Bot,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +62,32 @@ export function Navbar() {
   };
 
   const [imgError, setImgError] = useState(false);
+  const [chatLimit, setChatLimit] = useState<{ remaining: number, limit: number, type: string } | null>(null);
+
+  const fetchChatLimit = async () => {
+    if (!user) return;
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch('/api/quiz/chat/limit', {
+        headers: { 'Authorization': `Bearer ${token}` },
+        cache: 'no-store'
+      });
+      const data = await res.json();
+      if (data.remaining !== undefined) setChatLimit(data);
+    } catch (err) {
+      console.error('Failed to fetch chat limit', err);
+    }
+  };
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      console.log('Navbar: chat-limit-updated event received, refreshing...');
+      setTimeout(fetchChatLimit, 100);
+    };
+    window.addEventListener('chat-limit-updated', handleRefresh);
+    fetchChatLimit();
+    return () => window.removeEventListener('chat-limit-updated', handleRefresh);
+  }, [user, pathname]); // Re-fetch on path change is a simple way to update since chat api is called from other components
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
@@ -140,6 +166,23 @@ export function Navbar() {
               <Coins className="h-4 w-4 fill-amber-500" />
               <span className="text-sm font-bold">{dbUser?.coins || 0}</span>
             </motion.div>
+
+            {/* Chat Credits Stats */}
+            {chatLimit && (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className={cn(
+                  "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors",
+                  chatLimit.remaining > 0
+                    ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
+                    : "bg-destructive/10 border-destructive/20 text-destructive"
+                )}
+                title={chatLimit.type === 'PRO' ? "Daily AI Credits (75 per day)" : "Trial Credits (7 per 2h)"}
+              >
+                <Bot className="h-4 w-4" />
+                <span className="text-sm font-bold">{chatLimit.remaining}/{chatLimit.limit}</span>
+              </motion.div>
+            )}
 
             <ThemeToggle />
 

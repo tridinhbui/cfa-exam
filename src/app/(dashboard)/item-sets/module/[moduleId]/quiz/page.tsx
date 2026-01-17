@@ -8,6 +8,11 @@ import {
     Flag,
     X,
     Loader2,
+    BookOpen,
+    Lightbulb,
+    Info,
+    ChevronDown,
+    ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -20,11 +25,45 @@ import { useQuizStore } from '@/store/quiz-store';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { useAuthenticatedSWR } from '@/hooks/use-authenticated-swr';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
+
+const cleanLatex = (text: string) => {
+    if (!text) return '';
+
+    // 1. The Ultimate Fix: Replace our custom backslash token
+    let processed = text.replace(/_BS_/g, '\\');
+
+    // 2. Fallback: Restore common keywords if they still lack backslashes
+    const keywords = ['frac', 'text', 'times', 'left', 'right', 'sum', 'infty', 'leq', 'geq', 'neq', 'alpha', 'beta', 'delta'];
+    keywords.forEach(kw => {
+        const regex = new RegExp(`(?<!\\\\)${kw}`, 'g');
+        processed = processed.replace(regex, `\\${kw}`);
+    });
+
+    // 3. Ensure fraction braces for common missing brace scenarios
+    if (processed.includes('\\frac') && !processed.includes('{')) {
+        processed = processed.replace(/\\frac\s*([^\/\s]+)\s*[\/\s]\s*([^\$]+)/, '\\frac{$1}{$2}');
+    }
+
+    // 4. Smart Wrap in $$ 
+    // ONLY wrap if it doesn't already have $ AND it doesn't look like a mixed markdown list/bold
+    const hasMarkdown = processed.includes('**') || processed.trim().startsWith('-') || processed.includes('\n');
+    if ((processed.includes('\\frac') || processed.includes('\\text')) && !processed.includes('$') && !hasMarkdown) {
+        processed = `$$${processed}$$`;
+    }
+
+    return processed;
+};
 
 function ModuleQuizContent() {
     const { user } = useAuth();
     const { moduleId } = useParams();
     const router = useRouter();
+    const [showNotes, setShowNotes] = useState(true);
 
     const {
         questions,
@@ -114,6 +153,118 @@ function ModuleQuizContent() {
                             </Button>
                         </div>
                     </div>
+
+                    {/* Module Specific Notes (Dynamic from DB) - Content Protected */}
+                    {data?.studyNotes && Array.isArray(data.studyNotes) && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-8 overflow-hidden rounded-3xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl transition-all duration-300 select-none"
+                            onCopy={(e) => e.preventDefault()}
+                            onContextMenu={(e) => e.preventDefault()}
+                        >
+                            <button
+                                onClick={() => setShowNotes(!showNotes)}
+                                className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-colors border-b border-white/5"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-500/20">
+                                        <BookOpen className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h3 className="text-sm font-black text-white tracking-tight">VIP Study Flashcards</h3>
+                                        <p className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest italic">
+                                            Module {moduleInfo?.code} • Exclusive Summary
+                                        </p>
+                                    </div>
+                                </div>
+                                {showNotes ? <ChevronUp className="h-5 w-5 text-slate-500" /> : <ChevronDown className="h-5 w-5 text-slate-500" />}
+                            </button>
+
+                            <AnimatePresence>
+                                {showNotes && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {(data.studyNotes as any[]).flatMap((standard) =>
+                                                (standard.notes as any[]).map((note, nIdx) => ({
+                                                    ...note,
+                                                    standardId: standard.standardId,
+                                                    standardTitle: standard.standardTitle,
+                                                    noteIdx: nIdx
+                                                }))
+                                            ).map((flattenedNote, idx) => (
+                                                <div key={idx} className="space-y-4 p-5 rounded-2xl bg-slate-900/60 border border-white/5 hover:border-indigo-500/20 transition-all shadow-inner relative overflow-hidden group h-full flex flex-col">
+                                                    {/* Decorative background element */}
+                                                    <div className="absolute -top-4 -right-2 p-1 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
+                                                        <div className="text-6xl font-black italic">{flattenedNote.standardId}</div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 relative z-10 flex-shrink-0">
+                                                        <div className="flex h-6 min-w-[1.5rem] px-2 items-center justify-center rounded-lg bg-indigo-600 text-white text-[10px] font-black shadow-lg shadow-indigo-500/20 whitespace-nowrap">
+                                                            {flattenedNote.standardId}
+                                                        </div>
+                                                        <h4 className="font-black text-indigo-100 text-[11px] uppercase tracking-wider opacity-60">
+                                                            {flattenedNote.standardTitle}
+                                                        </h4>
+                                                    </div>
+
+                                                    <div className="flex-1 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/5 shadow-sm relative z-10">
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            {flattenedNote.type === 'lightbulb' ? (
+                                                                <div className="p-1 bg-amber-500/20 rounded-md">
+                                                                    <Lightbulb className="h-3 w-3 text-amber-400" />
+                                                                </div>
+                                                            ) : (
+                                                                <div className="p-1 bg-indigo-500/20 rounded-md">
+                                                                    <Info className="h-3 w-3 text-indigo-400" />
+                                                                </div>
+                                                            )}
+                                                            <span className="text-[10px] font-black uppercase text-indigo-300 tracking-widest">
+                                                                <ReactMarkdown
+                                                                    remarkPlugins={[remarkMath]}
+                                                                    rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
+                                                                    components={{
+                                                                        p: ({ children }) => <span className="inline-block">{children}</span>,
+                                                                    }}
+                                                                >
+                                                                    {flattenedNote.label}
+                                                                </ReactMarkdown>
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-xs leading-relaxed text-slate-200 font-medium markdown-content-sm">
+                                                            <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm, remarkMath]}
+                                                                rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
+                                                                components={{
+                                                                    p: ({ children }) => <p className="mb-2 last:mb-0 inline-block w-full">{children}</p>,
+                                                                    table: ({ children }) => (
+                                                                        <div className="my-4 overflow-x-auto rounded-xl border border-white/10">
+                                                                            <table className="w-full text-left border-collapse">{children}</table>
+                                                                        </div>
+                                                                    ),
+                                                                    thead: ({ children }) => <thead className="bg-white/5">{children}</thead>,
+                                                                    th: ({ children }) => <th className="p-3 text-[10px] font-black uppercase text-indigo-300 border-b border-white/10">{children}</th>,
+                                                                    td: ({ children }) => <td className="p-3 text-[11px] border-b border-white/5 text-slate-300">{children}</td>,
+                                                                    tr: ({ children }) => <tr className="hover:bg-white/5 transition-colors">{children}</tr>,
+                                                                }}
+                                                            >
+                                                                {cleanLatex(flattenedNote.text).replace(/\\n/g, '\n')}
+                                                            </ReactMarkdown>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
 
                     {/* Navigation & Progress Hub */}
                     <div className="mb-8 space-y-4 bg-card/30 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl shadow-indigo-500/5">

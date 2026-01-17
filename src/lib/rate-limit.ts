@@ -6,7 +6,16 @@ interface RateLimitOption {
 }
 
 // In-memory store for rate limiting (Note: This will reset on server restart)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+// Using global to persist across HMR in development
+const globalForRateLimit = global as unknown as {
+    rateLimitMap: Map<string, { count: number; resetTime: number }> | undefined
+};
+
+const rateLimitMap = globalForRateLimit.rateLimitMap ?? new Map<string, { count: number; resetTime: number }>();
+
+if (process.env.NODE_ENV !== 'production') {
+    globalForRateLimit.rateLimitMap = rateLimitMap;
+}
 
 /**
  * Basic in-memory rate limiter
@@ -43,10 +52,34 @@ export function rateLimit(ip: string, options: RateLimitOption) {
 
     // Increment count
     record.count += 1;
+    console.log(`[RateLimit] Key: ${ip} | Count: ${record.count}/${options.limit} | Remaining: ${options.limit - record.count}`);
     return {
         success: true,
         remaining: options.limit - record.count,
         reset: record.resetTime
+    };
+}
+
+/**
+ * Check rate limit status without incrementing
+ */
+export function getLimitInfo(key: string, options: RateLimitOption) {
+    const now = Date.now();
+    const record = rateLimitMap.get(key);
+
+    if (!record || now > record.resetTime) {
+        return {
+            count: 0,
+            remaining: options.limit,
+            resetTime: now + options.window
+        };
+    }
+
+    console.log(`[LimitInfo] Key: ${key} | Current Count: ${record.count} | Remaining: ${Math.max(0, options.limit - record.count)}`);
+    return {
+        count: record.count,
+        remaining: Math.max(0, options.limit - record.count),
+        resetTime: record.resetTime
     };
 }
 

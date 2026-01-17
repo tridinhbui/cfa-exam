@@ -267,6 +267,7 @@ model ModuleQuizHeader {
   id        String               @id @default(cuid())
   moduleId  String               @unique
   title     String
+  studyNotes Json?
   module    Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   questions ModuleQuizQuestion[]
 }

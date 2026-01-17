@@ -94,6 +94,9 @@ export function QuizAIAssistant({ question, explanation, options, topic, current
                 throw new Error(data.error || 'Failed to get response');
             }
 
+            // Sync navbar credits
+            window.dispatchEvent(new Event('chat-limit-updated'));
+
             // Handle Streaming Response
             const reader = response.body?.getReader();
             if (!reader) throw new Error('No reader available');

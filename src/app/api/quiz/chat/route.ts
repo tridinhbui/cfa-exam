@@ -3,6 +3,8 @@ import OpenAI from 'openai';
 import { rateLimit } from '@/lib/rate-limit';
 import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 
+export const runtime = 'nodejs';
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
@@ -24,17 +26,31 @@ export async function POST(req: NextRequest) {
         });
 
         const isFree = !user || user.subscription === 'FREE';
+        const isPro = user?.subscription === 'PRO';
 
         if (isFree) {
-            const limitResult = rateLimit(`chat_free_${userId}`, {
-                limit: 6,         // Only 6 messages
-                window: 3600000   // per hour
+            // Check sliding window limit for free users: 7 messages per 2 hours
+            const limitResult = rateLimit(`chat_free_2hr_${userId}`, {
+                limit: 7,         // Now 7 messages
+                window: 7200000   // 2 hours in milliseconds
             });
 
             if (!limitResult.success) {
                 return NextResponse.json({
-                    error: 'Free tier quota: 6 messages per hour. Upgrade to PRO to chat as much as you want!',
+                    error: 'Free tier quota: 7 messages every 2 hours. Upgrade to PRO to study with a massive 70 messages/day limit!',
                     isFree: true
+                }, { status: 429 });
+            }
+        } else if (isPro) {
+            const limitResult = rateLimit(`chat_pro_${userId}`, {
+                limit: 75,        // 75 messages
+                window: 86400000  // per 24 hours (1 day)
+            });
+
+            if (!limitResult.success) {
+                return NextResponse.json({
+                    error: 'PRO tier daily quota: 75 messages per day reached. You have studied exceptionally hard today! Please return tomorrow.',
+                    isPro: true
                 }, { status: 429 });
             }
         }
@@ -146,10 +162,13 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        console.log(`[Chat API] Model: gpt-5-nano, isGlobal: ${isGlobal}, hasImage: ${!!image}`);
+        // 5. Select Model Based on Subscription
+        const chatModel = isPro ? 'gpt-5-mini' : 'gpt-5-nano';
+
+        console.log(`[Chat API] Model: ${chatModel}, isGlobal: ${isGlobal}, hasImage: ${!!image}, User: ${isPro ? 'PRO' : 'FREE'}`);
 
         const response = await openai.chat.completions.create({
-            model: 'gpt-5-nano',
+            model: chatModel,
             messages: [systemMessage, ...conversationHistory, { role: 'user', content: finalContent }] as any,
             max_completion_tokens: 4096,
             stream: true,
