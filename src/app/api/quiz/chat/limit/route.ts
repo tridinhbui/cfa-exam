@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
 import { getLimitInfo } from '@/lib/rate-limit';
 
+export const runtime = 'nodejs';
+
 /**
  * API to check user's remaining chat credits
  * Matches the logic in /api/quiz/chat/route.ts
@@ -24,15 +26,15 @@ export async function GET(req: NextRequest) {
         let limitInfo;
         if (isFree) {
             limitInfo = {
-                ...getLimitInfo(`chat_free_6hr_${userId}`, { limit: 3, window: 21600000 }),
+                ...getLimitInfo(`chat_free_2hr_${userId}`, { limit: 7, window: 7200000 }),
                 type: 'FREE',
-                limit: 3
+                limit: 7
             };
         } else {
             limitInfo = {
-                ...getLimitInfo(`chat_pro_${userId}`, { limit: 70, window: 86400000 }),
+                ...getLimitInfo(`chat_pro_${userId}`, { limit: 75, window: 86400000 }),
                 type: 'PRO',
-                limit: 70
+                limit: 75
             };
         }
 

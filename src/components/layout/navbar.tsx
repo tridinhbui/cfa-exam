@@ -69,7 +69,8 @@ export function Navbar() {
     try {
       const token = await user.getIdToken();
       const res = await fetch('/api/quiz/chat/limit', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        cache: 'no-store'
       });
       const data = await res.json();
       if (data.remaining !== undefined) setChatLimit(data);
@@ -79,7 +80,10 @@ export function Navbar() {
   };
 
   useEffect(() => {
-    const handleRefresh = () => fetchChatLimit();
+    const handleRefresh = () => {
+      console.log('Navbar: chat-limit-updated event received, refreshing...');
+      setTimeout(fetchChatLimit, 100);
+    };
     window.addEventListener('chat-limit-updated', handleRefresh);
     fetchChatLimit();
     return () => window.removeEventListener('chat-limit-updated', handleRefresh);
@@ -173,7 +177,7 @@ export function Navbar() {
                     ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
                     : "bg-destructive/10 border-destructive/20 text-destructive"
                 )}
-                title={chatLimit.type === 'PRO' ? "Daily AI Credits (Reset every 24h)" : "Trial Credits (3 per 6h)"}
+                title={chatLimit.type === 'PRO' ? "Daily AI Credits (75 per day)" : "Trial Credits (7 per 2h)"}
               >
                 <Bot className="h-4 w-4" />
                 <span className="text-sm font-bold">{chatLimit.remaining}/{chatLimit.limit}</span>
