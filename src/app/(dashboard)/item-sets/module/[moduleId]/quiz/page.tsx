@@ -33,16 +33,30 @@ import 'katex/dist/katex.min.css';
 
 const cleanLatex = (text: string) => {
     if (!text) return '';
-    return text
-        // 1. Fix Double Escaped Block Delimiters (from JSON storage)
-        .replace(/\\\\\\$\\\\\\$/g, '$$')
-        // 2. Unescape all dollars first to normalize
-        .replace(/\\\$/g, '$')
-        // 3. Re-escape ONLY single dollars followed by digits (Currency Protection)
-        // Does not touch $$ or escaped dollars
-        .replace(/(?<!\$)\$(?=\d)/g, '\\$')
-        // 4. Auto-format simple exponent blocks for markdown compatibility
-        .replace(/(\((?:[\d\.\s\-\+\*]+)\)\^\{[^\}]+\})/g, (match) => '$' + match + '$');
+
+    // 1. The Ultimate Fix: Replace our custom backslash token
+    let processed = text.replace(/_BS_/g, '\\');
+
+    // 2. Fallback: Restore common keywords if they still lack backslashes
+    const keywords = ['frac', 'text', 'times', 'left', 'right', 'sum', 'infty', 'leq', 'geq', 'neq', 'alpha', 'beta', 'delta'];
+    keywords.forEach(kw => {
+        const regex = new RegExp(`(?<!\\\\)${kw}`, 'g');
+        processed = processed.replace(regex, `\\${kw}`);
+    });
+
+    // 3. Ensure fraction braces for common missing brace scenarios (mangled data)
+    // If we see \frac followed by characters and a space/slash, try to wrap them
+    // This is a heuristic for when the DB mangles the braces
+    if (processed.includes('\\frac') && !processed.includes('{')) {
+        processed = processed.replace(/\\frac\s*([^\/\s]+)\s*[\/\s]\s*([^\$]+)/, '\\frac{$1}{$2}');
+    }
+
+    // 4. Wrap in display math if it looks like a formula but isn't wrapped
+    if ((processed.includes('\\frac') || processed.includes('\\text')) && !processed.includes('$')) {
+        processed = `$$${processed}$$`;
+    }
+
+    return processed;
 };
 
 function ModuleQuizContent() {
