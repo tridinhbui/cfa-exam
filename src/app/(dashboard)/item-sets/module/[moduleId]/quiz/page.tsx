@@ -34,18 +34,14 @@ import 'katex/dist/katex.min.css';
 const cleanLatex = (text: string) => {
     if (!text) return '';
     return text
-        // 1. Fix broken text commands
-        .replace(/[\\]+\s*\\text/g, ' \\text')
-        // 2. Fix Double Escaped Block Delimiters
+        // 1. Fix Double Escaped Block Delimiters (from JSON storage)
         .replace(/\\\\\\$\\\\\\$/g, '$$')
-        // 3. Unescape ALL escaped dollars
-        .replace(/\\\$/g, () => '$')
-        // 3.5. Re-escape dollars if they are followed by a digit (Currency protection)
-        .replace(/\$(?=\d)/g, () => '\\$')
-        // 4. Fix Parentheses
-        .replace(/\(\s*\$/g, '(')
-        .replace(/\$\s*\)/g, ')')
-        // 5. Auto-format simple exponents
+        // 2. Unescape all dollars first to normalize
+        .replace(/\\\$/g, '$')
+        // 3. Re-escape ONLY single dollars followed by digits (Currency Protection)
+        // Does not touch $$ or escaped dollars
+        .replace(/(?<!\$)\$(?=\d)/g, '\\$')
+        // 4. Auto-format simple exponent blocks for markdown compatibility
         .replace(/(\((?:[\d\.\s\-\+\*]+)\)\^\{[^\}]+\})/g, (match) => '$' + match + '$');
 };
 
@@ -208,7 +204,15 @@ function ModuleQuizContent() {
                                                                         </div>
                                                                     )}
                                                                     <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">
-                                                                        {note.label}
+                                                                        <ReactMarkdown
+                                                                            remarkPlugins={[remarkMath]}
+                                                                            rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
+                                                                            components={{
+                                                                                p: ({ children }) => <span className="inline-block">{children}</span>,
+                                                                            }}
+                                                                        >
+                                                                            {note.label}
+                                                                        </ReactMarkdown>
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-xs leading-relaxed text-slate-200 font-medium markdown-content-sm">
@@ -216,7 +220,16 @@ function ModuleQuizContent() {
                                                                         remarkPlugins={[remarkGfm, remarkMath]}
                                                                         rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
                                                                         components={{
-                                                                            p: ({ children }) => <span className="inline-block">{children}</span>,
+                                                                            p: ({ children }) => <p className="mb-2 last:mb-0 inline-block w-full">{children}</p>,
+                                                                            table: ({ children }) => (
+                                                                                <div className="my-4 overflow-x-auto rounded-xl border border-white/10">
+                                                                                    <table className="w-full text-left border-collapse">{children}</table>
+                                                                                </div>
+                                                                            ),
+                                                                            thead: ({ children }) => <thead className="bg-white/5">{children}</thead>,
+                                                                            th: ({ children }) => <th className="p-3 text-[10px] font-black uppercase text-indigo-300 border-b border-white/10">{children}</th>,
+                                                                            td: ({ children }) => <td className="p-3 text-[11px] border-b border-white/5 text-slate-300">{children}</td>,
+                                                                            tr: ({ children }) => <tr className="hover:bg-white/5 transition-colors">{children}</tr>,
                                                                         }}
                                                                     >
                                                                         {cleanLatex(note.text)}
