@@ -44,15 +44,15 @@ const cleanLatex = (text: string) => {
         processed = processed.replace(regex, `\\${kw}`);
     });
 
-    // 3. Ensure fraction braces for common missing brace scenarios (mangled data)
-    // If we see \frac followed by characters and a space/slash, try to wrap them
-    // This is a heuristic for when the DB mangles the braces
+    // 3. Ensure fraction braces for common missing brace scenarios
     if (processed.includes('\\frac') && !processed.includes('{')) {
         processed = processed.replace(/\\frac\s*([^\/\s]+)\s*[\/\s]\s*([^\$]+)/, '\\frac{$1}{$2}');
     }
 
-    // 4. Wrap in display math if it looks like a formula but isn't wrapped
-    if ((processed.includes('\\frac') || processed.includes('\\text')) && !processed.includes('$')) {
+    // 4. Smart Wrap in $$ 
+    // ONLY wrap if it doesn't already have $ AND it doesn't look like a mixed markdown list/bold
+    const hasMarkdown = processed.includes('**') || processed.trim().startsWith('-') || processed.includes('\n');
+    if ((processed.includes('\\frac') || processed.includes('\\text')) && !processed.includes('$') && !hasMarkdown) {
         processed = `$$${processed}$$`;
     }
 
