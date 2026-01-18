@@ -19,6 +19,7 @@ import {
   Key,
   Coins,
   Bot,
+  Library,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -42,6 +43,7 @@ import { GlobalChatbot } from '@/components/chat/global-chatbot';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { href: '/lessons', label: 'Lessons', icon: Library },
   { href: '/quiz', label: 'Quiz', icon: BookOpen },
   { href: '/item-sets', label: 'Item Sets', icon: FileText },
   { href: '/study-plan', label: 'Study Plan', icon: Calendar },

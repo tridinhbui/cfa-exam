@@ -235,11 +235,13 @@
     @apply bg-slate-900/40 backdrop-blur-md border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300;
   }
 
-  .markdown-content .katex-display {
-    @apply my-4 overflow-x-auto overflow-y-hidden py-2;
+  .markdown-content .katex-display,
+  .lesson-content-container .katex-display {
+    @apply my-6 overflow-x-auto overflow-y-hidden py-4 px-2 bg-indigo-500/5 rounded-xl border border-indigo-500/10;
   }
 
-  .markdown-content .katex {
+  .markdown-content .katex,
+  .lesson-content-container .katex {
     @apply font-sans;
   }
 }

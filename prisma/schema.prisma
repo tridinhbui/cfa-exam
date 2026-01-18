@@ -35,6 +35,7 @@ model User {
   topicPerformances  TopicPerformance[]
   transactions       Transaction[]
   chatSessions       ChatSession[]
+  moduleProgress     UserModuleProgress[]
 }
 
 model Topic {
@@ -256,16 +257,40 @@ model Reading {
 }
 
 model Module {
-  id         String            @id @default(cuid())
-  readingId  String
-  code       String
-  title      String
-  order      Int
-  reading    Reading           @relation(fields: [readingId], references: [id], onDelete: Cascade)
-  quizHeader ModuleQuizHeader?
+  id            String               @id @default(cuid())
+  readingId     String
+  code          String
+  title         String
+  order         Int
+  reading       Reading              @relation(fields: [readingId], references: [id], onDelete: Cascade)
+  quizHeader    ModuleQuizHeader?
+  lessonContent LessonContent?
+  progress      UserModuleProgress[]
 
   @@unique([readingId, code])
   @@index([readingId, order])
+}
+
+model LessonContent {
+  id        String   @id @default(cuid())
+  moduleId  String   @unique
+  content   String   @db.Text
+  updatedAt DateTime @updatedAt
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+}
+
+model UserModuleProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  moduleId    String
+  isCompleted Boolean   @default(false)
+  lastViewed  DateTime  @default(now())
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module      Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([userId])
 }
 
 model ModuleQuizHeader {

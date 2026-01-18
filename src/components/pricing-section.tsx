@@ -64,7 +64,7 @@ export function PricingSection() {
                 discount: 40,
                 description: 'Perfect for quick revision and last-minute prep.',
                 features: [
-                    'Advanced GPT-5 Reasoning',
+                    'Advanced MentisAI Model',
                     '75 Daily Chat Credits',
                     'Unlimited Practice Tests',
                     'Full Mock Exam Access',
@@ -81,7 +81,7 @@ export function PricingSection() {
                 discount: 40,
                 description: 'Get an extra month free. Most popular for exam cycles.',
                 features: [
-                    'Advanced GPT-5 Reasoning',
+                    'Advanced MentisAI Model',
                     '75 Daily Chat Credits',
                     '+1 Month Free Gift',
                     'Priority Support',
@@ -99,10 +99,9 @@ export function PricingSection() {
                 discount: 48,
                 description: 'Maximum value. Buy 1 year, gift 1 year to a friend.',
                 features: [
-                    'Advanced GPT-5 Reasoning',
+                    'Advanced MentisAI Model',
                     '75 Daily Chat Credits',
                     'Buy 1 Get 1 Free',
-                    'Charterholder Mentoring',
                 ],
                 cta: 'Choose this plan',
                 highlight: true,
@@ -117,7 +116,7 @@ export function PricingSection() {
                 discount: 51,
                 description: 'One-time payment for unlimited access forever.',
                 features: [
-                    'Advanced GPT-5 Reasoning',
+                    'Advanced MentisAI Model',
                     '75 Daily Chat Credits',
                     'Lifetime Access',
                     'One-time Payment',

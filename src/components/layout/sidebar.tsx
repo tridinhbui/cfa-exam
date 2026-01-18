@@ -15,6 +15,7 @@ import {
   Target,
   Clock,
   Coins,
+  Library,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -22,6 +23,7 @@ import { useExamStore } from '@/store/exam-store';
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { href: '/lessons', label: 'Lessons', icon: Library },
   { href: '/quiz', label: 'Practice Quiz', icon: BookOpen },
   { href: '/item-sets', label: 'Item Sets', icon: FileText },
   { href: '/analytics', label: 'Analytics', icon: TrendingUp },
