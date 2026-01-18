@@ -9,7 +9,7 @@ import {
   Calendar,
   FileText,
   GraduationCap,
-  Settings,
+  MessageSquare,
   HelpCircle,
   TrendingUp,
   Target,
@@ -29,7 +29,7 @@ const mainNavItems = [
 ];
 
 const bottomNavItems = [
-  { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/feedback', label: 'Feedback', icon: MessageSquare },
   { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ];
 

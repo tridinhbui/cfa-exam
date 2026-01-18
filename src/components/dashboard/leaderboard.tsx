@@ -115,8 +115,8 @@ export function Leaderboard() {
                                 <p className="font-bold text-slate-900 dark:text-white truncate">
                                     {user.name || 'Anonymous User'}
                                 </p>
-                                <div className="flex items-center gap-1.5 text-xs text-amber-400 font-medium">
-                                    <Coins className="h-3 w-3 fill-amber-400" />
+                                <div className="flex items-center gap-1.5 text-xs text-amber-500 dark:text-amber-400 font-bold">
+                                    <Coins className="h-3.5 w-3.5 fill-amber-500 dark:fill-amber-400" />
                                     {user.coins.toLocaleString()} Coins
                                 </div>
                             </div>
