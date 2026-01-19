@@ -18,43 +18,7 @@ export async function POST(req: NextRequest) {
         }
         const userId = authResult.uid as string;
 
-        // 2. Check Subscription & Apply Strict Rate Limit for FREE users
         const { prisma } = await import('@/lib/prisma');
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: { subscription: true }
-        });
-
-        const isFree = !user || user.subscription === 'FREE';
-        const isPro = user?.subscription === 'PRO';
-
-        if (isFree) {
-            // Check sliding window limit for free users: 7 messages per 2 hours
-            const limitResult = await persistentChatLimit(userId, {
-                limit: 7,         // Now 7 messages
-                window: 7200000   // 2 hours in milliseconds
-            });
-
-            if (!limitResult.success) {
-                return NextResponse.json({
-                    error: 'Free tier quota: 7 messages every 2 hours. Upgrade to PRO to study with a massive 70 messages/day limit!',
-                    isFree: true
-                }, { status: 429 });
-            }
-        } else if (isPro) {
-            const limitResult = await persistentChatLimit(userId, {
-                limit: 75,        // 75 messages
-                window: 86400000  // per 24 hours (1 day)
-            });
-
-            if (!limitResult.success) {
-                return NextResponse.json({
-                    error: 'PRO tier daily quota: 75 messages per day reached. You have studied exceptionally hard today! Please return tomorrow.',
-                    isPro: true
-                }, { status: 429 });
-            }
-        }
-
         const body = await req.json();
         const { messages, question, explanation, topic, options, isGlobal, image, sessionId } = body;
 
@@ -65,14 +29,42 @@ export async function POST(req: NextRequest) {
         const lastMessageText = messages[messages.length - 1]?.content || '';
         let relatedContext = '';
 
-        // 3. Perform Vector Search (RAG)
-        if (lastMessageText.length > 5) {
+        // 2. Parallel Tasks: Check Subscription & Generate Embedding
+        const [user, embedResponse] = await Promise.all([
+            prisma.user.findUnique({
+                where: { id: userId },
+                select: { subscription: true }
+            }),
+            lastMessageText.length > 5
+                ? openai.embeddings.create({ model: 'text-embedding-3-small', input: lastMessageText })
+                : Promise.resolve(null)
+        ]);
+
+        const isFree = !user || user.subscription === 'FREE';
+        const isPro = user?.subscription === 'PRO';
+
+        // 3. Rate Limit Check (After parallel fetch)
+        if (isFree) {
+            const limitResult = await persistentChatLimit(userId, { limit: 7, window: 7200000 });
+            if (!limitResult.success) {
+                return NextResponse.json({
+                    error: 'Free tier quota: 7 messages every 2 hours. Upgrade to PRO to study with a massive 70 messages/day limit!',
+                    isFree: true
+                }, { status: 429 });
+            }
+        } else if (isPro) {
+            const limitResult = await persistentChatLimit(userId, { limit: 75, window: 86400000 });
+            if (!limitResult.success) {
+                return NextResponse.json({
+                    error: 'PRO tier daily quota: 75 messages per day reached. You have studied exceptionally hard today! Please return tomorrow.',
+                    isPro: true
+                }, { status: 429 });
+            }
+        }
+
+        // 4. Perform Vector Search (RAG) using the pre-fetched embedding
+        if (embedResponse) {
             try {
-                // Generate embedding for current query
-                const embedResponse = await openai.embeddings.create({
-                    model: 'text-embedding-3-small',
-                    input: lastMessageText,
-                });
                 const queryVector = embedResponse.data[0].embedding;
 
                 // Search for top related content across all sources:
@@ -99,7 +91,7 @@ export async function POST(req: NextRequest) {
                     FROM all_knowledge
                     WHERE embedding IS NOT NULL
                     ORDER BY embedding <=> $1::vector 
-                    LIMIT 7
+                    LIMIT 9
                 `, `[${queryVector.join(',')}]`);
 
                 if (relatedResults.length > 0) {

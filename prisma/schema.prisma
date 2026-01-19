@@ -36,6 +36,7 @@ model User {
   transactions       Transaction[]
   chatSessions       ChatSession[]
   moduleProgress     UserModuleProgress[]
+  wrongQuestions     WrongQuestion[]
 }
 
 model Topic {
@@ -83,8 +84,22 @@ model Question {
   los           LearningObjective? @relation(fields: [losId], references: [id])
   topic         Topic              @relation(fields: [topicId], references: [id])
   quizQuestions QuizQuestion[]
+  wrongQuestions WrongQuestion[]
 
   @@index([topicId, difficulty])
+}
+
+model WrongQuestion {
+  id         String   @id @default(cuid())
+  userId     String
+  questionId String
+  createdAt  DateTime @default(now())
+  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@index([userId])
 }
 
 model ItemSet {

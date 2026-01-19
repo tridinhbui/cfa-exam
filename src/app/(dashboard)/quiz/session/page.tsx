@@ -45,15 +45,17 @@ function QuizContent() {
 
   const queryTopics = searchParams.get('topics') || 'all';
   const queryRawMode = searchParams.get('mode')?.toUpperCase() || 'PRACTICE';
-  const queryMode = (queryRawMode as 'PRACTICE' | 'TIMED' | 'EXAM');
+  const queryMode = (queryRawMode as 'PRACTICE' | 'TIMED' | 'EXAM' | 'MISTAKES');
   const count = searchParams.get('count') || '10';
   const difficulty = searchParams.get('difficulty') || 'all';
 
   // Use stored state if active, otherwise use query params
   const currentMode = isActive ? storedMode : queryMode;
-  const currentTopicsDisplay = isActive && questions.length > 0
-    ? (questions[0]?.topic?.name || 'Various Topics')
-    : (queryTopics.charAt(0).toUpperCase() + queryTopics.slice(1).replace('_', ' '));
+  const currentTopicsDisplay = currentMode === 'MISTAKES'
+    ? 'Mistakes Review'
+    : isActive && questions.length > 0
+      ? (questions[0]?.topic?.name || 'Various Topics')
+      : (queryTopics.charAt(0).toUpperCase() + queryTopics.slice(1).replace('_', ' '));
 
   useEffect(() => {
     // RESUME LOGIC: STRICTLY ONLY for the SAME EXAM session
@@ -81,8 +83,9 @@ function QuizContent() {
         const token = await user.getIdToken();
         const studyPlanItemId = searchParams.get('studyPlanItemId');
         const examIndex = searchParams.get('examIndex') || '1';
+        const questionId = searchParams.get('questionId');
 
-        const response = await fetch(`/api/quiz/questions?topics=${queryTopics}&count=${count}&difficulty=${difficulty}&mode=${queryMode}&examIndex=${examIndex}`, {
+        const response = await fetch(`/api/quiz/questions?topics=${queryTopics}&count=${count}&difficulty=${difficulty}&mode=${queryMode}&examIndex=${examIndex}${questionId ? `&questionId=${questionId}` : ''}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -133,7 +136,7 @@ function QuizContent() {
             </Link>
             <div className="flex-1 px-4">
               <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-                {currentMode === 'EXAM' ? 'Exam Mode' : currentMode === 'TIMED' ? 'Timed Quiz' : 'Practice Quiz'}
+                {currentMode === 'EXAM' ? 'Exam Mode' : currentMode === 'TIMED' ? 'Timed Quiz' : currentMode === 'MISTAKES' ? 'Mistakes Bank Review' : 'Practice Quiz'}
               </h2>
               <h1 className="text-xl font-black text-foreground">
                 Topic: {currentTopicsDisplay}

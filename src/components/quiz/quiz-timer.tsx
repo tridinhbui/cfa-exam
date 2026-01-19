@@ -18,7 +18,7 @@ export function QuizTimer() {
   } = useQuizStore();
 
   useEffect(() => {
-    if (!isTimerRunning || mode === 'PRACTICE') return;
+    if (!isTimerRunning || mode === 'PRACTICE' || mode === 'MISTAKES') return;
 
     const interval = setInterval(() => {
       tick();
@@ -27,7 +27,7 @@ export function QuizTimer() {
     return () => clearInterval(interval);
   }, [isTimerRunning, mode, tick]);
 
-  if (mode === 'PRACTICE') {
+  if (mode === 'PRACTICE' || mode === 'MISTAKES') {
     return null;
   }
 

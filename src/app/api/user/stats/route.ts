@@ -88,7 +88,8 @@ export async function GET(req: Request) {
             lastMonthProgress,
             currentWeekStats,
             lastWeekStats,
-            last7DaysProgressRaw
+            last7DaysProgressRaw,
+            wrongQuestionsCount
         ] = await Promise.all([
             prisma.dailyProgress.findUnique({
                 where: { userId_date: { userId, date: today } }
@@ -116,6 +117,9 @@ export async function GET(req: Request) {
             prisma.dailyProgress.findMany({
                 where: { userId, date: { gte: subDays(today, 6), lte: today } },
                 orderBy: { date: 'asc' }
+            }),
+            (prisma as any).wrongQuestion.count({
+                where: { userId }
             })
         ]);
 
@@ -179,6 +183,7 @@ export async function GET(req: Request) {
             totalQuestions,
             weeklyAccuracy,
             weeklyTrend,
+            wrongQuestionsCount,
             coins: user.coins,
             chartData
         };

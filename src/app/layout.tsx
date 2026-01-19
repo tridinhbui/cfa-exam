@@ -67,7 +67,7 @@ export default function RootLayout({
       <body className={`${outfit.variable} ${jetbrainsMono.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

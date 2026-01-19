@@ -36,8 +36,38 @@ export async function GET(request: Request) {
     }
 
     const count = requestedCount;
+    const questionId = searchParams.get('questionId');
 
     try {
+        // --- SINGLE QUESTION MODE ---
+        if (questionId) {
+            const question = await prisma.question.findUnique({
+                where: { id: questionId },
+                include: {
+                    topic: { select: { id: true, name: true } }
+                }
+            });
+            return NextResponse.json(question ? [question] : []);
+        }
+
+        // --- MISTAKES MODE ---
+        if (mode === 'MISTAKES' || mode === 'mistakes') {
+            const wrongEntries = await (prisma as any).wrongQuestion.findMany({
+                where: { userId: authResult.uid },
+                include: {
+                    question: {
+                        include: {
+                            topic: { select: { id: true, name: true } }
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: count
+            });
+            const mistakes = wrongEntries.map((e: any) => e.question);
+            return NextResponse.json(mistakes);
+        }
+
         // EXAM MODE LOGIC (Weighted Distribution)
         if (mode === 'EXAM' && count >= 170) {
             const weights: Record<string, number> = {

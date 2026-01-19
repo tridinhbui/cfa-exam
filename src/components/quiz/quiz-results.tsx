@@ -272,10 +272,10 @@ export function QuizResults() {
           <RefreshCw className="h-4 w-4 mr-2" />
           Try Again
         </Button>
-        <Link href="/quiz" className="flex-1">
+        <Link href={mode === 'MISTAKES' ? '/mistakes' : '/quiz'} className="flex-1">
           <Button variant="secondary" className="w-full" onClick={resetQuiz}>
             <BookOpen className="h-4 w-4 mr-2" />
-            New Quiz
+            {mode === 'MISTAKES' ? 'Mistakes Bank' : 'New Quiz'}
           </Button>
         </Link>
         <Link href="/dashboard" className="flex-1">

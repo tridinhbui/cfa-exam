@@ -9,16 +9,13 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/context/auth-context';
 import { useQuizStore } from '@/store/quiz-store';
 import { useUserStore } from '@/store/user-store';
+import { useChatStore, ChatSession, Message } from '@/store/chat-store';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
-interface Message {
-    role: 'user' | 'assistant';
-    content: string;
-    image?: string;
-}
+
 
 interface GlobalChatbotProps {
     isOpen: boolean;
@@ -47,18 +44,22 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
     const { questions, currentIndex, isActive } = useQuizStore();
     const currentQuestion = isActive ? questions[currentIndex] : null;
 
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState('');
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const {
+        messages, setMessages,
+        sessions, setSessions,
+        currentSessionId, setCurrentSessionId,
+        inputText, setInputText,
+        selectedImage, setSelectedImage,
+        isLoading, setIsLoading,
+        isSidebarOpen, setIsSidebarOpen,
+        searchQuery, setSearchQuery,
+        resetChat, appendMessage, updateLastMessage
+    } = useChatStore();
+
     const [isDragging, setIsDragging] = useState(false);
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-    const [sessions, setSessions] = useState<any[]>([]);
-    const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
     const [editingTitle, setEditingTitle] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
     const isProcessingRename = useRef(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,10 +105,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
 
     const createNewChat = async () => {
         if (isLoading) return;
-        setMessages([]);
-        setCurrentSessionId(null);
-        setSelectedImage(null);
-        setInput('');
+        resetChat();
     };
 
     const deleteSession = async (sessionId: string, e: React.MouseEvent) => {
@@ -118,7 +116,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setSessions(prev => prev.filter(s => s.id !== sessionId));
+            setSessions((prev: ChatSession[]) => prev.filter((s: ChatSession) => s.id !== sessionId));
             if (currentSessionId === sessionId) createNewChat();
         } catch (err) {
             console.error('Failed to delete session', err);
@@ -133,7 +131,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
         }
 
         // Optimistic update
-        setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, title: trimmedTitle } : s));
+        setSessions((prev: ChatSession[]) => prev.map((s: ChatSession) => s.id === sessionId ? { ...s, title: trimmedTitle } : s));
         setEditingSessionId(null);
 
         isProcessingRename.current = true;
@@ -218,13 +216,13 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
     };
 
     const handleSend = async () => {
-        if ((!input.trim() && !selectedImage) || isLoading || !firebaseUser) return;
+        if ((!inputText.trim() && !selectedImage) || isLoading || !firebaseUser) return;
 
-        const userMessage = input.trim();
+        const userMessage = inputText.trim();
         const currentImage = selectedImage;
 
         // Use a small timeout to ensure the clear happens after any pending IME/input events
-        setTimeout(() => setInput(''), 10);
+        setTimeout(() => setInputText(''), 10);
         setSelectedImage(null);
 
         const userMsg: Message = {
@@ -233,7 +231,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
             image: currentImage || undefined
         };
 
-        setMessages(prev => [...prev, userMsg]);
+        appendMessage(userMsg);
         setIsLoading(true);
 
         try {
@@ -288,19 +286,13 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
             if (!reader) throw new Error('No reader available');
 
             const decoder = new TextDecoder();
-            setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+            appendMessage({ role: 'assistant', content: '' });
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const chunk = decoder.decode(value);
-                setMessages(prev => {
-                    if (prev.length === 0) return prev;
-                    const last = prev[prev.length - 1];
-                    if (last.role !== 'assistant') return prev;
-                    const others = prev.slice(0, -1);
-                    return [...others, { ...last, content: last.content + chunk }];
-                });
+                updateLastMessage(chunk);
             }
         } catch (err: any) {
             console.error('Chat error:', err);
@@ -504,7 +496,6 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                                 {dbUser?.subscription === 'PRO' ? 'CFA Pro Member' : 'Free Account'}
                                             </p>
                                         </div>
-                                        <Settings className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                                     </div>
                                 </div>
                             </motion.div>
@@ -661,8 +652,8 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                     </Button>
 
                                     <textarea
-                                        value={input}
-                                        onChange={(e) => setInput(e.target.value)}
+                                        value={inputText}
+                                        onChange={(e) => setInputText(e.target.value)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 // Prevent sending while composing (Vietnamese/Chinese/Japanese IME)
@@ -679,7 +670,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
 
                                     <Button
                                         type="submit"
-                                        disabled={isLoading || (!input.trim() && !selectedImage)}
+                                        disabled={isLoading || (!inputText.trim() && !selectedImage)}
                                         size="icon"
                                         className="mb-1 h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/90 disabled:bg-accent disabled:text-muted-foreground/30 shadow-lg shrink-0"
                                     >

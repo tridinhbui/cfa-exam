@@ -33,7 +33,7 @@ interface QuizState {
   // Quiz setup
   quizId: string | null;
   isActive: boolean;
-  mode: 'PRACTICE' | 'TIMED' | 'EXAM';
+  mode: 'PRACTICE' | 'TIMED' | 'EXAM' | 'MISTAKES';
   timeLimit: number | null;
   studyPlanItemId: string | null;
 
@@ -58,7 +58,7 @@ interface QuizState {
   stashedExams: Record<string, StashedExam>;
 
   // Actions
-  startQuiz: (quizId: string | null, questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM', timeLimit?: number, studyPlanItemId?: string | null) => void;
+  startQuiz: (quizId: string | null, questions: QuizQuestion[], mode: 'PRACTICE' | 'TIMED' | 'EXAM' | 'MISTAKES', timeLimit?: number, studyPlanItemId?: string | null) => void;
   setAnswer: (questionId: string, answer: string) => void;
   toggleFlag: (questionId: string) => void;
   nextQuestion: () => void;
@@ -97,7 +97,7 @@ export const useQuizStore = create<QuizState>()(
       flaggedQuestions: [],
 
       startQuiz: (quizId, questions, mode, timeLimit, studyPlanItemId) => {
-        const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM';
+        const upperMode = mode.toUpperCase() as 'PRACTICE' | 'TIMED' | 'EXAM' | 'MISTAKES';
         const time = timeLimit ? timeLimit * 60 : questions.length * 90;
         const state = get();
 
@@ -136,8 +136,8 @@ export const useQuizStore = create<QuizState>()(
           currentIndex: 0,
           answers: {},
           flaggedQuestions: [],
-          timeRemaining: upperMode === 'PRACTICE' ? 0 : time,
-          isTimerRunning: upperMode !== 'PRACTICE',
+          timeRemaining: (upperMode === 'PRACTICE' || upperMode === 'MISTAKES') ? 0 : time,
+          isTimerRunning: (upperMode !== 'PRACTICE' && upperMode !== 'MISTAKES'),
           isCompleted: false,
           isSynced: false,
           showExplanation: false,

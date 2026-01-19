@@ -11,6 +11,9 @@ import {
   ArrowRight,
   Flame,
   Award,
+  XCircle,
+  Zap,
+  CheckCircle2,
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +46,13 @@ const quickActions = [
     icon: BookOpen,
     href: '/quiz',
     color: 'from-indigo-600 to-violet-600',
+  },
+  {
+    title: 'Mistakes Bank',
+    description: 'Master the questions you missed',
+    icon: XCircle,
+    href: '/mistakes',
+    color: 'from-rose-600 to-pink-600',
   },
   {
     title: 'Item Set',
@@ -78,7 +88,11 @@ export default function DashboardPage() {
     user ? `/api/user/activity?userId=${user.uid}` : null
   );
 
-  const isLoading = statsLoading || topicsLoading || activityLoading;
+  const { data: dailyQuestion, isLoading: dailyLoading } = useAuthenticatedSWR<any>(
+    user ? `/api/quiz/daily` : null
+  );
+
+  const isLoading = statsLoading || topicsLoading || activityLoading || dailyLoading;
 
   // Transform topic data
   const transformedTopics = useMemo(() => {
@@ -132,7 +146,41 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:flex items-center gap-3">
+        <div className="grid grid-cols-2 md:flex items-center gap-3">
+          {/* Daily Quiz Card */}
+          {dailyQuestion?.isCompleted ? (
+            <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 min-w-[150px] opacity-80">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="p-1.5 rounded-lg bg-emerald-500 text-white">
+                  <CheckCircle2 className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Daily Quiz</span>
+              </div>
+              <div className="text-lg font-black text-emerald-500 flex items-center gap-2">
+                DONE!
+              </div>
+            </div>
+          ) : (
+            <Link href={dailyQuestion ? `/quiz/session?questionId=${dailyQuestion.id}&mode=practice` : '#'}>
+              <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 hover:bg-indigo-600/20 transition-all cursor-pointer min-w-[150px] group">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="p-1.5 rounded-lg bg-indigo-500 text-white group-hover:scale-110 transition-transform">
+                    <Zap className="h-4 w-4 fill-white" />
+                  </div>
+                  <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Daily Quiz</span>
+                </div>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-24 rounded-md bg-indigo-500/10" />
+                ) : (
+                  <div className="text-lg font-black text-foreground flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+                    1 QUESTION
+                    <ArrowRight className="h-4 w-4 text-indigo-500" />
+                  </div>
+                )}
+              </div>
+            </Link>
+          )}
+
           {/* Streak Card */}
           <div className="flex flex-col items-center sm:items-start gap-1 p-4 rounded-2xl bg-card border border-border min-w-[160px]">
             <div className="flex items-center gap-2 mb-1">
@@ -175,8 +223,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { title: "Questions Today", value: (stats?.questionsToday || 0).toString(), subtitle: `${stats?.correctToday || 0} correct`, icon: Target },
+          { title: "Mistakes Bank", value: (stats?.wrongQuestionsCount || 0).toString(), subtitle: "Review required", icon: XCircle, color: "rose" },
           { title: "Weekly Accuracy", value: `${stats?.weeklyAccuracy || 0}%`, subtitle: `${(stats?.weeklyTrend || 0) >= 0 ? '+' : '-'}${Math.abs(stats?.weeklyTrend || 0)}% vs last week`, icon: TrendingUp, trend: { value: Math.abs(stats?.weeklyTrend || 0), isPositive: (stats?.weeklyTrend || 0) >= 0 } },
-          { title: "Study Time", value: formatStudyTime(stats?.timeSpentToday || 0), subtitle: "Today", icon: Clock },
           { title: "Average Score", value: `${stats?.averageScore || 0}%`, subtitle: `${stats?.totalQuestions || 0} questions total`, icon: Award }
         ].map((item, i) => (
           isLoading ? (

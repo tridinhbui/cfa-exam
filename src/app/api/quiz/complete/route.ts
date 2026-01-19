@@ -132,11 +132,13 @@ export async function POST(req: Request) {
             }
 
             // Create Quiz Attempt
+            const attemptMode = (mode?.toUpperCase() === 'MISTAKES') ? 'PRACTICE' : (mode?.toUpperCase() || 'PRACTICE');
+
             const attempt = await (tx.quizAttempt as any).create({
                 data: {
                     userId,
                     cfaLevel: user.cfaLevel || 'LEVEL_1',
-                    mode: mode ? mode.toUpperCase() : 'PRACTICE',
+                    mode: attemptMode,
                     startedAt: new Date(now.getTime() - ((timeSpent || 0) * 1000)),
                     completedAt: now,
                     score: scoreValue,
@@ -144,6 +146,76 @@ export async function POST(req: Request) {
                     correctAnswers: correctAnswers || 0,
                 }
             });
+
+            // --- MISTAKES BANK (ERROR LOG) LOGIC ---
+            const verifiedUserId = authResult.uid;
+            if (Array.isArray(questions) && answers) {
+                let index = 0;
+                for (const q of questions) {
+                    const questionId = q.id;
+                    if (!questionId) continue;
+
+                    const userAns = answers[questionId]?.toString().trim().toUpperCase();
+                    // Fallback to provided correctAnswer if DB check fails
+                    let correctAns = q.correctAnswer?.toString().trim().toUpperCase();
+
+                    try {
+                        const dbQ = await tx.question.findUnique({
+                            where: { id: questionId },
+                            select: { correctAnswer: true }
+                        });
+                        if (dbQ?.correctAnswer) {
+                            correctAns = dbQ.correctAnswer.trim().toUpperCase();
+                        }
+                    } catch (e) {
+                        // Silent fallback
+                    }
+
+                    const isCorrect = !!(userAns && correctAns && userAns === correctAns);
+
+                    // 1. Save detailed question history
+                    await (tx as any).quizQuestion.create({
+                        data: {
+                            quizAttemptId: attempt.id,
+                            questionId: questionId,
+                            order: index++,
+                            userAnswer: userAns || null,
+                            isCorrect: isCorrect,
+                            answeredAt: now
+                        }
+                    });
+
+                    if (userAns && correctAns) {
+                        if (isCorrect) {
+                            // Correct: ALWAYS remove from Mistakes Bank
+                            await (tx as any).wrongQuestion.deleteMany({
+                                where: {
+                                    userId: verifiedUserId,
+                                    questionId: questionId
+                                }
+                            });
+                        } else {
+                            // Wrong: Add/Update in Mistakes Bank (Only for regular practice, not module quizzes)
+                            if (!isModuleQuiz) {
+                                await (tx as any).wrongQuestion.upsert({
+                                    where: {
+                                        userId_questionId: {
+                                            userId: verifiedUserId,
+                                            questionId: questionId
+                                        }
+                                    },
+                                    update: { createdAt: now },
+                                    create: {
+                                        userId: verifiedUserId,
+                                        questionId: questionId,
+                                        createdAt: now
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
 
             return { updatedUser, attempt };
         });
