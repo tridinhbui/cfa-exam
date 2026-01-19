@@ -15,6 +15,11 @@ export async function GET(req: Request) {
         const isFree = !user || user.subscription === 'FREE';
 
         const books = await (prisma as any).book.findMany({
+            where: {
+                id: {
+                    in: ['book-1', 'book-2', 'book-3', 'book-4']
+                }
+            },
             include: {
                 readings: {
                     include: {

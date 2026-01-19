@@ -619,14 +619,14 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                     <div className="group w-full">
                                         <div className="max-w-3xl mx-auto px-4 py-8 flex gap-6">
                                             <div className="shrink-0 animate-pulse">
-                                                <div className="w-9 h-9 rounded-xl flex items-center justify-center border border-border p-0.5 bg-background">
-                                                    <img src="/images/ai-avatar.png" alt="AI Advisor" className="w-full h-full object-contain rounded-lg opacity-50 contrast-50" />
+                                                <div className="w-9 h-9 rounded-xl flex items-center justify-center border border-border p-0.5 bg-background shadow-sm">
+                                                    <img src="/images/ai-avatar.png" alt="AI Advisor" className="w-full h-full object-contain rounded-lg opacity-90" />
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-1.5 py-2">
-                                                <div className="w-1.5 h-1.5 bg-muted-foreground/20 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                                                <div className="w-1.5 h-1.5 bg-muted-foreground/20 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                                                <div className="w-1.5 h-1.5 bg-muted-foreground/20 rounded-full animate-bounce" />
+                                            <div className="flex items-center gap-2 py-2">
+                                                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s] shadow-sm" />
+                                                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s] shadow-sm" />
+                                                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce shadow-sm" />
                                             </div>
                                         </div>
                                     </div>

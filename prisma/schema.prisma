@@ -265,6 +265,7 @@ model Module {
   reading       Reading              @relation(fields: [readingId], references: [id], onDelete: Cascade)
   quizHeader    ModuleQuizHeader?
   lessonContent LessonContent?
+  chunks        LessonChunk[]
   progress      UserModuleProgress[]
 
   @@unique([readingId, code])
@@ -372,15 +373,24 @@ enum AnswerChoice {
   C
 }
 
-model DocumentChunk {
-  id         String   @id @default(cuid())
-  fileName   String
-  content    String
-  pageNumber Int?
-  embedding  Unsupported("vector(1536)")?
-  createdAt  DateTime @default(now())
+model LessonChunk {
+  id        String                  @id @default(cuid())
+  moduleId  String
+  content   String
+  type      ChunkType               @default(TEXT)
+  embedding Unsupported("vector(1536)")?
+  createdAt DateTime                @default(now())
+  module    Module                  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
-  @@index([fileName])
+  @@index([moduleId])
+}
+
+enum ChunkType {
+  TEXT
+  FORMULA
+  EXAMPLE
+  KEY_CONCEPT
+  QUIZ
 }
 
 model ChatSession {

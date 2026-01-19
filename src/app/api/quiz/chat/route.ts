@@ -81,13 +81,21 @@ export async function POST(req: NextRequest) {
                 // 3. SchweserNotes PDF Chunks
                 const relatedResults: any[] = await prisma.$queryRawUnsafe(`
                     WITH all_knowledge AS (
-                        SELECT content, explanation, embedding, 'Practice Question' as source FROM "Question"
+                        SELECT content, explanation, embedding, 'Practice Question' as source, '' as metadata FROM "Question"
                         UNION ALL
-                        SELECT prompt as content, explanation, embedding, 'Module Quiz' as source FROM "ModuleQuizQuestion"
+                        SELECT prompt as content, explanation, embedding, 'Module Quiz' as source, '' as metadata FROM "ModuleQuizQuestion"
                         UNION ALL
-                        SELECT content, '' as explanation, embedding, "fileName" as source FROM "DocumentChunk"
+                        -- 3. UPGRADED: New LessonChunk
+                        SELECT 
+                            lc.content, 
+                            '' as explanation, 
+                            lc.embedding, 
+                            CONCAT('Lesson: ', m.code, ' - ', m.title) as source,
+                            lc.type::text as metadata
+                        FROM "LessonChunk" lc
+                        JOIN "Module" m ON lc."moduleId" = m.id
                     )
-                    SELECT content, explanation, source
+                    SELECT content, explanation, source, metadata
                     FROM all_knowledge
                     WHERE embedding IS NOT NULL
                     ORDER BY embedding <=> $1::vector 
@@ -97,7 +105,7 @@ export async function POST(req: NextRequest) {
                 if (relatedResults.length > 0) {
                     relatedContext = "\n\nAUTHORITATIVE CFA KNOWLEDGE BASE SEGMENTS:\n" +
                         relatedResults.map((q, i) =>
-                            `[Source: ${q.source}]\nContent: ${q.content.substring(0, 1000)}\n${q.explanation ? `Expert Note: ${q.explanation}\n` : ''}`
+                            `[Source: ${q.source}]${q.metadata ? ` [Type: ${q.metadata}]` : ''}\nContent: ${q.content.substring(0, 1000)}\n${q.explanation ? `Expert Note: ${q.explanation}\n` : ''}`
                         ).join('\n---\n');
                 }
             } catch (err) {
