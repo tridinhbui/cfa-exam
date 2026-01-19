@@ -45,8 +45,44 @@ export async function POST(req: Request) {
         }
 
         const existingUser = await prisma.user.findUnique({
-            where: { email: normalizedEmail }
+            where: { email: normalizedEmail },
+            select: { currentStreak: true, longestStreak: true, lastActiveAt: true, password: true }
         });
+
+        // --- Streak Calculation Logic ---
+        const todayStr = new Date().toLocaleDateString('en-CA'); // 'YYYY-MM-DD' in user's potential locale, standardizing on CA for ISO-like format
+
+        let newStreak = 1;
+        let newLongestStreak = 1;
+
+        if (existingUser) {
+            const lastActiveDateStr = existingUser.lastActiveAt
+                ? new Date(existingUser.lastActiveAt).toLocaleDateString('en-CA')
+                : null;
+
+            const currentStreak = existingUser.currentStreak || 0;
+            const longestStreak = existingUser.longestStreak || 0;
+
+            if (lastActiveDateStr === todayStr) {
+                // Already logged in today, keep streak
+                newStreak = Math.max(currentStreak, 1);
+            } else {
+                // Check if yesterday
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toLocaleDateString('en-CA');
+
+                if (lastActiveDateStr === yesterdayStr) {
+                    // Consecutive day
+                    newStreak = currentStreak + 1;
+                } else {
+                    // Streak broken (or first time) -> Reset to 1
+                    newStreak = 1;
+                }
+            }
+            newLongestStreak = Math.max(newStreak, longestStreak);
+        }
+        // --------------------------------
 
         // Only update password if user doesn't have one or if it's a new user
         const shouldUpdatePassword = hashedEmailPassword && (!existingUser || !existingUser.password);
@@ -57,6 +93,8 @@ export async function POST(req: Request) {
                 name,
                 image,
                 lastActiveAt: new Date(),
+                currentStreak: newStreak,
+                longestStreak: newLongestStreak,
                 ...(shouldUpdatePassword ? { password: hashedEmailPassword } : {}),
             },
             create: {
@@ -65,6 +103,8 @@ export async function POST(req: Request) {
                 name,
                 image,
                 lastActiveAt: new Date(),
+                currentStreak: 1,
+                longestStreak: 1,
                 password: hashedEmailPassword,
             },
         });
