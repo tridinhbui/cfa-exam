@@ -255,3 +255,110 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Driver.js Premium Styling - Rewritten without @apply to avoid build errors */
+.driver-popover {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 1.25rem !important;
+  /* 2xl */
+  padding: 1.5rem !important;
+  /* p-6 */
+  font-family: 'Outfit', sans-serif !important;
+  max-width: 350px !important;
+  color: white !important;
+}
+
+.driver-popover-title {
+  font-size: 1.25rem !important;
+  /* text-xl */
+  font-weight: 700 !important;
+  /* font-bold */
+  margin-bottom: 0.5rem !important;
+  /* mb-2 */
+  color: white !important;
+  font-family: 'Outfit', sans-serif !important;
+  background: linear-gradient(to right, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: block;
+}
+
+.driver-popover-description {
+  color: #94a3b8 !important;
+  /* text-slate-400 */
+  line-height: 1.625 !important;
+  /* leading-relaxed */
+  font-size: 0.875rem !important;
+  /* text-sm */
+  font-family: 'Outfit', sans-serif !important;
+}
+
+.driver-popover-footer {
+  margin-top: 1.5rem !important;
+  /* mt-6 */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+}
+
+.driver-popover-progress-text {
+  font-size: 0.75rem !important;
+  /* text-xs */
+  font-weight: 500 !important;
+  color: #64748b !important;
+  /* text-slate-500 */
+}
+
+.driver-popover-next-btn {
+  background: linear-gradient(to right, #4f46e5, #7c3aed) !important;
+  color: white !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2) !important;
+}
+
+.driver-popover-next-btn:hover {
+  transform: scale(1.05) !important;
+}
+
+.driver-popover-prev-btn {
+  background: #1e293b !important;
+  /* slate-800 */
+  color: #cbd5e1 !important;
+  /* slate-300 */
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+.driver-popover-prev-btn:hover {
+  background: #334155 !important;
+  /* slate-700 */
+}
+
+.driver-popover-close-btn {
+  color: #94a3b8 !important;
+  transition: color 0.2s !important;
+}
+
+.driver-popover-close-btn:hover {
+  color: white !important;
+}
+
+.driver-popover-arrow {
+  border-color: rgba(15, 23, 42, 0.95) !important;
+}
