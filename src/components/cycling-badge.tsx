@@ -5,13 +5,13 @@ const WORDS = ['ENGAGING', 'AI-POWERED', 'ADAPTIVE', 'PERSONAL'];
 export function CyclingBadge() {
     return (
         <span
-            className="inline-block relative ml-2 align-baseline translate-y-[4px]"
+            className="block lg:inline-block relative lg:ml-2 align-baseline translate-y-[4px] mx-auto lg:mx-0 w-fit"
         >
             <VaporizeTextCycle
                 texts={WORDS}
                 font={{
                     fontFamily: "Inter, sans-serif",
-                    fontSize: "44px",
+                    fontSize: "44px", // Specific pixel value required for canvas rendering
                     fontWeight: 700
                 }}
                 color="rgb(129, 140, 248)"
@@ -23,9 +23,9 @@ export function CyclingBadge() {
                     waitDuration: 2.5
                 }}
                 direction="left-to-right"
-                alignment="left"
+                alignment="center"
                 tag={Tag.SPAN}
-                className="w-[300px] h-[60px]"
+                className="w-[280px] sm:w-[320px] h-[45px] sm:h-[60px]"
             />
         </span>
     );
