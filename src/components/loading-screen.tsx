@@ -102,7 +102,7 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                         width={128}
                         height={128}
                         priority
-                        className="h-32 w-32 sm:h-48 sm:w-48 brightness-150 saturate-150 contrast-125 drop-shadow-[0_0_40px_rgba(34,197,253,0.8)]"
+                        className="h-20 w-20 sm:h-32 sm:w-32 brightness-150 saturate-150 contrast-125 drop-shadow-[0_0_30px_rgba(34,197,253,0.6)]"
                     />
                 </motion.div>
             </motion.div>

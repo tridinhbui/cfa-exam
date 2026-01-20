@@ -31,7 +31,7 @@ export function HeroSection({ user }: HeroSectionProps) {
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 items-center">
                     {/* Left Side: Content */}
-                    <div className="text-left max-w-2xl">
+                    <div className="text-center lg:text-left max-w-2xl mx-auto lg:mx-0">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -60,7 +60,7 @@ export function HeroSection({ user }: HeroSectionProps) {
                             />
                         </p>
 
-                        <div className="flex flex-wrap gap-x-4 gap-y-3 mb-8">
+                        <div className="flex flex-wrap justify-center lg:justify-start gap-x-4 gap-y-3 mb-8 text-left">
                             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/5 light:bg-indigo-50 border border-indigo-500/10 light:border-indigo-100 backdrop-blur-sm">
                                 <CheckCircle className="h-3.5 w-3.5 text-indigo-400 light:text-indigo-600" />
                                 <span className="text-xs sm:text-sm font-medium text-indigo-100/80 light:text-slate-700">Free Diagnostic Test</span>
@@ -71,7 +71,7 @@ export function HeroSection({ user }: HeroSectionProps) {
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 justify-start items-center mb-10">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center mb-10">
                             <Link href={user ? "/dashboard" : "/login"} className="w-full sm:w-auto">
                                 <Button size="xl" className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 light:shadow-indigo-500/20 transition-all hover:scale-[1.02] rounded-full w-full font-bold">
                                     Get Started

@@ -52,10 +52,10 @@ float mapScene(vec2 uv) {
   vec2 p4_rand = vec2(cos(t * 1.5 - 0.2), sin(t * 0.5 + 4.5)) * 0.38;
 
   // Tighter convergence to form a small energetic cluster at the center
-  vec2 p1_target = vec2(0.02, 0.02);
-  vec2 p2_target = vec2(-0.02, 0.02);
-  vec2 p3_target = vec2(-0.02, -0.02);
-  vec2 p4_target = vec2(0.02, -0.02);
+  vec2 p1_target = vec2(0.012, 0.012);
+  vec2 p2_target = vec2(-0.012, 0.012);
+  vec2 p3_target = vec2(-0.012, -0.012);
+  vec2 p4_target = vec2(0.012, -0.012);
   
   // Interpolated positions
   vec2 p1 = mix(p1_rand, p1_target, u_morph);
@@ -63,11 +63,11 @@ float mapScene(vec2 uv) {
   vec2 p3 = mix(p3_rand, p3_target, u_morph);
   vec2 p4 = mix(p4_rand, p4_target, u_morph);
   
-  // Significantly smaller radii to avoid the 'giant purple circle' look
-  float r1 = mix(0.12, 0.08, u_morph);
-  float r2 = mix(0.1, 0.08, u_morph);
-  float r3 = mix(0.14, 0.08, u_morph);
-  float r4 = mix(0.11, 0.08, u_morph);
+  // Adjusted radii to cluster tightly around the smaller logo
+  float r1 = mix(0.12, 0.05, u_morph);
+  float r2 = mix(0.1, 0.05, u_morph);
+  float r3 = mix(0.14, 0.05, u_morph);
+  float r4 = mix(0.11, 0.05, u_morph);
 
   float b1 = sdCircle(uv - p1, r1);
   float b2 = sdCircle(uv - p2, r2);
@@ -75,8 +75,8 @@ float mapScene(vec2 uv) {
   float b4 = sdCircle(uv - p4, r4);
 
   // Smooth union for fluid merging
-  float u12 = opSmoothUnion(b1, b2, 0.15);
-  float u34 = opSmoothUnion(b3, b4, 0.15);
+  float u12 = opSmoothUnion(b1, b2, 0.12);
+  float u34 = opSmoothUnion(b3, b4, 0.12);
   return opSmoothUnion(u12, u34, 0.2);
 }
 
