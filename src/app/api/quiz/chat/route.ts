@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
         // 3. Parallel Step: Start Rate Limit check AND Vector Search at the same time
         // We trigger both and wait for all to finish before calling AI
         const limitCheckPromise = isFree
-            ? persistentChatLimit(userId, { limit: 7, window: 7200000 })
-            : persistentChatLimit(userId, { limit: 75, window: 86400000 });
+            ? persistentChatLimit(userId, { limit: 3, window: 14400000 })
+            : persistentChatLimit(userId, { limit: 60, window: 86400000 });
 
         let relatedContext = '';
         if (embedResponse) {
@@ -130,14 +130,14 @@ export async function POST(req: NextRequest) {
               A) Option A content
               B) Option B content
               C) Option C content
-            - IF THE STUDENT EXPLICITLY ASKS FOR THE ANSWER (e.g., "spoil cho tao", "đáp án là gì", "cho xin đáp án"), you MUST provide the correct answer (A, B, or C) and explain the logic clearly. 
+            - IF THE STUDENT EXPLICITLY ASKS FOR THE ANSWER (e.g., "give me the answer", "what is the correct option", "reveal the answer"), you MUST provide the correct answer (A, B, or C) and explain the logic clearly. 
             - Otherwise, prioritize guiding them to the answer without revealing it immediately.
             - NO SUGGESTIVE QUESTIONS at the end (e.g., "Do you want to know more?"). Stop immediately after giving the response.
-            - FOR BROAD TOPICS: If the user asks about a wide subject (like a whole Reading title), provide a HIGH-LEVEL SUMMARY (bullet points) of the 3-5 nhất important concepts first.
+            - FOR BROAD TOPICS: If the user asks about a wide subject (like a whole Reading title), provide a HIGH-LEVEL SUMMARY (bullet points) of the 3-5 most important concepts first.
             - USE SIMPLE ANALOGIES for complex financial concepts.
             - FOR GLOBAL ADVISOR: Focus on high-level strategy, connecting different CFA topics, and providing deep conceptual clarity.
             - FOR QUIZ ASSISTANT: Focus on the logic of the specific question and clarifying the official explanation.
-            - BRAND IDENTITY: If the user asks what model you are using or who programmed/created you, ALWAYS answer that you là sản phẩm "được lập trình bởi đội ngũ MentisAI". Do not mention OpenAI or specific model names like GPT.`
+            - BRAND IDENTITY: If the user asks what model you are using or who programmed/created you, ALWAYS answer that you are a product "developed by the MentisAI team". Do not mention OpenAI or specific model names like GPT.`
         };
 
         // Prepare conservation history
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
 
         // Prepare final message
         const finalContent: any[] = [
-            { type: 'text', text: lastMessageText || "Hãy giải thích hình ảnh này giúp tôi." }
+            { type: 'text', text: lastMessageText || "Please explain this image for me." }
         ];
 
         if (image) {
@@ -156,15 +156,33 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Select Model Based on Subscription
-        const chatModel = isPro ? 'gpt-4o-mini' : 'gpt-4o-mini';
+        const chatModel = isPro ? 'o4-mini' : 'gpt-4o-mini';
 
         console.log(`[Chat API] Model: ${chatModel}, isGlobal: ${isGlobal}, hasImage: ${!!image}, User: ${isPro ? 'PRO' : 'FREE'}`);
 
+        // 6. Call OpenAI with Caching-optimized structure
+        // We put System Prompt and RAG context (the heaviest parts) at the TOP
+        // This ensures subsequent follow-up questions hit the Input Cache (75% discount)
+        const chatMessages: any[] = [systemMessage];
+
+        // If we have RAG context, we provide it as a dedicated context block early on
+        if (relatedContext) {
+            chatMessages.push({
+                role: 'system',
+                content: `SYSTEM KNOWLEDGE BASE (Use this content as the authoritative source for your response): \n\n${relatedContext}`
+            });
+        }
+
+        // Then we add conversation history and the final user message
+        chatMessages.push(...conversationHistory);
+        chatMessages.push({ role: 'user', content: finalContent });
+
         const response = await openai.chat.completions.create({
             model: chatModel,
-            messages: [systemMessage, ...conversationHistory, { role: 'user', content: finalContent }] as any,
+            messages: chatMessages as any,
             max_completion_tokens: 4096,
             stream: true,
+            temperature: 0.3, // Lower temp for CFA precision
         }).catch(err => {
             console.error('[OpenAI API Error]', err);
             throw err;

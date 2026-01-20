@@ -77,8 +77,8 @@ function CheckoutContent() {
                     <CheckCircle2 className="h-24 w-24 text-emerald-500" />
                 </motion.div>
                 <div className="space-y-2">
-                    <h1 className="text-3xl font-bold text-white">Payment Successful!</h1>
-                    <p className="text-slate-400">Welcome to MentisAI Pro. Redirecting to your dashboard...</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Payment Successful!</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Welcome to MentisAI Pro. Redirecting to your dashboard...</p>
                 </div>
             </div>
         );
@@ -88,7 +88,7 @@ function CheckoutContent() {
         <div className="max-w-4xl mx-auto px-4 py-12">
             <Button
                 variant="ghost"
-                className="mb-8 text-slate-400 hover:text-white"
+                className="mb-8 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 onClick={() => router.back()}
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -99,36 +99,36 @@ function CheckoutContent() {
                 {/* Left Side: Order Summary */}
                 <div className="space-y-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-white mb-4">Complete your order</h1>
-                        <p className="text-slate-400">Finalize your purchase to unlock all pro features and boost your CFA prep.</p>
+                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Complete your order</h1>
+                        <p className="text-slate-600 dark:text-slate-400">Finalize your purchase to unlock all pro features and boost your CFA prep.</p>
                     </div>
 
-                    <Card className="bg-slate-900/50 border-white/5 backdrop-blur-sm overflow-hidden">
-                        <CardHeader className="border-b border-white/5 bg-white/5">
-                            <CardTitle className="text-lg">Order Summary</CardTitle>
+                    <Card className="bg-white dark:bg-slate-900/50 border-slate-200 dark:border-white/5 backdrop-blur-sm overflow-hidden">
+                        <CardHeader className="border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                            <CardTitle className="text-lg text-slate-900 dark:text-white">Order Summary</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
-                            <div className="flex justify-between items-center text-slate-300">
+                            <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
                                 <span>MentisAI {planName} Plan</span>
-                                <span className="font-bold text-white">${planPrice}</span>
+                                <span className="font-bold text-slate-900 dark:text-white">${planPrice}</span>
                             </div>
-                            <div className="flex justify-between items-center text-slate-300">
+                            <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
                                 <span>Taxes</span>
-                                <span className="font-bold text-white">$0.00</span>
+                                <span className="font-bold text-slate-900 dark:text-white">$0.00</span>
                             </div>
-                            <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                                <span className="text-lg font-bold text-white">Total Amount</span>
-                                <span className="text-2xl font-black text-indigo-400 font-mono">${planPrice}</span>
+                            <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex justify-between items-center">
+                                <span className="text-lg font-bold text-slate-900 dark:text-white">Total Amount</span>
+                                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">${planPrice}</span>
                             </div>
                         </CardContent>
                     </Card>
 
                     <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-sm text-slate-400">
+                        <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                             <ShieldCheck className="h-5 w-5 text-emerald-500" />
                             <span>SSL Encrypted & Secure Payments</span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-slate-400">
+                        <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                             <Lock className="h-5 w-5 text-emerald-500" />
                             <span>We don't store your full credit card details</span>
                         </div>
@@ -136,13 +136,13 @@ function CheckoutContent() {
                 </div>
 
                 {/* Right Side: Payment Form */}
-                <Card className="bg-slate-900/80 border-indigo-500/20 shadow-2xl shadow-indigo-500/10 rounded-[2rem] overflow-hidden">
-                    <CardHeader className="pb-6 border-b border-white/5 bg-white/5">
-                        <CardTitle className="flex items-center gap-2">
-                            <CreditCard className="h-5 w-5 text-indigo-400" />
+                <Card className="bg-white dark:bg-slate-900/80 border-slate-200 dark:border-indigo-500/20 shadow-xl shadow-slate-200 dark:shadow-indigo-500/10 rounded-[2rem] overflow-hidden">
+                    <CardHeader className="pb-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                        <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
+                            <CreditCard className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                             Secure Checkout
                         </CardTitle>
-                        <CardDescription>Pay safely with your Credit or Debit Card via PayPal</CardDescription>
+                        <CardDescription className="text-slate-500 dark:text-slate-400">Pay safely with your Credit or Debit Card via PayPal</CardDescription>
                     </CardHeader>
                     <CardContent className="p-8">
                         <div className="space-y-6">
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
             locale: "en_US",
             intent: "capture"
         }}>
-            <div className="min-h-screen bg-slate-950 text-slate-200">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200">
                 <Suspense fallback={
                     <div className="flex items-center justify-center min-h-screen">
                         <Loader2 className="h-12 w-12 animate-spin text-indigo-500" />
