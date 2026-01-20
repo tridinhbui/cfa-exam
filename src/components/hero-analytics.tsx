@@ -30,45 +30,45 @@ export function HeroAnalytics() {
                     <div className="w-3 h-3 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.4)] light:shadow-[0_0_8px_rgba(245,158,11,0.2)]" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.4)] light:shadow-[0_0_8px_rgba(16,185,129,0.2)]" />
                 </div>
-                <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-800/50 light:bg-white rounded-md border border-white/5 light:border-slate-200 w-64">
-                    <div className="w-2 h-2 rounded-full bg-slate-600 light:bg-slate-300" />
-                    <span className="text-[10px] text-slate-500 light:text-slate-400 font-medium">cfa-prep.ai/dashboard</span>
+                <div className="flex items-center gap-2 px-2 sm:px-3 py-1 bg-slate-800/50 light:bg-white rounded-md border border-white/5 light:border-slate-200 flex-1 sm:max-w-[256px] mx-4 sm:mx-0">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-slate-600 light:bg-slate-300 shrink-0" />
+                    <span className="text-[8px] sm:text-[10px] text-slate-500 light:text-slate-400 font-medium truncate">cfa-prep.ai/dashboard</span>
                 </div>
-                <div className="w-16" /> {/* Spacer */}
+                <div className="w-8 sm:w-16" /> {/* Spacer */}
             </div>
 
             {/* --- MAIN LAYOUT (Sidebar + Content) --- */}
             <div className="flex-1 flex overflow-hidden">
                 {/* SIDEBAR MOCKUP */}
-                <div className="w-48 bg-slate-900/50 light:bg-slate-50/50 border-r border-white/5 light:border-slate-200 p-4 flex flex-col gap-6 hidden md:flex">
+                <div className="w-12 sm:w-48 bg-slate-900/50 light:bg-slate-50/50 border-r border-white/5 light:border-slate-200 p-2 sm:p-4 flex flex-col gap-4 sm:gap-6">
                     <div className="flex items-center gap-2 opacity-50 light:opacity-30">
-                        <div className="w-6 h-6 rounded-md bg-indigo-500/20" />
-                        <div className="h-3 w-20 bg-slate-700/50 light:bg-slate-300 rounded-full" />
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-indigo-500/20" />
+                        <div className="hidden sm:block h-3 w-20 bg-slate-700/50 light:bg-slate-300 rounded-full" />
                     </div>
 
                     <div className="space-y-3">
                         {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className={`flex items-center gap-3 p-2 rounded-lg ${i === 1 ? 'bg-indigo-500/10 light:bg-indigo-50' : ''}`}>
-                                <div className={`w-4 h-4 rounded ${i === 1 ? 'bg-indigo-500 light:bg-indigo-600 text-indigo-100' : 'bg-slate-800 light:bg-slate-200'}`} />
-                                <div className={`h-2 rounded-full ${i === 1 ? 'w-24 bg-indigo-300 light:bg-indigo-600' : 'w-16 bg-slate-800 light:bg-slate-200'}`} />
+                            <div key={i} className={`flex items-center gap-3 p-1.5 sm:p-2 rounded-lg ${i === 1 ? 'bg-indigo-500/10 light:bg-indigo-50' : ''}`}>
+                                <div className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded shrink-0 ${i === 1 ? 'bg-indigo-500 light:bg-indigo-600 text-indigo-100' : 'bg-slate-800 light:bg-slate-200'}`} />
+                                <div className={`hidden sm:block h-2 rounded-full ${i === 1 ? 'w-24 bg-indigo-300 light:bg-indigo-600' : 'w-16 bg-slate-800 light:bg-slate-200'}`} />
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-auto space-y-2">
+                    <div className="mt-auto space-y-2 hidden sm:block">
                         <div className="h-20 rounded-xl bg-gradient-to-br from-indigo-900/20 to-violet-900/20 border border-white/5" />
                     </div>
                 </div>
 
                 {/* MAIN CONTENT AREA */}
-                <div className="flex-1 bg-slate-950 light:bg-white p-6 flex flex-col gap-6 overflow-hidden">
+                <div className="flex-1 bg-slate-950 light:bg-white p-3 sm:p-6 flex flex-col gap-4 sm:gap-6 overflow-hidden">
                     {/* Header Row */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="h-8 w-48 bg-gradient-to-r from-white to-slate-400 light:from-slate-900 light:to-slate-500 bg-clip-text text-transparent opacity-90 rounded-md mb-2 font-bold text-2xl">Good Morning</div>
-                            <div className="flex items-center gap-2 text-slate-500 light:text-slate-400 text-xs">
+                            <div className="h-6 sm:h-8 w-32 sm:w-48 bg-gradient-to-r from-white to-slate-400 light:from-slate-900 light:to-slate-500 bg-clip-text text-transparent opacity-90 rounded-md mb-1 sm:mb-2 font-bold text-lg sm:text-2xl">Good Morning</div>
+                            <div className="flex items-center gap-2 text-slate-500 light:text-slate-400 text-[10px]">
                                 <span>Exam Countdown</span>
-                                <span className="bg-indigo-500/10 light:bg-indigo-50 text-indigo-400 light:text-indigo-600 px-1.5 py-0.5 rounded text-[10px] font-bold">87 Days</span>
+                                <span className="bg-indigo-500/10 light:bg-indigo-50 text-indigo-400 light:text-indigo-600 px-1 py-0.5 rounded text-[8px] font-bold">87 Days</span>
                             </div>
                         </div>
                         <div className="flex gap-2">
@@ -80,38 +80,38 @@ export function HeroAnalytics() {
                     {/* Stats Row */}
                     <div className="grid grid-cols-3 gap-3">
                         {/* Stat 1 */}
-                        <div className="p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-indigo-400 light:text-indigo-600">
-                                <Target className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Accuracy</span>
+                        <div className="p-2 sm:p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2 text-indigo-400 light:text-indigo-600">
+                                <Target className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">Accuracy</span>
                             </div>
-                            <div className="text-xl font-bold text-white light:text-slate-900">68%</div>
-                            <div className="text-[10px] text-emerald-400 light:text-emerald-600 flex items-center gap-1 font-bold">
+                            <div className="text-base sm:text-xl font-bold text-white light:text-slate-900">68%</div>
+                            <div className="text-[8px] sm:text-[10px] text-emerald-400 light:text-emerald-600 flex items-center gap-1 font-bold">
                                 <TrendingUp className="w-2 h-2" />
                                 +2.4%
                             </div>
                         </div>
                         {/* Stat 2 */}
-                        <div className="p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-amber-400 light:text-amber-600">
-                                <Flame className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Streak</span>
+                        <div className="p-2 sm:p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2 text-amber-400 light:text-amber-600">
+                                <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">Streak</span>
                             </div>
-                            <div className="text-xl font-bold text-white light:text-slate-900">12</div>
-                            <div className="text-[10px] text-slate-500 light:text-slate-400 font-medium">Days Active</div>
+                            <div className="text-base sm:text-xl font-bold text-white light:text-slate-900">12</div>
+                            <div className="text-[8px] sm:text-[10px] text-slate-500 light:text-slate-400 font-medium">Days Active</div>
                         </div>
                         {/* Stat 3 */}
-                        <div className="p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-violet-400 light:text-violet-600">
-                                <Award className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Level</span>
+                        <div className="p-2 sm:p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2 text-violet-400 light:text-violet-600">
+                                <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">Level</span>
                             </div>
                             <div className="flex gap-0.5">
-                                <div className="w-1 h-3 bg-indigo-500 light:bg-indigo-600 rounded-sm" />
-                                <div className="w-1 h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
-                                <div className="w-1 h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
+                                <div className="w-1 h-2.5 sm:h-3 bg-indigo-500 light:bg-indigo-600 rounded-sm" />
+                                <div className="w-1 h-2.5 sm:h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
+                                <div className="w-1 h-2.5 sm:h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
                             </div>
-                            <div className="text-[10px] text-slate-500 light:text-slate-400 mt-1 font-medium">Level I</div>
+                            <div className="text-[8px] sm:text-[10px] text-slate-500 light:text-slate-400 mt-1 font-medium">Level I</div>
                         </div>
                     </div>
 

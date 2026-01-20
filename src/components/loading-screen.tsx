@@ -99,10 +99,10 @@ export function LoadingScreen({ isExiting }: LoadingScreenProps) {
                     <Image
                         src="/logo-brain-v3.png"
                         alt="Logo"
-                        width={192}
-                        height={192}
+                        width={128}
+                        height={128}
                         priority
-                        className="h-48 w-48 brightness-150 saturate-150 contrast-125 drop-shadow-[0_0_40px_rgba(34,197,253,0.8)]"
+                        className="h-20 w-20 sm:h-32 sm:w-32 brightness-150 saturate-150 contrast-125 drop-shadow-[0_0_30px_rgba(34,197,253,0.6)]"
                     />
                 </motion.div>
             </motion.div>

@@ -23,16 +23,16 @@ export function CTASection({ user }: CTASectionProps) {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                 >
-                    <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 tracking-tight">
+                    <h2 className="text-3xl sm:text-5xl font-bold text-white mb-6 tracking-tight">
                         Ready to Crush Your Exam?
                     </h2>
-                    <p className="text-xl text-indigo-100 max-w-2xl mx-auto mb-10">
+                    <p className="text-lg sm:text-xl text-indigo-100 max-w-2xl mx-auto mb-10 px-4">
                         Join thousands of successful candidates who trusted our AI-driven platform.
                         Start with 30 free questions today.
                     </p>
-                    <Link href={user ? "/dashboard" : "/login"}>
-                        <Button size="xl" className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold h-14 px-10 rounded-full shadow-2xl shadow-indigo-900/50 hover:scale-105 transition-transform">
-                            Get Started for Free
+                    <Link href={user ? "/dashboard" : "/login"} className="inline-block w-full sm:w-auto">
+                        <Button size="xl" className="w-full sm:w-auto bg-white text-indigo-900 hover:bg-indigo-50 font-bold h-14 px-10 rounded-full shadow-2xl shadow-indigo-900/50 hover:scale-105 transition-transform">
+                            Try MentisAI for Free
                             <ArrowRight className="h-5 w-5 ml-2" />
                         </Button>
                     </Link>
