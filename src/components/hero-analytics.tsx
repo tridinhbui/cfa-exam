@@ -61,14 +61,14 @@ export function HeroAnalytics() {
                 </div>
 
                 {/* MAIN CONTENT AREA */}
-                <div className="flex-1 bg-slate-950 light:bg-white p-6 flex flex-col gap-6 overflow-hidden">
+                <div className="flex-1 bg-slate-950 light:bg-white p-3 sm:p-6 flex flex-col gap-4 sm:gap-6 overflow-hidden">
                     {/* Header Row */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="h-8 w-48 bg-gradient-to-r from-white to-slate-400 light:from-slate-900 light:to-slate-500 bg-clip-text text-transparent opacity-90 rounded-md mb-2 font-bold text-2xl">Good Morning</div>
-                            <div className="flex items-center gap-2 text-slate-500 light:text-slate-400 text-xs">
+                            <div className="h-6 sm:h-8 w-32 sm:w-48 bg-gradient-to-r from-white to-slate-400 light:from-slate-900 light:to-slate-500 bg-clip-text text-transparent opacity-90 rounded-md mb-1 sm:mb-2 font-bold text-lg sm:text-2xl">Good Morning</div>
+                            <div className="flex items-center gap-2 text-slate-500 light:text-slate-400 text-[10px]">
                                 <span>Exam Countdown</span>
-                                <span className="bg-indigo-500/10 light:bg-indigo-50 text-indigo-400 light:text-indigo-600 px-1.5 py-0.5 rounded text-[10px] font-bold">87 Days</span>
+                                <span className="bg-indigo-500/10 light:bg-indigo-50 text-indigo-400 light:text-indigo-600 px-1 py-0.5 rounded text-[8px] font-bold">87 Days</span>
                             </div>
                         </div>
                         <div className="flex gap-2">
@@ -80,38 +80,38 @@ export function HeroAnalytics() {
                     {/* Stats Row */}
                     <div className="grid grid-cols-3 gap-3">
                         {/* Stat 1 */}
-                        <div className="p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-indigo-400 light:text-indigo-600">
-                                <Target className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Accuracy</span>
+                        <div className="p-2 sm:p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2 text-indigo-400 light:text-indigo-600">
+                                <Target className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">Accuracy</span>
                             </div>
-                            <div className="text-xl font-bold text-white light:text-slate-900">68%</div>
-                            <div className="text-[10px] text-emerald-400 light:text-emerald-600 flex items-center gap-1 font-bold">
+                            <div className="text-base sm:text-xl font-bold text-white light:text-slate-900">68%</div>
+                            <div className="text-[8px] sm:text-[10px] text-emerald-400 light:text-emerald-600 flex items-center gap-1 font-bold">
                                 <TrendingUp className="w-2 h-2" />
                                 +2.4%
                             </div>
                         </div>
                         {/* Stat 2 */}
-                        <div className="p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-amber-400 light:text-amber-600">
-                                <Flame className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Streak</span>
+                        <div className="p-2 sm:p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2 text-amber-400 light:text-amber-600">
+                                <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">Streak</span>
                             </div>
-                            <div className="text-xl font-bold text-white light:text-slate-900">12</div>
-                            <div className="text-[10px] text-slate-500 light:text-slate-400 font-medium">Days Active</div>
+                            <div className="text-base sm:text-xl font-bold text-white light:text-slate-900">12</div>
+                            <div className="text-[8px] sm:text-[10px] text-slate-500 light:text-slate-400 font-medium">Days Active</div>
                         </div>
                         {/* Stat 3 */}
-                        <div className="p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-violet-400 light:text-violet-600">
-                                <Award className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Level</span>
+                        <div className="p-2 sm:p-3 rounded-xl bg-slate-900/50 light:bg-slate-50 border border-white/5 light:border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2 text-violet-400 light:text-violet-600">
+                                <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                                <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">Level</span>
                             </div>
                             <div className="flex gap-0.5">
-                                <div className="w-1 h-3 bg-indigo-500 light:bg-indigo-600 rounded-sm" />
-                                <div className="w-1 h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
-                                <div className="w-1 h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
+                                <div className="w-1 h-2.5 sm:h-3 bg-indigo-500 light:bg-indigo-600 rounded-sm" />
+                                <div className="w-1 h-2.5 sm:h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
+                                <div className="w-1 h-2.5 sm:h-3 bg-indigo-500/30 light:bg-indigo-100 rounded-sm" />
                             </div>
-                            <div className="text-[10px] text-slate-500 light:text-slate-400 mt-1 font-medium">Level I</div>
+                            <div className="text-[8px] sm:text-[10px] text-slate-500 light:text-slate-400 mt-1 font-medium">Level I</div>
                         </div>
                     </div>
 
