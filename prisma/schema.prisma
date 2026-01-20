@@ -24,7 +24,7 @@ model User {
   longestStreak          Int                  @default(0)
   coins                  Int                  @default(0)
   chatCount              Int                  @default(0)
-  chatResetTime          DateTime?            @default(now())
+  chatResetTime          DateTime?
   hasCompletedOnboarding Boolean?             @default(false)
   chatSessions           ChatSession[]
   dailyProgress          DailyProgress[]

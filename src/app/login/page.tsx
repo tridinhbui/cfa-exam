@@ -51,9 +51,13 @@ export default function LoginPage() {
 
             // Manually trigger sync to store data in Supabase
             if (firebaseUser) {
+                const token = await firebaseUser.getIdToken();
                 await fetch('/api/user/sync', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({
                         uid: firebaseUser.uid,
                         email: firebaseUser.email,

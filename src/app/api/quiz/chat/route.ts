@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         // 3. Parallel Step: Start Rate Limit check AND Vector Search at the same time
         // We trigger both and wait for all to finish before calling AI
         const limitCheckPromise = isFree
-            ? persistentChatLimit(userId, { limit: 3, window: 14400000 })
+            ? persistentChatLimit(userId, { limit: 3, window: 86400000 })
             : persistentChatLimit(userId, { limit: 60, window: 86400000 });
 
         let relatedContext = '';
@@ -90,8 +90,8 @@ export async function POST(req: NextRequest) {
         if (!limitResult.success) {
             return NextResponse.json({
                 error: isFree
-                    ? 'Free tier quota: 7 messages every 2 hours. Upgrade to PRO for 75/day!'
-                    : 'PRO tier daily quota: 75 messages per day reached.',
+                    ? 'Free tier quota: 3 messages per 24 hours. Upgrade to PRO for 60/day!'
+                    : 'PRO tier daily quota: 60 messages per day reached.',
                 isFree,
                 isPro
             }, { status: 429 });

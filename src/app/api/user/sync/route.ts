@@ -90,8 +90,8 @@ export async function POST(req: Request) {
         const user = await (prisma.user.upsert as any)({
             where: { email: normalizedEmail },
             update: {
-                name,
-                image,
+                ...(name ? { name } : {}),
+                ...(image ? { image } : {}),
                 lastActiveAt: new Date(),
                 currentStreak: newStreak,
                 longestStreak: newLongestStreak,
@@ -100,8 +100,8 @@ export async function POST(req: Request) {
             create: {
                 id: uid,
                 email: normalizedEmail,
-                name,
-                image,
+                ...(name ? { name } : {}),
+                ...(image ? { image } : {}),
                 lastActiveAt: new Date(),
                 currentStreak: 1,
                 longestStreak: 1,

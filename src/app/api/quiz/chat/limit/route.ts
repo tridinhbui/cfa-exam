@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         let limitInfo;
         // getLimitInfo is now async and takes userId directly
         if (isFree) {
-            const info = await getLimitInfo(userId, { limit: 3, window: 14400000 });
+            const info = await getLimitInfo(userId, { limit: 3, window: 86400000 });
             limitInfo = {
                 ...info,
                 type: 'FREE',

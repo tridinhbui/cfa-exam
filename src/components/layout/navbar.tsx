@@ -181,7 +181,7 @@ export function Navbar() {
                     ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
                     : "bg-destructive/10 border-destructive/20 text-destructive"
                 )}
-                title={chatLimit.type === 'PRO' ? "Daily AI Credits (75 per day)" : "Trial Credits (7 per 2h)"}
+                title={chatLimit.type === 'PRO' ? "Daily AI Credits (60 per day)" : "Trial Credits (3 per day)"}
               >
                 <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shrink-0">
                   <img src="/images/ai-avatar.png" alt="AI" className="w-full h-full object-contain" />
