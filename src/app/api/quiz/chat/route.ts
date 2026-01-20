@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { persistentChatLimit } from '@/lib/rate-limit';
 import { verifyAuth, authErrorResponse } from '@/lib/server-auth-utils';
+import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
@@ -11,15 +12,16 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
     try {
-        // 1. Verify Authentication
-        const authResult = await verifyAuth(req);
+        // 1. Parallel Step: Start Auth and Body parsing simultaneously
+        const [authResult, body] = await Promise.all([
+            verifyAuth(req),
+            req.json()
+        ]);
+
         if (authResult.error) {
             return authErrorResponse(authResult as { error: string, status: number });
         }
         const userId = authResult.uid as string;
-
-        const { prisma } = await import('@/lib/prisma');
-        const body = await req.json();
         const { messages, question, explanation, topic, options, isGlobal, image, sessionId } = body;
 
         if (!messages || !Array.isArray(messages)) {
@@ -27,9 +29,9 @@ export async function POST(req: NextRequest) {
         }
 
         const lastMessageText = messages[messages.length - 1]?.content || '';
-        let relatedContext = '';
 
-        // 2. Parallel Tasks: Check Subscription & Generate Embedding
+        // 2. Parallel Step: Fetch User and Generate Embedding together
+        // Building this early saves hundreds of milliseconds
         const [user, embedResponse] = await Promise.all([
             prisma.user.findUnique({
                 where: { id: userId },
@@ -43,66 +45,56 @@ export async function POST(req: NextRequest) {
         const isFree = !user || user.subscription === 'FREE';
         const isPro = user?.subscription === 'PRO';
 
-        // 3. Rate Limit Check (After parallel fetch)
-        if (isFree) {
-            const limitResult = await persistentChatLimit(userId, { limit: 7, window: 7200000 });
-            if (!limitResult.success) {
-                return NextResponse.json({
-                    error: 'Free tier quota: 7 messages every 2 hours. Upgrade to PRO to study with a massive 70 messages/day limit!',
-                    isFree: true
-                }, { status: 429 });
-            }
-        } else if (isPro) {
-            const limitResult = await persistentChatLimit(userId, { limit: 75, window: 86400000 });
-            if (!limitResult.success) {
-                return NextResponse.json({
-                    error: 'PRO tier daily quota: 75 messages per day reached. You have studied exceptionally hard today! Please return tomorrow.',
-                    isPro: true
-                }, { status: 429 });
+        // 3. Parallel Step: Start Rate Limit check AND Vector Search at the same time
+        // We trigger both and wait for all to finish before calling AI
+        const limitCheckPromise = isFree
+            ? persistentChatLimit(userId, { limit: 7, window: 7200000 })
+            : persistentChatLimit(userId, { limit: 75, window: 86400000 });
+
+        let relatedContext = '';
+        if (embedResponse) {
+            const queryVector = embedResponse.data[0].embedding;
+            const vectorStr = `[${queryVector.join(',')}]`;
+
+            // Parallel lookup in all sources using indices
+            const [questions, quizQuestions, lessonChunks] = await Promise.all([
+                prisma.$queryRawUnsafe<any[]>(`
+                    SELECT content, explanation, 'Practice Question' as source, '' as metadata, (embedding <=> $1::vector) as distance
+                    FROM "Question" WHERE embedding IS NOT NULL ORDER BY embedding <=> $1::vector LIMIT 7
+                `, vectorStr),
+                prisma.$queryRawUnsafe<any[]>(`
+                    SELECT prompt as content, explanation, 'Module Quiz' as source, '' as metadata, (embedding <=> $1::vector) as distance
+                    FROM "ModuleQuizQuestion" WHERE embedding IS NOT NULL ORDER BY embedding <=> $1::vector LIMIT 7
+                `, vectorStr),
+                prisma.$queryRawUnsafe<any[]>(`
+                    SELECT lc.content, '' as explanation, CONCAT('Lesson: ', m.code, ' - ', m.title) as source, lc.type::text as metadata, (lc.embedding <=> $1::vector) as distance
+                    FROM "LessonChunk" lc JOIN "Module" m ON lc."moduleId" = m.id
+                    WHERE lc.embedding IS NOT NULL ORDER BY lc.embedding <=> $1::vector LIMIT 7
+                `, vectorStr)
+            ]);
+
+            const combinedResults = [...questions, ...quizQuestions, ...lessonChunks]
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, 6);
+
+            if (combinedResults.length > 0) {
+                relatedContext = "\n\nAUTHORITATIVE CFA KNOWLEDGE BASE SEGMENTS:\n" +
+                    combinedResults.map(q =>
+                        `[Source: ${q.source}]${q.metadata ? ` [Type: ${q.metadata}]` : ''}\nContent: ${q.content.substring(0, 1000)}\n${q.explanation ? `Expert Note: ${q.explanation}\n` : ''}`
+                    ).join('\n---\n');
             }
         }
 
-        // 4. Perform Vector Search (RAG) using the pre-fetched embedding
-        if (embedResponse) {
-            try {
-                const queryVector = embedResponse.data[0].embedding;
-
-                // Search for top related content across all sources:
-                // 1. Practice Questions
-                // 2. Module Quiz Questions
-                // 3. SchweserNotes PDF Chunks
-                const relatedResults: any[] = await prisma.$queryRawUnsafe(`
-                    WITH all_knowledge AS (
-                        SELECT content, explanation, embedding, 'Practice Question' as source, '' as metadata FROM "Question"
-                        UNION ALL
-                        SELECT prompt as content, explanation, embedding, 'Module Quiz' as source, '' as metadata FROM "ModuleQuizQuestion"
-                        UNION ALL
-                        -- 3. UPGRADED: New LessonChunk
-                        SELECT 
-                            lc.content, 
-                            '' as explanation, 
-                            lc.embedding, 
-                            CONCAT('Lesson: ', m.code, ' - ', m.title) as source,
-                            lc.type::text as metadata
-                        FROM "LessonChunk" lc
-                        JOIN "Module" m ON lc."moduleId" = m.id
-                    )
-                    SELECT content, explanation, source, metadata
-                    FROM all_knowledge
-                    WHERE embedding IS NOT NULL
-                    ORDER BY embedding <=> $1::vector 
-                    LIMIT 9
-                `, `[${queryVector.join(',')}]`);
-
-                if (relatedResults.length > 0) {
-                    relatedContext = "\n\nAUTHORITATIVE CFA KNOWLEDGE BASE SEGMENTS:\n" +
-                        relatedResults.map((q, i) =>
-                            `[Source: ${q.source}]${q.metadata ? ` [Type: ${q.metadata}]` : ''}\nContent: ${q.content.substring(0, 1000)}\n${q.explanation ? `Expert Note: ${q.explanation}\n` : ''}`
-                        ).join('\n---\n');
-                }
-            } catch (err) {
-                console.error('Vector Search Error:', err);
-            }
+        // Now we MUST ensure the rate limit check has finished before proceeding
+        const limitResult = await limitCheckPromise;
+        if (!limitResult.success) {
+            return NextResponse.json({
+                error: isFree
+                    ? 'Free tier quota: 7 messages every 2 hours. Upgrade to PRO for 75/day!'
+                    : 'PRO tier daily quota: 75 messages per day reached.',
+                isFree,
+                isPro
+            }, { status: 429 });
         }
 
         // 4. Define AI Personas
@@ -164,7 +156,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Select Model Based on Subscription
-        const chatModel = isPro ? 'gpt-5-mini' : 'gpt-5-nano';
+        const chatModel = isPro ? 'gpt-4o-mini' : 'gpt-4o-mini';
 
         console.log(`[Chat API] Model: ${chatModel}, isGlobal: ${isGlobal}, hasImage: ${!!image}, User: ${isPro ? 'PRO' : 'FREE'}`);
 
