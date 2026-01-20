@@ -77,11 +77,13 @@ export default function DashboardPage() {
 
   // Use SWR for data fetching
   const { data: stats, isLoading: statsLoading } = useAuthenticatedSWR<any>(
-    user ? `/api/user/stats?userId=${user.uid}&date=${localDate}` : null
+    user ? `/api/user/stats?userId=${user.uid}&date=${localDate}` : null,
+    { refreshInterval: 30000, dedupingInterval: 5000 }
   );
 
   const { data: topicsData, isLoading: topicsLoading } = useAuthenticatedSWR<any[]>(
-    user ? `/api/quiz/topics?userId=${user.uid}` : null
+    user ? `/api/quiz/topics?userId=${user.uid}` : null,
+    { refreshInterval: 30000, dedupingInterval: 5000 }
   );
 
   const { data: recentActivity, isLoading: activityLoading } = useAuthenticatedSWR<any[]>(

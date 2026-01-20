@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { useExamStore } from '@/store/exam-store';
 import { FeedbackModal } from '@/components/feedback-modal';
+import { useAuthenticatedSWR } from '@/hooks/use-authenticated-swr';
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3, id: 'tour-dashboard' },
@@ -47,36 +48,20 @@ export function Sidebar() {
   const { date: examDate, label: examLabel, daysRemaining } = useExamStore();
   const daysLeft = daysRemaining();
 
-  const [stats, setStats] = useState({
+  const localDate = new Date().toLocaleDateString('en-CA');
+  const { data: statsData } = useAuthenticatedSWR<any>(
+    user ? `/api/user/stats?userId=${user.uid}&date=${localDate}` : null
+  );
+
+  const stats = statsData || {
     currentStreak: 0,
     questionsToday: 0,
     correctToday: 0,
     coins: 0,
-  });
+  };
+
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const dbUser = useUserStore((state) => state.user);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!user) return;
-      try {
-        const token = await user.getIdToken();
-        const localDate = new Date().toLocaleDateString('en-CA');
-        const res = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data = await res.json();
-        if (!data.error) {
-          setStats(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch sidebar stats:', err);
-      }
-    };
-    fetchStats();
-  }, [user]);
 
   const dailyGoal = 30;
   const progressValue = Math.min((stats.questionsToday / dailyGoal) * 100, 100);
