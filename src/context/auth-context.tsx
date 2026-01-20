@@ -57,6 +57,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 } catch (error) {
                     console.error('Failed to sync user:', error);
                 }
+            } else {
+                // Logged out - Clear all persisted stores
+                const { useUserStore } = await import('@/store/user-store');
+                const { useExamStore } = await import('@/store/exam-store');
+                const { useQuizStore } = await import('@/store/quiz-store');
+                const { useChatStore } = await import('@/store/chat-store');
+                useUserStore.getState().reset();
+                useExamStore.getState().reset();
+                useQuizStore.getState().resetQuiz();
+                useChatStore.getState().resetChat();
             }
         });
 

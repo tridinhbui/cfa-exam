@@ -40,7 +40,7 @@ export default function StudyPlanPage() {
       const activePlan = await getActiveStudyPlan(user.uid);
       setPlan(activePlan);
       if (activePlan?.examDate) {
-        setExam(new Date(activePlan.examDate), activePlan.name);
+        setExam(user.uid, new Date(activePlan.examDate), activePlan.name);
       }
     } catch (err) {
       console.error('Failed to fetch plan:', err);
@@ -114,8 +114,8 @@ export default function StudyPlanPage() {
   };
 
   const handleExamSelect = async (date: Date, label: string) => {
-    setExam(date, label);
     if (user?.uid) {
+      setExam(user.uid, date, label);
       setLoading(true);
       try {
         await updateStudyPlanExamDate(user.uid, date);

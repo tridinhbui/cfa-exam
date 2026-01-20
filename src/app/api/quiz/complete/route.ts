@@ -227,11 +227,25 @@ export async function POST(req: Request) {
         let studyPlanCompleted = false;
         if (studyPlanItemId && scoreValue >= 70) {
             try {
-                await prisma.studyPlanItem.update({
-                    where: { id: studyPlanItemId },
-                    data: { isCompleted: true }
+                // Verify ownership: Item -> StudyPlan -> User
+                const item = await prisma.studyPlanItem.findFirst({
+                    where: {
+                        id: studyPlanItemId,
+                        studyPlan: {
+                            userId: userId
+                        }
+                    }
                 });
-                studyPlanCompleted = true;
+
+                if (item) {
+                    await prisma.studyPlanItem.update({
+                        where: { id: studyPlanItemId },
+                        data: { isCompleted: true, completedAt: now }
+                    });
+                    studyPlanCompleted = true;
+                } else {
+                    console.warn(`Attempt to complete studyPlanItem ${studyPlanItemId} by non-owner user ${userId}`);
+                }
             } catch (e) {
                 console.error("Failed to update study plan item:", e);
             }

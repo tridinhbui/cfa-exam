@@ -22,6 +22,7 @@ interface UserState {
   canAnswerQuestion: () => boolean;
   getDailyLimit: () => number;
   getRemainingQuestions: () => number;
+  reset: () => void;
 }
 
 const DAILY_FREE_LIMIT = 30;
@@ -76,6 +77,7 @@ export const useUserStore = create<UserState>()(
 
         return Math.max(0, DAILY_FREE_LIMIT - dailyQuestionsUsed);
       },
+      reset: () => set({ user: null, dailyQuestionsUsed: 0, lastQuestionDate: null }),
     }),
     {
       name: 'cfa-user-store',

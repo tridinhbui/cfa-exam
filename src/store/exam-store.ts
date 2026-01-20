@@ -2,18 +2,22 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface ExamState {
+    userId: string | null;
     date: Date | null;
     label: string;
-    setExam: (date: Date, label: string) => void;
+    setExam: (userId: string, date: Date, label: string) => void;
     daysRemaining: () => number;
+    reset: () => void;
 }
 
 export const useExamStore = create<ExamState>()(
     persist(
         (set, get) => ({
+            userId: null,
             date: null,
             label: 'Select Date',
-            setExam: (date, label) => set({ date, label }),
+            setExam: (userId, date, label) => set({ userId, date, label }),
+            reset: () => set({ userId: null, date: null, label: 'Select Date' }),
             daysRemaining: () => {
                 const { date } = get();
                 if (!date) return 0;
@@ -29,7 +33,7 @@ export const useExamStore = create<ExamState>()(
         }),
         {
             name: 'cfa-exam-storage', // unique name for localStorage
-            partialize: (state) => ({ date: state.date, label: state.label }), // persist date and label
+            partialize: (state) => ({ userId: state.userId, date: state.date, label: state.label }), // persist userId, date and label
         }
     )
 );

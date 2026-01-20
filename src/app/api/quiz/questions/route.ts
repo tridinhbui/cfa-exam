@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     const difficulty = searchParams.get('difficulty');
     const mode = searchParams.get('mode');
     const examIndex = parseInt(searchParams.get('examIndex') || '1');
+    const questionId = searchParams.get('questionId');
 
     // --- Subscription Check ---
     const user = await prisma.user.findUnique({
@@ -30,13 +31,14 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Mock Exam 2 and 3 are only available for PRO users' }, { status: 403 });
         }
         // 2. Limit PRACTICE/TIMED to 5 questions (but allow 180 for EXAM 1)
-        if (requestedCount > 5 && (mode !== 'EXAM' && mode !== 'exam')) {
+        // Exempt: Single question requests (Daily Quiz) and Mistakes review
+        const isExemptMode = mode === 'EXAM' || mode === 'exam' || mode === 'MISTAKES' || mode === 'mistakes';
+        if (!questionId && requestedCount > 5 && !isExemptMode) {
             return NextResponse.json({ error: 'FREE users are limited to 5 questions per session' }, { status: 403 });
         }
     }
 
     const count = requestedCount;
-    const questionId = searchParams.get('questionId');
 
     try {
         // --- SINGLE QUESTION MODE ---

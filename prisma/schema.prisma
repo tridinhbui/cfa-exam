@@ -9,34 +9,32 @@ datasource db {
 }
 
 model User {
-  id                 String             @id @default(cuid())
-  email              String             @unique
-  password           String?
-  name               String?
-  image              String?
-  cfaLevel           CFALevel           @default(LEVEL_1)
-  subscription       SubscriptionType   @default(FREE)
-  subscriptionEndsAt DateTime?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  coins              Int                @default(0)
-
-  // Chat Limit Tracking
-  chatCount          Int                @default(0)
-  chatResetTime      DateTime?          @default(now())
-
-  currentStreak      Int                @default(0)
-  lastActiveAt       DateTime?
-  longestStreak      Int                @default(0)
-  dailyProgress      DailyProgress[]
-  itemSetAttempts    ItemSetAttempt[]
-  quizAttempts       QuizAttempt[]
-  studyPlans         StudyPlan[]
-  topicPerformances  TopicPerformance[]
-  transactions       Transaction[]
-  chatSessions       ChatSession[]
-  moduleProgress     UserModuleProgress[]
-  wrongQuestions     WrongQuestion[]
+  id                     String               @id @default(cuid())
+  email                  String               @unique
+  password               String?
+  name                   String?
+  image                  String?
+  cfaLevel               CFALevel             @default(LEVEL_1)
+  subscription           SubscriptionType     @default(FREE)
+  subscriptionEndsAt     DateTime?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  currentStreak          Int                  @default(0)
+  lastActiveAt           DateTime?
+  longestStreak          Int                  @default(0)
+  coins                  Int                  @default(0)
+  chatCount              Int                  @default(0)
+  chatResetTime          DateTime?            @default(now())
+  hasCompletedOnboarding Boolean?             @default(false)
+  chatSessions           ChatSession[]
+  dailyProgress          DailyProgress[]
+  itemSetAttempts        ItemSetAttempt[]
+  quizAttempts           QuizAttempt[]
+  studyPlans             StudyPlan[]
+  topicPerformances      TopicPerformance[]
+  transactions           Transaction[]
+  moduleProgress         UserModuleProgress[]
+  wrongQuestions         WrongQuestion[]
 }
 
 model Topic {
@@ -67,26 +65,27 @@ model LearningObjective {
 }
 
 model Question {
-  id            String             @id @default(cuid())
-  content       String
-  optionA       String
-  optionB       String
-  optionC       String
-  correctAnswer String
-  explanation   String
-  formula       String?
-  difficulty    Difficulty         @default(MEDIUM)
-  topicId       String
-  losId         String?
-  cfaLevel      CFALevel
-  createdAt     DateTime           @default(now())
-  embedding     Unsupported("vector(1536)")?
-  los           LearningObjective? @relation(fields: [losId], references: [id])
-  topic         Topic              @relation(fields: [topicId], references: [id])
-  quizQuestions QuizQuestion[]
+  id             String                 @id @default(cuid())
+  content        String
+  optionA        String
+  optionB        String
+  optionC        String
+  correctAnswer  String
+  explanation    String
+  formula        String?
+  difficulty     Difficulty             @default(MEDIUM)
+  topicId        String
+  losId          String?
+  cfaLevel       CFALevel
+  createdAt      DateTime               @default(now())
+  embedding      Unsupported("vector")?
+  los            LearningObjective?     @relation(fields: [losId], references: [id])
+  topic          Topic                  @relation(fields: [topicId], references: [id])
+  quizQuestions  QuizQuestion[]
   wrongQuestions WrongQuestion[]
 
   @@index([topicId, difficulty])
+  @@index([embedding])
 }
 
 model WrongQuestion {
@@ -94,9 +93,8 @@ model WrongQuestion {
   userId     String
   questionId String
   createdAt  DateTime @default(now())
-  
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, questionId])
   @@index([userId])
@@ -277,10 +275,10 @@ model Module {
   code          String
   title         String
   order         Int
+  chunks        LessonChunk[]
+  lessonContent LessonContent?
   reading       Reading              @relation(fields: [readingId], references: [id], onDelete: Cascade)
   quizHeader    ModuleQuizHeader?
-  lessonContent LessonContent?
-  chunks        LessonChunk[]
   progress      UserModuleProgress[]
 
   @@unique([readingId, code])
@@ -290,7 +288,7 @@ model Module {
 model LessonContent {
   id        String   @id @default(cuid())
   moduleId  String   @unique
-  content   String   @db.Text
+  content   String
   updatedAt DateTime @updatedAt
   module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 }
@@ -302,37 +300,38 @@ model UserModuleProgress {
   isCompleted Boolean   @default(false)
   lastViewed  DateTime  @default(now())
   completedAt DateTime?
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   module      Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, moduleId])
   @@index([userId])
 }
 
 model ModuleQuizHeader {
-  id        String               @id @default(cuid())
-  moduleId  String               @unique
-  title     String
+  id         String               @id @default(cuid())
+  moduleId   String               @unique
+  title      String
   studyNotes Json?
-  module    Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  questions ModuleQuizQuestion[]
+  module     Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions  ModuleQuizQuestion[]
 }
 
 model ModuleQuizQuestion {
-  id          String           @id @default(cuid())
+  id          String                 @id @default(cuid())
   headerId    String
   questionNo  Int
   prompt      String
   optionA     String
   optionB     String
   optionC     String
-  correct     AnswerChoice     @default(B)
+  correct     AnswerChoice           @default(B)
   explanation String?
-  embedding   Unsupported("vector(1536)")?
-  header      ModuleQuizHeader @relation(fields: [headerId], references: [id], onDelete: Cascade)
+  embedding   Unsupported("vector")?
+  header      ModuleQuizHeader       @relation(fields: [headerId], references: [id], onDelete: Cascade)
 
   @@unique([headerId, questionNo])
   @@index([headerId])
+  @@index([embedding])
 }
 
 model ExamWindow {
@@ -357,6 +356,45 @@ model Transaction {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model LessonChunk {
+  id        String                 @id @default(cuid())
+  moduleId  String
+  content   String
+  type      ChunkType              @default(TEXT)
+  embedding Unsupported("vector")?
+  createdAt DateTime               @default(now())
+  module    Module                 @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+  @@index([embedding])
+}
+
+model ChatSession {
+  id        String        @id @default(cuid())
+  userId    String
+  title     String?       @default("New Chat")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  messages  ChatMessage[]
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([updatedAt(sort: Desc)])
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  role      String
+  content   String
+  image     String?
+  createdAt DateTime    @default(now())
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([createdAt])
 }
 
 enum CFALevel {
@@ -388,48 +426,10 @@ enum AnswerChoice {
   C
 }
 
-model LessonChunk {
-  id        String                  @id @default(cuid())
-  moduleId  String
-  content   String
-  type      ChunkType               @default(TEXT)
-  embedding Unsupported("vector(1536)")?
-  createdAt DateTime                @default(now())
-  module    Module                  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-
-  @@index([moduleId])
-}
-
 enum ChunkType {
   TEXT
   FORMULA
   EXAMPLE
   KEY_CONCEPT
   QUIZ
-}
-
-model ChatSession {
-  id        String        @id @default(cuid())
-  userId    String
-  title     String?       @default("New Chat")
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages  ChatMessage[]
-
-  @@index([userId])
-  @@index([updatedAt(sort: Desc)])
-}
-
-model ChatMessage {
-  id        String      @id @default(cuid())
-  sessionId String
-  role      String      // 'user' or 'assistant'
-  content   String
-  image     String?     // Base64 or URL
-  createdAt DateTime    @default(now())
-  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
-  @@index([createdAt(sort: Asc)])
 }
