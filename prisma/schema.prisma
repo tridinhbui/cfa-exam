@@ -442,13 +442,17 @@ enum UserRole {
 }
 
 model Feedback {
-  id        String           @id @default(cuid())
-  userId    String
-  rating    Int
-  category  FeedbackCategory @default(GENERAL)
-  content   String
-  createdAt DateTime         @default(now())
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String           @id @default(cuid())
+  userId       String
+  rating       Int
+  category     FeedbackCategory @default(GENERAL)
+  strengths    String?
+  weaknesses   String?
+  bugs         String?
+  improvements String?
+  content      String?
+  createdAt    DateTime         @default(now())
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
