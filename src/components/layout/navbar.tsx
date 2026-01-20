@@ -163,12 +163,12 @@ export function Navbar() {
             {/* Coins Display */}
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500"
             >
-              <div className="w-5 h-5 flex items-center justify-center shrink-0 rounded-full overflow-hidden">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shrink-0 rounded-full overflow-hidden">
                 <img src="/images/coin-icon.png" alt="Coins" className="w-full h-full object-cover scale-150" />
               </div>
-              <span className="text-sm font-bold">{dbUser?.coins || 0}</span>
+              <span className="text-xs sm:text-sm font-bold">{dbUser?.coins || 0}</span>
             </motion.div>
 
             {/* Chat Credits Stats */}
@@ -176,17 +176,17 @@ export function Navbar() {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 className={cn(
-                  "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors",
+                  "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-colors",
                   chatLimit.remaining > 0
                     ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
                     : "bg-destructive/10 border-destructive/20 text-destructive"
                 )}
                 title={chatLimit.type === 'PRO' ? "Daily AI Credits (75 per day)" : "Trial Credits (7 per 2h)"}
               >
-                <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shrink-0">
                   <img src="/images/ai-avatar.png" alt="AI" className="w-full h-full object-contain" />
                 </div>
-                <span className="text-sm font-bold">{chatLimit.remaining}/{chatLimit.limit}</span>
+                <span className="text-xs sm:text-sm font-bold">{chatLimit.remaining}/{chatLimit.limit}</span>
               </motion.div>
             )}
 

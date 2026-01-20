@@ -217,15 +217,15 @@ export default function LessonModulePage() {
                                     components={{
                                         h1: ({ children }) => <h2 className="text-2xl font-black mt-12 mb-6 border-l-4 border-indigo-500 pl-4">{children}</h2>,
                                         h2: ({ children }) => <h3 className="text-xl font-extrabold mt-10 mb-4 text-indigo-400">{children}</h3>,
-                                        p: ({ children }) => <p className="text-slate-300 leading-relaxed mb-6 text-lg">{children}</p>,
+                                        p: ({ children }) => <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-6 text-lg">{children}</p>,
                                         blockquote: ({ children }) => (
-                                            <div className="my-8 p-6 bg-indigo-500/10 border-l-4 border-indigo-500 rounded-r-2xl italic text-indigo-100 shadow-inner">
+                                            <div className="my-8 p-6 bg-indigo-500/10 border-l-4 border-indigo-500 rounded-r-2xl italic text-indigo-900 dark:text-indigo-100 shadow-inner">
                                                 {children}
                                             </div>
                                         ),
                                         ul: ({ children }) => <ul className="space-y-3 mb-8 list-none pl-0">{children}</ul>,
                                         li: ({ children }) => (
-                                            <li className="flex gap-3 text-slate-300 text-lg">
+                                            <li className="flex gap-3 text-slate-600 dark:text-slate-300 text-lg">
                                                 <div className="mt-1.5 h-2 w-2 rounded-full bg-indigo-500 shrink-0" />
                                                 <span>{children}</span>
                                             </li>
@@ -236,8 +236,8 @@ export default function LessonModulePage() {
                                             </div>
                                         ),
                                         thead: ({ children }) => <thead className="bg-indigo-500/10">{children}</thead>,
-                                        th: ({ children }) => <th className="p-4 text-sm font-black uppercase text-indigo-300 border-b border-border/50">{children}</th>,
-                                        td: ({ children }) => <td className="p-4 text-base border-b border-border/10 text-slate-300">{children}</td>,
+                                        th: ({ children }) => <th className="p-4 text-sm font-black uppercase text-indigo-700 dark:text-indigo-300 border-b border-border/50">{children}</th>,
+                                        td: ({ children }) => <td className="p-4 text-base border-b border-border/10 text-slate-600 dark:text-slate-300">{children}</td>,
                                         hr: () => <hr className="my-12 border-border/30" />,
                                     }}
                                 >
@@ -283,10 +283,10 @@ export default function LessonModulePage() {
                             </Button>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 {/* Sidebar Sticky Navigation / Quick Info */}
-                <div className="lg:col-span-4 space-y-6">
+                < div className="lg:col-span-4 space-y-6" >
                     <div className="sticky top-24 space-y-6">
                         <Card className="bg-indigo-600 border-none text-white overflow-hidden relative">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16" />
@@ -302,8 +302,8 @@ export default function LessonModulePage() {
                             </CardContent>
                         </Card>
                     </div>
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     );
 }

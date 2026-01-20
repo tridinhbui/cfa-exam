@@ -153,10 +153,6 @@ export default function StudyPlanPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <Bell className="h-4 w-4 mr-2" />
-            Reminders
-          </Button>
           <Button variant="outline" size="sm" onClick={() => setIsCustomizeOpen(true)}>
             <Settings className="h-4 w-4 mr-2" />
             Customize

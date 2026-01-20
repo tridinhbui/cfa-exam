@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Loader2, Sparkles, MessageCircle, X, Trash2, RotateCcw, ImageIcon, Paperclip, UploadCloud, ChevronDown, History, Settings, Search, Edit2, Check } from 'lucide-react';
+import { Send, Bot, User, Loader2, Sparkles, MessageCircle, X, Trash2, RotateCcw, ImageIcon, Paperclip, UploadCloud, ChevronDown, History, Settings, Search, Edit2, Check, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -60,9 +60,17 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
     const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
     const [editingTitle, setEditingTitle] = useState('');
+    const [isMobile, setIsMobile] = useState(false);
     const isProcessingRename = useRef(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         if (isOpen && firebaseUser) {
@@ -339,7 +347,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className="max-w-[98vw] w-[1600px] h-[90vh] p-0 overflow-hidden border border-border bg-background rounded-[2.5rem] shadow-2xl flex flex-col gap-0 outline-none select-none [&>button]:hidden z-[60]"
+                className="max-w-[98vw] w-[1100px] h-[85vh] p-0 overflow-hidden border border-border bg-background rounded-[2.5rem] shadow-2xl flex flex-col gap-0 outline-none select-none [&>button]:hidden z-[60]"
             >
                 {/* Drag Overlay */}
                 <AnimatePresence>
@@ -365,7 +373,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                         {isSidebarOpen && (
                             <motion.div
                                 initial={{ width: 0, opacity: 0 }}
-                                animate={{ width: 280, opacity: 1 }}
+                                animate={{ width: isMobile ? 180 : 280, opacity: 1 }}
                                 exit={{ width: 0, opacity: 0 }}
                                 className="bg-muted/30 dark:bg-[#171717] flex flex-col overflow-hidden border-r border-border shrink-0"
                             >
@@ -505,18 +513,16 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                     {/* Main Chat Area */}
                     <div className="flex-1 flex flex-col relative overflow-hidden bg-card/50 dark:bg-[#212121]">
                         {/* Compact Header */}
-                        <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-background/80 backdrop-blur-md z-10 shrink-0">
-                            <div className="flex items-center gap-3">
-                                {!isSidebarOpen && (
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => setIsSidebarOpen(true)}
-                                        className="text-muted-foreground hover:text-foreground hover:bg-accent"
-                                    >
-                                        <History className="w-5 h-5" />
-                                    </Button>
-                                )}
+                        <header className="h-12 sm:h-14 border-b border-border flex items-center justify-between px-3 sm:px-4 bg-background/80 backdrop-blur-md z-10 shrink-0">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                                    className="text-muted-foreground hover:text-foreground hover:bg-accent"
+                                >
+                                    <Menu className="w-5 h-5" />
+                                </Button>
                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-accent cursor-pointer transition-colors">
                                     <DialogTitle className="font-bold text-foreground text-sm">
                                         CFA AI Advisor
@@ -538,9 +544,9 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                     variant="ghost"
                                     size="icon"
                                     onClick={onClose}
-                                    className="w-10 h-10 rounded-xl hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+                                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
                                 >
-                                    <X className="w-6 h-6" />
+                                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </Button>
                             </div>
                         </header>
@@ -549,10 +555,10 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                             ref={scrollRef}
                             className="flex-1 overflow-y-auto custom-scrollbar-thick select-auto overscroll-contain"
                         >
-                            <div className="max-w-4xl mx-auto py-8">
+                            <div className="max-w-3xl mx-auto py-4 sm:py-8">
                                 {messages.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center py-32 text-center space-y-6">
-                                        <div className="w-20 h-20 rounded-3xl bg-accent flex items-center justify-center p-1.5 border border-border shadow-xl hover:scale-105 transition-transform duration-500">
+                                    <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-center space-y-4 sm:space-y-6">
+                                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-accent flex items-center justify-center p-1 sm:p-1.5 border border-border shadow-xl hover:scale-105 transition-transform duration-500">
                                             <img src="/images/ai-avatar.png" alt="AI Advisor" className="w-full h-full object-contain rounded-2xl" />
                                         </div>
                                         <h2 className="text-3xl font-bold tracking-tight text-foreground">
@@ -563,7 +569,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
 
                                 {messages.map((m, idx) => (
                                     <div key={idx} className={`group w-full border-b border-border/30 last:border-0 ${m.role === 'user' ? 'bg-muted/30' : ''}`}>
-                                        <div className={`max-w-3xl mx-auto px-4 py-8 flex gap-4 md:gap-6 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                        <div className={`max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-8 flex gap-3 sm:gap-4 md:gap-6 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                                             <div className="shrink-0">
                                                 {m.role === 'assistant' ? (
                                                     <div className="w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 shadow-lg p-0.5 bg-background">
@@ -576,10 +582,10 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                                 )}
                                             </div>
                                             <div className={`flex-1 min-w-0 space-y-2 ${m.role === 'user' ? 'text-right' : ''}`}>
-                                                <div className={`font-bold text-[13px] text-muted-foreground flex items-center gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                                <div className={`font-bold text-[12px] sm:text-[13px] text-muted-foreground flex items-center gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                                                     {m.role === 'assistant' ? 'AI Advisor' : 'You'}
                                                 </div>
-                                                <div className="prose dark:prose-invert prose-indigo max-w-none break-words text-[15px] leading-relaxed text-foreground antialiased shadow-indigo-500/10">
+                                                <div className="prose dark:prose-invert prose-indigo max-w-none break-words text-[14px] sm:text-[15px] leading-relaxed text-foreground antialiased shadow-indigo-500/10">
                                                     {m.image && (
                                                         <motion.div
                                                             initial={{ opacity: 0, scale: 0.95 }}
@@ -622,12 +628,12 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                         </div>
                                     </div>
                                 )}
-                                <div className="h-40" />
+                                <div className="h-32 sm:h-40" />
                             </div>
                         </div>
 
                         {/* Floating Input Bar */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-12 pb-8 px-4">
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-6 sm:pt-12 pb-4 sm:pb-8 px-2 sm:px-4">
                             <div className="max-w-3xl mx-auto relative">
                                 <form
                                     onSubmit={(e) => { e.preventDefault(); handleSend(); }}
@@ -665,7 +671,7 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                         onPaste={handlePaste}
                                         placeholder="Message CFA AI Advisor..."
                                         rows={1}
-                                        className="flex-1 bg-transparent border-0 focus:ring-0 text-foreground placeholder:text-muted-foreground/30 py-3.5 resize-none max-h-48 custom-scrollbar min-h-[52px] text-[15px] leading-relaxed"
+                                        className="flex-1 bg-transparent border-0 focus:ring-0 text-foreground placeholder:text-muted-foreground/30 py-3 resize-none max-h-48 custom-scrollbar min-h-[48px] sm:min-h-[52px] text-[16px] sm:text-[15px] leading-relaxed"
                                     />
 
                                     <Button
