@@ -123,19 +123,19 @@ export function HeroSection({ user }: HeroSectionProps) {
                 {/* Proof Highlights Row */}
                 <div className="mt-16 sm:mt-24 relative z-20">
                     <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-16">
-                        <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-3">
                             <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <span className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 font-medium">Free 30 Questions Daily</span>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-3">
                             <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-400 shrink-0" />
                             <span className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 font-medium">Real Exam Timing</span>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-3">
                             <Target className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600 dark:text-indigo-400 shrink-0" />
                             <span className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 font-medium">LOS Aligned</span>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-3">
                             <Users className="h-5 w-5 sm:h-6 sm:w-6 text-violet-600 dark:text-violet-400 shrink-0" />
                             <span className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 font-medium">50,000+ Users</span>
                         </div>
