@@ -60,16 +60,16 @@ export async function POST(req: NextRequest) {
             const [questions, quizQuestions, lessonChunks] = await Promise.all([
                 prisma.$queryRawUnsafe<any[]>(`
                     SELECT content, explanation, 'Practice Question' as source, '' as metadata, (embedding <=> $1::vector) as distance
-                    FROM "Question" WHERE embedding IS NOT NULL ORDER BY embedding <=> $1::vector LIMIT 6
+                    FROM "Question" WHERE embedding IS NOT NULL ORDER BY embedding <=> $1::vector LIMIT 7
                 `, vectorStr),
                 prisma.$queryRawUnsafe<any[]>(`
                     SELECT prompt as content, explanation, 'Module Quiz' as source, '' as metadata, (embedding <=> $1::vector) as distance
-                    FROM "ModuleQuizQuestion" WHERE embedding IS NOT NULL ORDER BY embedding <=> $1::vector LIMIT 6
+                    FROM "ModuleQuizQuestion" WHERE embedding IS NOT NULL ORDER BY embedding <=> $1::vector LIMIT 7
                 `, vectorStr),
                 prisma.$queryRawUnsafe<any[]>(`
                     SELECT lc.content, '' as explanation, CONCAT('Lesson: ', m.code, ' - ', m.title) as source, lc.type::text as metadata, (lc.embedding <=> $1::vector) as distance
                     FROM "LessonChunk" lc JOIN "Module" m ON lc."moduleId" = m.id
-                    WHERE lc.embedding IS NOT NULL ORDER BY lc.embedding <=> $1::vector LIMIT 6
+                    WHERE lc.embedding IS NOT NULL ORDER BY lc.embedding <=> $1::vector LIMIT 7
                 `, vectorStr)
             ]);
 
@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Select Model Based on Subscription
-        const chatModel = isPro ? 'gpt-5-mini' : 'gpt-5-nano';
+        const chatModel = isPro ? 'gpt-4o-mini' : 'gpt-4o-mini';
 
         console.log(`[Chat API] Model: ${chatModel}, isGlobal: ${isGlobal}, hasImage: ${!!image}, User: ${isPro ? 'PRO' : 'FREE'}`);
 
