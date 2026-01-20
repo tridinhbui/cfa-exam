@@ -9,12 +9,12 @@ export function FeaturesSection() {
     return (
         <section id="features" className="py-24 relative bg-slate-100/50 dark:bg-slate-900/30">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-20">
-                    <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm">Features</span>
-                    <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mt-3 mb-6">
+                <div className="text-center mb-12 sm:mb-20">
+                    <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-xs sm:text-sm">Features</span>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mt-3 mb-4 sm:mb-6 leading-tight">
                         Designed for CFA Exam Success
                     </h2>
-                    <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    <p className="text-base sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-4">
                         Our comprehensive platform covers all CFA levels with AI-driven tools designed
                         to maximize your learning efficiency.
                     </p>

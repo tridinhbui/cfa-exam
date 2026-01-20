@@ -35,9 +35,9 @@ export function WhyChooseUsSection() {
     return (
         <section id="why-us" className="py-24 relative overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
-                    <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-sm">The Advantage</span>
-                    <h2 className="text-4xl font-bold text-slate-900 dark:text-white mt-3 mb-6">
+                <div className="text-center mb-12 sm:mb-16">
+                    <span className="text-indigo-600 dark:text-indigo-400 font-semibold tracking-wider uppercase text-xs sm:text-sm">The Advantage</span>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mt-3 mb-4 sm:mb-6">
                         Why MentisAI?
                     </h2>
                 </div>

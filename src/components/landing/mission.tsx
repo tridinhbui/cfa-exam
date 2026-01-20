@@ -6,9 +6,9 @@ import { MissionChat } from '@/components/mission-chat';
 
 export function MissionSection() {
     return (
-        <section id="mission" className="py-24 bg-white/40 dark:bg-slate-950/50 border-y border-slate-200 dark:border-white/5 relative overflow-hidden">
+        <section id="mission" className="py-16 sm:py-24 bg-white/40 dark:bg-slate-950/50 border-y border-slate-200 dark:border-white/5 relative overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
                         whileInView={{ opacity: 1, x: 0 }}

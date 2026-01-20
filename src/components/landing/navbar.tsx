@@ -5,8 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { logout } from '@/lib/auth-utils';
 import { User } from 'firebase/auth';
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 
 interface LandingNavbarProps {
     user: User | null;
@@ -15,6 +18,16 @@ interface LandingNavbarProps {
 }
 
 export function LandingNavbar({ user, dbUserSubscription, loadingState }: LandingNavbarProps) {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const navLinks = [
+        { name: 'Mission', href: '#mission' },
+        { name: 'Features', href: '#features' },
+        { name: 'Why MentisAI?', href: '#why-us' },
+        { name: 'Curriculum', href: '#curriculum' },
+        ...(dbUserSubscription !== 'PRO' ? [{ name: 'Pricing', href: '#pricing' }] : []),
+    ];
+
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 light:border-slate-200 bg-slate-950/60 light:bg-white/80 backdrop-blur-xl transition-all duration-300">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -53,50 +66,110 @@ export function LandingNavbar({ user, dbUserSubscription, loadingState }: Landin
                         </motion.span>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-8">
-                        <Link href="#mission" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Mission</Link>
-                        <Link href="#features" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Features</Link>
-                        <Link href="#why-us" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Why MentisAI?</Link>
-                        <Link href="#curriculum" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Curriculum</Link>
-                        {dbUserSubscription !== 'PRO' && (
-                            <Link href="#pricing" className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors">Pricing</Link>
-                        )}
+                    <div className="hidden lg:flex items-center gap-8">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                href={link.href}
+                                className="text-sm font-medium text-slate-400 light:text-slate-600 hover:text-white light:hover:text-indigo-600 transition-colors"
+                            >
+                                {link.name}
+                            </Link>
+                        ))}
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle />
-                        {user ? (
-                            <div className="flex items-center gap-4">
-                                <span className="text-sm text-slate-300 light:text-slate-600 hidden sm:inline-block">Hi, {user.displayName?.split(' ')[0]}</span>
-                                <Link href="/dashboard">
-                                    <Button variant="ghost" className="text-slate-300 light:text-slate-600 hover:text-white light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-200">Dashboard</Button>
-                                </Link>
-                                <Button
-                                    onClick={async () => {
-                                        await logout();
-                                        window.location.reload();
-                                    }}
-                                    variant="ghost"
-                                    className="text-rose-400 light:text-rose-600 hover:text-rose-300 light:hover:text-rose-700 hover:bg-rose-500/10 light:hover:bg-rose-50"
-                                >
-                                    Logout
-                                </Button>
-                            </div>
-                        ) : (
-                            <>
+                    <div className="flex items-center gap-3">
+                        <div className="hidden sm:flex items-center gap-4">
+                            <ThemeToggle />
+                            {user ? (
+                                <div className="flex items-center gap-4">
+                                    <span className="text-sm text-slate-300 light:text-slate-600 hidden xl:inline-block truncate max-w-[100px]">Hi, {user.displayName?.split(' ')[0]}</span>
+                                    <Link href="/dashboard">
+                                        <Button variant="ghost" className="text-slate-300 light:text-slate-600 hover:text-white light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-200">Dashboard</Button>
+                                    </Link>
+                                </div>
+                            ) : (
                                 <Link href="/login">
                                     <Button variant="ghost" className="text-slate-300 light:text-slate-600 hover:text-white light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-200">Sign In</Button>
                                 </Link>
-                                <Link href={user ? "/dashboard" : "/login"}>
-                                    <Button className="bg-white light:bg-indigo-600 text-slate-900 light:text-white hover:bg-slate-100 light:hover:bg-indigo-700 font-semibold shadow-[0_0_20px_rgba(255,255,255,0.2)] light:shadow-indigo-500/20 transition-transform hover:scale-[1.02]">
-                                        Get Started
-                                    </Button>
-                                </Link>
-                            </>
-                        )}
+                            )}
+                        </div>
+
+                        {/* Mobile Menu Toggle */}
+                        <div className="lg:hidden flex items-center gap-3">
+                            <ThemeToggle />
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="p-2 text-slate-400 hover:text-white transition-colors"
+                            >
+                                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            </button>
+                        </div>
+
+                        {/* CTA - visible on all screens but maybe smaller on mobile */}
+                        <Link href={user ? "/dashboard" : "/login"} className="hidden sm:block">
+                            <Button className="bg-white light:bg-indigo-600 text-slate-900 light:text-white hover:bg-slate-100 light:hover:bg-indigo-700 font-semibold shadow-[0_0_20px_rgba(255,255,255,0.2)] light:shadow-indigo-500/20 transition-transform hover:scale-[1.02]">
+                                Get Started
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="lg:hidden border-t border-white/5 bg-slate-950/95 backdrop-blur-2xl overflow-hidden"
+                    >
+                        <div className="px-4 py-6 space-y-4">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.name}
+                                    href={link.href}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block text-lg font-medium text-slate-400 hover:text-white py-2 border-b border-white/5"
+                                >
+                                    {link.name}
+                                </Link>
+                            ))}
+                            <div className="pt-4 flex flex-col gap-4">
+                                {user ? (
+                                    <>
+                                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <Button className="w-full justify-between" variant="ghost">
+                                                Dashboard <ArrowRight className="h-4 w-4" />
+                                            </Button>
+                                        </Link>
+                                        <Button
+                                            onClick={async () => {
+                                                await logout();
+                                                window.location.reload();
+                                            }}
+                                            variant="ghost"
+                                            className="w-full justify-start text-rose-400"
+                                        >
+                                            Logout
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <Button className="w-full" variant="ghost">Sign In</Button>
+                                        </Link>
+                                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <Button className="w-full bg-white text-slate-900">Get Started</Button>
+                                        </Link>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 }
