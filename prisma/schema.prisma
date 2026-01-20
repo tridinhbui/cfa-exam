@@ -16,6 +16,7 @@ model User {
   image                  String?
   cfaLevel               CFALevel             @default(LEVEL_1)
   subscription           SubscriptionType     @default(FREE)
+  role                   UserRole             @default(USER)
   subscriptionEndsAt     DateTime?
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
@@ -432,4 +433,9 @@ enum ChunkType {
   EXAMPLE
   KEY_CONCEPT
   QUIZ
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
