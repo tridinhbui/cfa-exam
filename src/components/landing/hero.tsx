@@ -105,15 +105,15 @@ export function HeroSection({ user }: HeroSectionProps) {
                         <motion.div
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -top-6 -right-6 p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 backdrop-blur-md shadow-xl z-20 hidden md:block"
+                            className="absolute -top-4 -right-2 sm:-top-6 sm:-right-6 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 backdrop-blur-md shadow-xl z-20 scale-75 sm:scale-100"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center">
-                                    <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center">
+                                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Daily Progress</p>
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">+12.4%</p>
+                                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Daily Progress</p>
+                                    <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">+12.4%</p>
                                 </div>
                             </div>
                         </motion.div>

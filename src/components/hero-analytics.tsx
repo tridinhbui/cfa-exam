@@ -30,32 +30,32 @@ export function HeroAnalytics() {
                     <div className="w-3 h-3 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.4)] light:shadow-[0_0_8px_rgba(245,158,11,0.2)]" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.4)] light:shadow-[0_0_8px_rgba(16,185,129,0.2)]" />
                 </div>
-                <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-800/50 light:bg-white rounded-md border border-white/5 light:border-slate-200 w-64">
-                    <div className="w-2 h-2 rounded-full bg-slate-600 light:bg-slate-300" />
-                    <span className="text-[10px] text-slate-500 light:text-slate-400 font-medium">cfa-prep.ai/dashboard</span>
+                <div className="flex items-center gap-2 px-2 sm:px-3 py-1 bg-slate-800/50 light:bg-white rounded-md border border-white/5 light:border-slate-200 flex-1 sm:max-w-[256px] mx-4 sm:mx-0">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-slate-600 light:bg-slate-300 shrink-0" />
+                    <span className="text-[8px] sm:text-[10px] text-slate-500 light:text-slate-400 font-medium truncate">cfa-prep.ai/dashboard</span>
                 </div>
-                <div className="w-16" /> {/* Spacer */}
+                <div className="w-8 sm:w-16" /> {/* Spacer */}
             </div>
 
             {/* --- MAIN LAYOUT (Sidebar + Content) --- */}
             <div className="flex-1 flex overflow-hidden">
                 {/* SIDEBAR MOCKUP */}
-                <div className="w-48 bg-slate-900/50 light:bg-slate-50/50 border-r border-white/5 light:border-slate-200 p-4 flex flex-col gap-6 hidden md:flex">
+                <div className="w-12 sm:w-48 bg-slate-900/50 light:bg-slate-50/50 border-r border-white/5 light:border-slate-200 p-2 sm:p-4 flex flex-col gap-4 sm:gap-6">
                     <div className="flex items-center gap-2 opacity-50 light:opacity-30">
-                        <div className="w-6 h-6 rounded-md bg-indigo-500/20" />
-                        <div className="h-3 w-20 bg-slate-700/50 light:bg-slate-300 rounded-full" />
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-indigo-500/20" />
+                        <div className="hidden sm:block h-3 w-20 bg-slate-700/50 light:bg-slate-300 rounded-full" />
                     </div>
 
                     <div className="space-y-3">
                         {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className={`flex items-center gap-3 p-2 rounded-lg ${i === 1 ? 'bg-indigo-500/10 light:bg-indigo-50' : ''}`}>
-                                <div className={`w-4 h-4 rounded ${i === 1 ? 'bg-indigo-500 light:bg-indigo-600 text-indigo-100' : 'bg-slate-800 light:bg-slate-200'}`} />
-                                <div className={`h-2 rounded-full ${i === 1 ? 'w-24 bg-indigo-300 light:bg-indigo-600' : 'w-16 bg-slate-800 light:bg-slate-200'}`} />
+                            <div key={i} className={`flex items-center gap-3 p-1.5 sm:p-2 rounded-lg ${i === 1 ? 'bg-indigo-500/10 light:bg-indigo-50' : ''}`}>
+                                <div className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded shrink-0 ${i === 1 ? 'bg-indigo-500 light:bg-indigo-600 text-indigo-100' : 'bg-slate-800 light:bg-slate-200'}`} />
+                                <div className={`hidden sm:block h-2 rounded-full ${i === 1 ? 'w-24 bg-indigo-300 light:bg-indigo-600' : 'w-16 bg-slate-800 light:bg-slate-200'}`} />
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-auto space-y-2">
+                    <div className="mt-auto space-y-2 hidden sm:block">
                         <div className="h-20 rounded-xl bg-gradient-to-br from-indigo-900/20 to-violet-900/20 border border-white/5" />
                     </div>
                 </div>
