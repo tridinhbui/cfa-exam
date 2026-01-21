@@ -176,6 +176,7 @@ export function Navbar() {
             <ThemeToggle />
 
             <Button
+              id="tour-global-chat"
               variant="outline"
               size="icon"
               className="rounded-full bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/30 transition-all shadow-lg shadow-indigo-500/5 group"
