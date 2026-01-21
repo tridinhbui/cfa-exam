@@ -169,7 +169,7 @@ export default function AdminSupportPage() {
 
                         {/* Messages - Scrollable Middle Area */}
                         <div
-                            className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 overscroll-contain"
+                            className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                             ref={scrollRef}
                             onWheel={(e) => e.stopPropagation()}
                         >
