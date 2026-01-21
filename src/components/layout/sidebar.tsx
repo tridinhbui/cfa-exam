@@ -137,6 +137,28 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          {/* Admin Only Section */}
+          {dbUser?.role === 'ADMIN' && (
+            <div className="pt-4 mt-4 border-t border-border">
+              <span className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 block">Admin Ops</span>
+              <Link href="/admin/feedback">
+                <motion.div
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
+                    pathname === '/admin/feedback'
+                      ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-lg shadow-rose-500/25'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  )}
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <TrendingUp className="h-5 w-5" />
+                  Admin Feedback
+                </motion.div>
+              </Link>
+            </div>
+          )}
         </nav>
 
         {/* Exam Countdown */}

@@ -7,6 +7,7 @@ interface User {
   name: string | null;
   cfaLevel: 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
   subscription: 'FREE' | 'PRO';
+  role: 'USER' | 'ADMIN';
   coins: number;
   hasCompletedOnboarding: boolean;
 }
