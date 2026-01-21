@@ -86,6 +86,15 @@ export function OnboardingTour() {
                         align: 'start'
                     }
                 },
+                {
+                    element: '#tour-global-chat',
+                    popover: {
+                        title: 'AI Study Assistant',
+                        description: 'Stuck on a difficult concept? Click here to chat with our advanced AI mentor anytime for instant explanations.',
+                        side: 'left',
+                        align: 'end'
+                    }
+                },
             ],
             onDestroyStarted: async () => {
                 // If user skips or completes, mark as finished
