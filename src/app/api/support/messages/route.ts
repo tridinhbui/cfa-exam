@@ -8,6 +8,16 @@ export async function GET(req: NextRequest) {
     if (auth.error) return authErrorResponse(auth);
 
     try {
+        // Mark all unread messages from admin as read
+        await (prisma as any).supportMessage.updateMany({
+            where: {
+                userId: auth.uid,
+                isAdmin: true,
+                isRead: false
+            },
+            data: { isRead: true }
+        });
+
         const messages = await (prisma as any).supportMessage.findMany({
             where: { userId: auth.uid },
             orderBy: { createdAt: 'asc' },
