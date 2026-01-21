@@ -37,6 +37,21 @@ model User {
   moduleProgress         UserModuleProgress[]
   wrongQuestions         WrongQuestion[]
   feedbacks              Feedback[]
+  supportMessages        SupportMessage[]
+}
+
+model SupportMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String   @db.Text
+  isAdmin   Boolean  @default(false)
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Topic {

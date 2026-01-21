@@ -22,6 +22,7 @@ import { Progress } from '@/components/ui/progress';
 import { useExamStore } from '@/store/exam-store';
 import { FeedbackModal } from '@/components/feedback-modal';
 import { useAuthenticatedSWR } from '@/hooks/use-authenticated-swr';
+import { useUiStore } from '@/store/ui-store';
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3, id: 'tour-dashboard' },
@@ -34,8 +35,8 @@ const mainNavItems = [
 ];
 
 const bottomNavItems = [
-  { label: 'Feedback', icon: MessageSquare, id: 'btn-feedback' },
-  { href: '/help', label: 'Help & Support', icon: HelpCircle },
+  { id: 'btn-feedback', label: 'Feedback', icon: MessageSquare, href: '#' },
+  { id: 'btn-support', label: 'Help & Support', icon: HelpCircle, href: '#' },
 ];
 
 import { useAuth } from '@/context/auth-context';
@@ -61,7 +62,20 @@ export function Sidebar() {
   };
 
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const setSupportModalOpen = useUiStore((state) => state.setSupportModalOpen);
   const dbUser = useUserStore((state) => state.user);
+
+  // Fetch unread support messages count for Admin
+  const { data: unreadSupport } = useAuthenticatedSWR<{ count: number }>(
+    dbUser?.role === 'ADMIN' ? '/api/admin/support/unread-count' : null,
+    { refreshInterval: 10000 }
+  );
+
+  // Fetch unread support messages count for User
+  const { data: userUnreadSupport } = useAuthenticatedSWR<{ count: number }>(
+    dbUser?.role !== 'ADMIN' ? '/api/support/unread-count' : null,
+    { refreshInterval: 10000 }
+  );
 
   const dailyGoal = 30;
   const progressValue = Math.min((stats.questionsToday / dailyGoal) * 100, 100);
@@ -157,6 +171,28 @@ export function Sidebar() {
                   Admin Feedback
                 </motion.div>
               </Link>
+              <Link href="/admin/support">
+                <motion.div
+                  className={cn(
+                    'flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all mt-1',
+                    pathname === '/admin/support'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  )}
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="h-5 w-5" />
+                    Admin Support
+                  </div>
+                  {unreadSupport && unreadSupport.count > 0 && (
+                    <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold shadow-sm">
+                      {unreadSupport.count}
+                    </span>
+                  )}
+                </motion.div>
+              </Link>
             </div>
           )}
         </nav>
@@ -173,38 +209,61 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* Bottom Navigation */}
-        <div className="pt-4 border-t border-border space-y-1">
-          {bottomNavItems.map((item) => {
-            const Icon = item.icon;
+        {/* Bottom Navigation - Hidden on admin pages for cleaner focus */}
+        {!(pathname?.includes('/admin')) && (
+          <div className="pt-4 border-t border-border space-y-1">
+            {bottomNavItems.map((item) => {
+              const Icon = item.icon;
 
-            if (item.id === 'btn-feedback') {
+              if (item.id === 'btn-feedback') {
+                return (
+                  <motion.div
+                    key={item.label}
+                    onClick={() => setIsFeedbackOpen(true)}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
+                    whileHover={{ x: 4 }}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </motion.div>
+                );
+              }
+
+              if (item.id === 'btn-support') {
+                return (
+                  <motion.div
+                    key={item.label}
+                    onClick={() => setSupportModalOpen(true)}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
+                    whileHover={{ x: 4 }}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                      {userUnreadSupport && userUnreadSupport.count > 0 && (
+                        <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold shadow-sm ml-auto">
+                          {userUnreadSupport.count}
+                        </span>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              }
+
               return (
-                <motion.div
-                  key={item.label}
-                  onClick={() => setIsFeedbackOpen(true)}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
-                  whileHover={{ x: 4 }}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </motion.div>
+                <Link key={item.label} href={item.href || '#'}>
+                  <motion.div
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+                    whileHover={{ x: 4 }}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </motion.div>
+                </Link>
               );
-            }
-
-            return (
-              <Link key={item.label} href={item.href || '#'}>
-                <motion.div
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
-                  whileHover={{ x: 4 }}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </motion.div>
-              </Link>
-            );
-          })}
-        </div>
+            })}
+          </div>
+        )}
       </div>
 
       <FeedbackModal

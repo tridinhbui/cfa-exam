@@ -21,6 +21,8 @@ import {
   Bot,
   Library,
   MessageSquare,
+  TrendingUp,
+  HelpCircle,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -42,6 +44,7 @@ import { useUserStore } from '@/store/user-store';
 import { ProfileModal } from '@/components/profile-modal';
 import { GlobalChatbot } from '@/components/chat/global-chatbot';
 import { FeedbackModal } from '@/components/feedback-modal';
+import { useUiStore } from '@/store/ui-store';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -60,6 +63,7 @@ export function Navbar() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const setSupportModalOpen = useUiStore((state) => state.setSupportModalOpen);
 
   const handleLogout = async () => {
     await logout();
@@ -329,16 +333,69 @@ export function Navbar() {
               );
             })}
 
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setIsFeedbackOpen(true);
-              }}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full text-left transition-colors"
-            >
-              <MessageSquare className="h-5 w-5" />
-              Feedback
-            </button>
+            {/* Admin Section (Mobile) */}
+            {dbUser?.role === 'ADMIN' && (
+              <div className="pt-4 border-t border-border mt-4">
+                <span className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 block">Admin Ops</span>
+                <Link
+                  href="/admin/feedback"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div
+                    className={cn(
+                      'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                      pathname === '/admin/feedback'
+                        ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    )}
+                  >
+                    <TrendingUp className="h-5 w-5" />
+                    Admin Feedback
+                  </div>
+                </Link>
+                <Link
+                  href="/admin/support"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div
+                    className={cn(
+                      'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all mt-1',
+                      pathname === '/admin/support'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    )}
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    Admin Support
+                  </div>
+                </Link>
+              </div>
+            )}
+
+            {!pathname?.includes('/admin') && (
+              <>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsFeedbackOpen(true);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full text-left transition-colors"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                  Feedback
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setSupportModalOpen(true);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full text-left transition-colors"
+                >
+                  <HelpCircle className="h-5 w-5" />
+                  Help & Support
+                </button>
+              </>
+            )}
 
             <div className="pt-4 border-t border-border mt-4">
               <button
