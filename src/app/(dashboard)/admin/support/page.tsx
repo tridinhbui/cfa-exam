@@ -85,6 +85,14 @@ export default function AdminSupportPage() {
         }
     };
 
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter conversations based on search
+    const filteredConversations = conversations?.filter(conv =>
+        conv.user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const selectedConv = conversations?.find(c => c.user.id === selectedUserId);
 
     return (
@@ -101,19 +109,23 @@ export default function AdminSupportPage() {
                         <Input
                             placeholder="Search users..."
                             className="pl-10 h-10 bg-white dark:bg-slate-800 border-slate-200 dark:border-white/5 rounded-xl"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    {conversations?.length === 0 ? (
+                    {filteredConversations?.length === 0 ? (
                         <div className="p-10 text-center text-slate-400">
                             <MessageSquare className="h-10 w-10 mx-auto mb-2 opacity-20" />
-                            <p className="text-sm">No conversations yet</p>
+                            <p className="text-sm">
+                                {searchQuery ? 'No matching users found' : 'No conversations yet'}
+                            </p>
                         </div>
                     ) : (
                         <div className="divide-y divide-slate-100 dark:divide-white/5">
-                            {conversations?.map((conv) => (
+                            {filteredConversations?.map((conv) => (
                                 <button
                                     key={conv.user.id}
                                     onClick={() => setSelectedUserId(conv.user.id)}
