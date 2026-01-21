@@ -125,31 +125,7 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-              const Icon = item.icon;
-
-              return (
-                <Link key={item.href} href={item.href}>
-                  <motion.div
-                    className={cn(
-                      'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                      isActive
-                        ? 'bg-gradient-to-r from-indigo-600/20 to-violet-600/20 text-foreground border border-indigo-500/30'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                    )}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </motion.div>
-                </Link>
-              );
-            })}
-          </div>
+          {/* Desktop Navigation - Removed */}
 
           {/* Right side */}
           <div className="flex items-center gap-3">
@@ -205,8 +181,8 @@ export function Navbar() {
               className="rounded-full bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/30 transition-all shadow-lg shadow-indigo-500/5 group"
               onClick={() => setIsChatOpen(true)}
             >
-              <div className="w-full h-full p-1.5 group-hover:scale-110 transition-transform">
-                <img src="/images/ai-avatar.png" alt="Chat" className="w-full h-full object-contain" />
+              <div className="w-full h-full group-hover:scale-110 transition-transform overflow-hidden rounded-full">
+                <img src="/images/ai-avatar.png" alt="Chat" className="w-full h-full object-cover" />
               </div>
             </Button>
 
