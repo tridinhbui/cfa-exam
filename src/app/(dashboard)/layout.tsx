@@ -7,6 +7,8 @@ import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SupportChatModal } from '@/components/support-chat-modal';
+import { useUiStore } from '@/store/ui-store';
 
 export default function DashboardLayout({
   children,
@@ -15,6 +17,7 @@ export default function DashboardLayout({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { isSupportModalOpen, setSupportModalOpen } = useUiStore();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -53,6 +56,11 @@ export default function DashboardLayout({
       <main className="pt-16 lg:pl-64">
         <div className="p-6 lg:p-8">{children}</div>
       </main>
+
+      <SupportChatModal
+        isOpen={isSupportModalOpen}
+        onClose={() => setSupportModalOpen(false)}
+      />
     </div>
   );
 }
