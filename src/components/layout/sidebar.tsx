@@ -20,6 +20,8 @@ import {
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { useExamStore } from '@/store/exam-store';
+import { FeedbackModal } from '@/components/feedback-modal';
+import { useAuthenticatedSWR } from '@/hooks/use-authenticated-swr';
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3, id: 'tour-dashboard' },
@@ -32,7 +34,7 @@ const mainNavItems = [
 ];
 
 const bottomNavItems = [
-  { href: '/feedback', label: 'Feedback', icon: MessageSquare },
+  { label: 'Feedback', icon: MessageSquare, id: 'btn-feedback' },
   { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ];
 
@@ -46,35 +48,20 @@ export function Sidebar() {
   const { date: examDate, label: examLabel, daysRemaining } = useExamStore();
   const daysLeft = daysRemaining();
 
-  const [stats, setStats] = useState({
+  const localDate = new Date().toLocaleDateString('en-CA');
+  const { data: statsData } = useAuthenticatedSWR<any>(
+    user ? `/api/user/stats?userId=${user.uid}&date=${localDate}` : null
+  );
+
+  const stats = statsData || {
     currentStreak: 0,
     questionsToday: 0,
     correctToday: 0,
     coins: 0,
-  });
-  const dbUser = useUserStore((state) => state.user);
+  };
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!user) return;
-      try {
-        const token = await user.getIdToken();
-        const localDate = new Date().toLocaleDateString('en-CA');
-        const res = await fetch(`/api/user/stats?userId=${user.uid}&date=${localDate}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data = await res.json();
-        if (!data.error) {
-          setStats(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch sidebar stats:', err);
-      }
-    };
-    fetchStats();
-  }, [user]);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const dbUser = useUserStore((state) => state.user);
 
   const dailyGoal = 30;
   const progressValue = Math.min((stats.questionsToday / dailyGoal) * 100, 100);
@@ -169,8 +156,22 @@ export function Sidebar() {
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
 
+            if (item.id === 'btn-feedback') {
+              return (
+                <motion.div
+                  key={item.label}
+                  onClick={() => setIsFeedbackOpen(true)}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
+                  whileHover={{ x: 4 }}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </motion.div>
+              );
+            }
+
             return (
-              <Link key={item.href} href={item.href}>
+              <Link key={item.label} href={item.href || '#'}>
                 <motion.div
                   className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
                   whileHover={{ x: 4 }}
@@ -183,6 +184,11 @@ export function Sidebar() {
           })}
         </div>
       </div>
+
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+      />
     </aside>
   );
 }

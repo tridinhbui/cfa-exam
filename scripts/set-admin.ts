@@ -17,7 +17,8 @@ async function main() {
         console.log(`Successfully promoted ${email} to ADMIN`);
         console.log(user);
     } catch (error) {
-        console.error(`Error promoting user: ${error.message}`);
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`Error promoting user: ${message}`);
     } finally {
         await prisma.$disconnect();
     }

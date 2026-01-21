@@ -36,6 +36,7 @@ model User {
   transactions           Transaction[]
   moduleProgress         UserModuleProgress[]
   wrongQuestions         WrongQuestion[]
+  feedbacks              Feedback[]
 }
 
 model Topic {
@@ -438,4 +439,29 @@ enum ChunkType {
 enum UserRole {
   USER
   ADMIN
+}
+
+model Feedback {
+  id           String           @id @default(cuid())
+  userId       String
+  rating       Int
+  category     FeedbackCategory @default(GENERAL)
+  strengths    String?
+  weaknesses   String?
+  bugs         String?
+  improvements String?
+  content      String?
+  createdAt    DateTime         @default(now())
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum FeedbackCategory {
+  GENERAL
+  AI_ACCURACY
+  UI_UX
+  CONTENT
+  BUG
+  FEATURE_REQUEST
 }

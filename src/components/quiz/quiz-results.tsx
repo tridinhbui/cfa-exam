@@ -20,8 +20,10 @@ import { useUserStore } from '@/store/user-store';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/context/auth-context';
+import { useSWRConfig } from 'swr';
 
 export function QuizResults() {
+  const { mutate } = useSWRConfig();
   const { questions, answers, resetQuiz, timeSpent, mode, studyPlanItemId, isSynced,
     setSynced,
   } = useQuizStore();
@@ -78,6 +80,18 @@ export function QuizResults() {
         if (response.ok) {
           const data = await response.json();
           setSynced(true);
+
+          // Force fresh data on dashboard next time it mounts
+          mutate(
+            (key: any) => Array.isArray(key) && typeof key[0] === 'string' && (
+              key[0].includes('/api/user/stats') ||
+              key[0].includes('/api/quiz/topics') ||
+              key[0].includes('/api/user/activity')
+            ),
+            undefined,
+            { revalidate: true }
+          ).catch(err => console.error('SWR Mutate Error:', err));
+
           if (data.coinsAwarded > 0) {
             setCoinsAwarded(data.coinsAwarded);
             // Update local user store with new coins

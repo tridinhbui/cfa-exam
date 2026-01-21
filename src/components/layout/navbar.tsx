@@ -20,6 +20,7 @@ import {
   Coins,
   Bot,
   Library,
+  MessageSquare,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -40,6 +41,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { useUserStore } from '@/store/user-store';
 import { ProfileModal } from '@/components/profile-modal';
 import { GlobalChatbot } from '@/components/chat/global-chatbot';
+import { FeedbackModal } from '@/components/feedback-modal';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -57,6 +59,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -287,6 +290,11 @@ export function Navbar() {
         onClose={() => setIsChatOpen(false)}
       />
 
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+      />
+
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <motion.div
@@ -320,6 +328,17 @@ export function Navbar() {
                 </Link>
               );
             })}
+
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setIsFeedbackOpen(true);
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full text-left transition-colors"
+            >
+              <MessageSquare className="h-5 w-5" />
+              Feedback
+            </button>
 
             <div className="pt-4 border-t border-border mt-4">
               <button

@@ -362,3 +362,35 @@
 .driver-popover-arrow {
   border-color: rgba(15, 23, 42, 0.95) !important;
 }
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Premium Scrollbar - Subtle & Modern */
+.scrollbar-premium::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scrollbar-premium::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-premium::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.scrollbar-premium:hover::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.scrollbar-premium::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.4) !important;
+}
