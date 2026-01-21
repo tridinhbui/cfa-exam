@@ -156,7 +156,28 @@ export async function POST(req: Request) {
             }
         }
 
-        return NextResponse.json({ ...user, referralResult });
+        // Sanitize user object to prevent leaking sensitive data (Principle of Least Privilege)
+        const safeUser = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            cfaLevel: user.cfaLevel,
+            subscription: user.subscription,
+            subscriptionEndsAt: user.subscriptionEndsAt,
+            role: user.role,
+            createdAt: user.createdAt,
+            currentStreak: user.currentStreak,
+            longestStreak: user.longestStreak,
+            lastActiveAt: user.lastActiveAt,
+            coins: user.coins,
+            chatCount: user.chatCount,
+            chatResetTime: user.chatResetTime,
+            hasCompletedOnboarding: user.hasCompletedOnboarding,
+            hasRedeemedReferral: user.hasRedeemedReferral,
+        };
+
+        return NextResponse.json({ ...safeUser, referralResult });
     } catch (error) {
         console.error('Error syncing user:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
