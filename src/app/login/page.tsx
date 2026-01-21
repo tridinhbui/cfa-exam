@@ -66,6 +66,17 @@ export default function LoginPage() {
                 if (res.ok) {
                     const userData = await res.json();
                     useUserStore.getState().setUser(userData);
+
+                    // Show detailed feedback based on referral result
+                    if (referralCode.trim()) {
+                        if (userData.referralResult === 'SUCCESS') {
+                            // alert('Referral code applied successfully! You have 7 days of PRO access.');
+                        } else if (userData.referralResult === 'ALREADY_PRO') {
+                            alert('Note: Referral code not applied because you are already a PRO member.');
+                        } else if (userData.referralResult === 'ALREADY_REDEEMED') {
+                            alert('Note: You have already redeemed a referral code previously.');
+                        }
+                    }
                 }
             }
 
@@ -133,6 +144,17 @@ export default function LoginPage() {
                 if (res.ok) {
                     const userData = await res.json();
                     useUserStore.getState().setUser(userData);
+
+                    // Show detailed feedback based on referral result
+                    if (isSignUp && referralCode.trim()) {
+                        if (userData.referralResult === 'SUCCESS') {
+                            // alert('Referral code applied successfully!');
+                        } else if (userData.referralResult === 'ALREADY_PRO') {
+                            alert('Note: Referral code not applied because you are already a PRO member.');
+                        } else if (userData.referralResult === 'ALREADY_REDEEMED') {
+                            alert('Note: You have already redeemed a referral code previously.');
+                        }
+                    }
                 }
             }
 

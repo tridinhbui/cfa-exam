@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
         const existingUser = await prisma.user.findUnique({
             where: { email: normalizedEmail },
-            select: { currentStreak: true, longestStreak: true, lastActiveAt: true, password: true, hasRedeemedReferral: true }
+            select: { currentStreak: true, longestStreak: true, lastActiveAt: true, password: true, hasRedeemedReferral: true, subscription: true }
         });
 
         // --- Streak Calculation Logic ---
@@ -90,8 +90,13 @@ export async function POST(req: Request) {
         // Check Referral Code
         const isReferralValid = referralCode === 'mentis1321';
 
-        // Can only redeem if valid AND hasn't redeemed before
-        const canRedeem = isReferralValid && (!existingUser || !existingUser.hasRedeemedReferral);
+        // Can only redeem if:
+        // 1. Valid code
+        // 2. Has NOT redeemed before
+        // 3. Is currently FREE (don't downgrade PRO/LIFETIME users)
+        const canRedeem = isReferralValid &&
+            (!existingUser || !existingUser.hasRedeemedReferral) &&
+            (!existingUser || existingUser.subscription === 'FREE');
 
         const user = await (prisma.user.upsert as any)({
             where: { email: normalizedEmail },
@@ -102,7 +107,7 @@ export async function POST(req: Request) {
                 currentStreak: newStreak,
                 longestStreak: newLongestStreak,
                 ...(shouldUpdatePassword ? { password: hashedEmailPassword } : {}),
-                // Apply PRO only if valid code and NOT redeemed before
+                // Apply PRO only if eligible
                 ...(canRedeem ? {
                     subscription: 'PRO',
                     subscriptionEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -136,11 +141,22 @@ export async function POST(req: Request) {
                         subscriptionEndsAt: null,
                     }
                 });
-                return NextResponse.json(downgradedUser);
             }
         }
 
-        return NextResponse.json(user);
+        // Determine referral result string for frontend feedback
+        let referralResult = null;
+        if (referralCode === 'mentis1321') {
+            if (canRedeem) {
+                referralResult = 'SUCCESS';
+            } else if (existingUser && existingUser.hasRedeemedReferral) {
+                referralResult = 'ALREADY_REDEEMED';
+            } else if (existingUser && existingUser.subscription !== 'FREE') {
+                referralResult = 'ALREADY_PRO';
+            }
+        }
+
+        return NextResponse.json({ ...user, referralResult });
     } catch (error) {
         console.error('Error syncing user:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
