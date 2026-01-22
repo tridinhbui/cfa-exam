@@ -32,8 +32,8 @@ export function proxy(request: NextRequest) {
 
         // 3. Global Baseline (RAM based)
         const globalResult = rateLimit(`global_api_${ip}`, {
-            limit: 100,
-            window: 60 * 1000 // 100 requests per minute total
+            limit: 300,
+            window: 60 * 1000 // 300 requests per minute total
         });
 
         if (!globalResult.success && process.env.NODE_ENV !== 'development') {
