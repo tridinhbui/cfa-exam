@@ -12,7 +12,7 @@ export function proxy(request: NextRequest) {
         if (path.includes('/api/user/update-password')) {
             const result = rateLimit(`password_upd_${ip}`, {
                 limit: 7,
-                window: 3600 * 1000 // 3 times per hour
+                window: 3600 * 1000 // 7 times per hour
             });
             if (!result.success) {
                 return NextResponse.json({ error: 'Too many password attempts.' }, { status: 429 });
