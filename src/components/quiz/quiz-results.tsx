@@ -190,40 +190,40 @@ export function QuizResults() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-center p-4 rounded-xl bg-slate-800/50"
+              className="text-center p-4 rounded-xl bg-slate-100/80 dark:bg-slate-800/50 border border-slate-200/50 dark:border-transparent"
             >
-              <Target className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{correctCount}</p>
-              <p className="text-xs text-slate-400">Correct</p>
+              <Target className="h-6 w-6 text-emerald-500 dark:text-emerald-400 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{correctCount}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Correct</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="text-center p-4 rounded-xl bg-slate-800/50"
+              className="text-center p-4 rounded-xl bg-slate-100/80 dark:bg-slate-800/50 border border-slate-200/50 dark:border-transparent"
             >
-              <Trophy className="h-6 w-6 text-amber-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{totalQuestions}</p>
-              <p className="text-xs text-slate-400">Total</p>
+              <Trophy className="h-6 w-6 text-amber-500 dark:text-amber-400 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalQuestions}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="text-center p-4 rounded-xl bg-slate-800/50"
+              className="text-center p-4 rounded-xl bg-slate-100/80 dark:bg-slate-800/50 border border-slate-200/50 dark:border-transparent"
             >
-              <TrendingUp className="h-6 w-6 text-indigo-400 mx-auto mb-2" />
+              <TrendingUp className="h-6 w-6 text-indigo-500 dark:text-indigo-400 mx-auto mb-2" />
               <p className={cn('text-2xl font-bold', getGradeColor(score))}>
                 {score >= 70 ? 'Pass' : 'Review'}
               </p>
-              <p className="text-xs text-slate-400">Status</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Status</p>
             </motion.div>
           </div>
 
           {/* Topic Breakdown */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-white flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-indigo-400" />
+            <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
               Performance by Topic
             </h3>
             {Object.entries(topicStats).map(([topic, stats], index) => {
@@ -237,7 +237,7 @@ export function QuizResults() {
                   className="space-y-2"
                 >
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">{topic}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{topic}</span>
                     <div className="flex items-center gap-2">
                       <Badge
                         variant={
