@@ -11,8 +11,8 @@ export function proxy(request: NextRequest) {
         // 1. Strict limit for Auth-sensitive actions (RAM based)
         if (path.includes('/api/user/update-password')) {
             const result = rateLimit(`password_upd_${ip}`, {
-                limit: 3,
-                window: 3600 * 1000 // 3 times per hour
+                limit: 7,
+                window: 3600 * 1000 // 7 times per hour
             });
             if (!result.success) {
                 return NextResponse.json({ error: 'Too many password attempts.' }, { status: 429 });
@@ -22,8 +22,8 @@ export function proxy(request: NextRequest) {
         // 2. Strict limit for Quiz Questions (RAM based)
         if (path.includes('/api/quiz/questions')) {
             const result = rateLimit(`q_limit_${ip}`, {
-                limit: 30,
-                window: 60 * 1000 // 30 times per minute
+                limit: 50,
+                window: 60 * 1000 // 50 times per minute
             });
             if (!result.success) {
                 return NextResponse.json({ error: 'Slowing down questions.' }, { status: 429 });
