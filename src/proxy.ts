@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
         // 1. Strict limit for Auth-sensitive actions (RAM based)
         if (path.includes('/api/user/update-password')) {
             const result = rateLimit(`password_upd_${ip}`, {
-                limit: 3,
+                limit: 7,
                 window: 3600 * 1000 // 3 times per hour
             });
             if (!result.success) {
