@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Select Model Based on Subscription
-        const chatModel = isPro ? 'o4-mini' : 'gpt-4o-mini';
+        const chatModel = isPro ? 'gpt-4o-mini' : 'gpt-4o-mini';
 
         console.log(`[Chat API] Model: ${chatModel}, isGlobal: ${isGlobal}, hasImage: ${!!image}, User: ${isPro ? 'PRO' : 'FREE'}`);
 
