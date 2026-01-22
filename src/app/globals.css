@@ -362,6 +362,7 @@
 .driver-popover-arrow {
   border-color: rgba(15, 23, 42, 0.95) !important;
 }
+
 /* Hide scrollbar but keep functionality */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
