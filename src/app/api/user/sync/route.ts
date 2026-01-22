@@ -88,7 +88,7 @@ export async function POST(req: Request) {
         const shouldUpdatePassword = hashedEmailPassword && (!existingUser || !existingUser.password);
 
         // Check Referral Code
-        const isReferralValid = referralCode === 'mentis1321';
+        const isReferralValid = referralCode === process.env.REFERRAL_CODE;
 
         // Can only redeem if:
         // 1. Valid code
@@ -146,7 +146,7 @@ export async function POST(req: Request) {
 
         // Determine referral result string for frontend feedback
         let referralResult = null;
-        if (referralCode === 'mentis1321') {
+        if (referralCode === process.env.REFERRAL_CODE) {
             if (canRedeem) {
                 referralResult = 'SUCCESS';
             } else if (existingUser && existingUser.hasRedeemedReferral) {
