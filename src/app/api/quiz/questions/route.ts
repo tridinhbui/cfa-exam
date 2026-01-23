@@ -139,14 +139,17 @@ export async function GET(request: Request) {
             }
         });
 
-        // Shuffle the results in memory
-        const shuffled = [...allQuestions];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        // Shuffle the results in memory ONLY for PRO users
+        let selectedQuestions = [...allQuestions];
+
+        if (!isFree) {
+            for (let i = selectedQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [selectedQuestions[i], selectedQuestions[j]] = [selectedQuestions[j], selectedQuestions[i]];
+            }
         }
 
-        const selected = shuffled.slice(0, count);
+        const selected = selectedQuestions.slice(0, count);
 
         return NextResponse.json(selected);
     } catch (error) {
