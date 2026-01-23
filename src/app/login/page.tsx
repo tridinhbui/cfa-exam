@@ -168,7 +168,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0a0a0f] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background Decorations */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]" />
@@ -178,7 +178,7 @@ export default function LoginPage() {
             {/* Back to Home Button */}
             <div className="absolute top-8 left-8 z-20">
                 <Link href="/">
-                    <Button variant="ghost" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 px-4 py-2 hover:bg-white/5 rounded-full border border-white/5">
+                    <Button variant="ghost" className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors flex items-center gap-2 px-4 py-2 hover:bg-slate-200 dark:hover:bg-white/5 rounded-full border border-slate-200 dark:border-white/5">
                         <ArrowLeft className="h-4 w-4" />
                         Back to Home
                     </Button>
@@ -191,7 +191,7 @@ export default function LoginPage() {
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 p-8 rounded-[2.5rem] shadow-2xl">
+                <div className="bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-white/10 p-8 rounded-[2.5rem] shadow-2xl">
                     <div className="text-center mb-8">
                         <motion.div
                             initial={{ scale: 0.5, opacity: 0 }}
@@ -208,10 +208,10 @@ export default function LoginPage() {
                                 className="h-12 w-12 object-contain brightness-125 saturate-150 drop-shadow-[0_0_12px_rgba(34,197,253,0.6)]"
                             />
                         </motion.div>
-                        <h2 className="text-3xl font-bold text-white tracking-tight">
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                             {isSignUp ? 'Create Account' : 'Welcome Back'}
                         </h2>
-                        <p className="text-slate-400 mt-2">
+                        <p className="text-slate-500 dark:text-slate-400 mt-2">
                             {isSignUp ? 'Start your CFA journey today' : 'Sign in to continue your CFA journey'}
                         </p>
                     </div>
@@ -221,7 +221,7 @@ export default function LoginPage() {
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
                             variant="outline"
-                            className="w-full h-12 border-white/10 hover:bg-white/5 text-white flex items-center justify-center gap-3 rounded-xl transition-all"
+                            className="w-full h-12 border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-white flex items-center justify-center gap-3 rounded-xl transition-all"
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path
@@ -248,7 +248,7 @@ export default function LoginPage() {
                         <div className="text-center">
                             <button
                                 onClick={() => setShowReferralInput(!showReferralInput)}
-                                className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                                className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
                             >
                                 {showReferralInput ? '- Hide referral code' : '+ Have a referral code?'}
                             </button>
@@ -275,17 +275,17 @@ export default function LoginPage() {
                                     value={referralCode}
                                     onChange={(e) => setReferralCode(e.target.value)}
                                     placeholder="Enter referral code"
-                                    className="pl-10 h-10 bg-white/5 border-white/10 text-white rounded-xl focus:ring-indigo-500/50 text-sm"
+                                    className="pl-10 h-10 bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-xl focus:ring-indigo-500/50 text-sm"
                                 />
                             </div>
                         </motion.div>
 
                         <div className="relative my-4">
                             <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-white/10" />
+                                <span className="w-full border-t border-slate-200 dark:border-white/10" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-[#0a0a0f] px-4 text-slate-500">Or continue with email</span>
+                                <span className="bg-slate-50 dark:bg-[#0a0a0f] px-4 text-slate-500">Or continue with email</span>
                             </div>
                         </div>
 
@@ -296,7 +296,7 @@ export default function LoginPage() {
                                     animate={{ opacity: 1, height: 'auto' }}
                                     className="space-y-2 overflow-hidden"
                                 >
-                                    <Label htmlFor="name" className="text-slate-300 ml-1">Full Name</Label>
+                                    <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 ml-1">Full Name</Label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
                                         <Input
@@ -308,13 +308,13 @@ export default function LoginPage() {
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             placeholder="John Doe"
-                                            className="pl-10 h-12 bg-white/5 border-white/10 text-white rounded-xl focus:ring-indigo-500/50"
+                                            className="pl-10 h-12 bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-xl focus:ring-indigo-500/50"
                                         />
                                     </div>
                                 </motion.div>
                             )}
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-slate-300 ml-1">Email</Label>
+                                <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 ml-1">Email</Label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
                                     <Input
@@ -326,7 +326,7 @@ export default function LoginPage() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="name@example.com"
-                                        className="pl-10 h-12 bg-white/5 border-white/10 text-white rounded-xl focus:ring-indigo-500/50"
+                                        className="pl-10 h-12 bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-xl focus:ring-indigo-500/50"
                                     />
                                 </div>
                             </div>
@@ -335,11 +335,11 @@ export default function LoginPage() {
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between ml-1">
-                                    <Label htmlFor="password" title="Password feature coming soon" className="text-slate-300">Password</Label>
+                                    <Label htmlFor="password" title="Password feature coming soon" className="text-slate-700 dark:text-slate-300">Password</Label>
                                     {!isSignUp && (
                                         <Link
                                             href="/reset-password"
-                                            className="text-xs text-indigo-400 hover:text-indigo-300"
+                                            className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                                         >
                                             Forgot?
                                         </Link>
@@ -356,7 +356,7 @@ export default function LoginPage() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
-                                        className="pl-10 h-12 bg-white/5 border-white/10 text-white rounded-xl focus:ring-indigo-500/50"
+                                        className="pl-10 h-12 bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-xl focus:ring-indigo-500/50"
                                     />
                                 </div>
                             </div>
@@ -376,7 +376,7 @@ export default function LoginPage() {
                         <button
                             type="button"
                             onClick={() => setIsSignUp(!isSignUp)}
-                            className="text-indigo-400 hover:text-indigo-300 font-medium"
+                            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
                         >
                             {isSignUp ? 'Sign In' : 'Create one'}
                         </button>
