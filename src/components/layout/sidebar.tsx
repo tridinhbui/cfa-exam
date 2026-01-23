@@ -16,6 +16,7 @@ import {
   Clock,
   Coins,
   Library,
+  Flame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -110,12 +111,12 @@ export function Sidebar() {
           </div>
           <div className="p-2 rounded-lg bg-card border border-border">
             <div className="flex flex-col items-center gap-1 text-amber-500 mb-1">
-              <Clock className="h-4 w-4" />
+              <Flame className="h-4 w-4" />
               <span className="text-[10px] font-bold uppercase tracking-tighter">Streak</span>
             </div>
             <p className="text-sm font-bold text-foreground text-center">{stats.currentStreak}d</p>
           </div>
-          <div className="p-2 flex flex-col items-center justify-center">
+          <div className="p-2 rounded-lg bg-card border border-border flex flex-col items-center justify-center">
             <div className="flex flex-col items-center gap-1 text-amber-500 mb-1">
               <div className="w-6 h-6 flex items-center justify-center rounded-full overflow-hidden">
                 <img src="/images/coin-icon.png" alt="Coins" className="w-full h-full object-cover scale-150" />
