@@ -15,6 +15,7 @@ import { ChatMessage } from './chat-message';
 interface GlobalChatbotProps {
     isOpen: boolean;
     onClose: () => void;
+    chatLimit?: { remaining: number; limit: number; type: string } | null;
 }
 
 const getInitials = (name?: string | null) => {
@@ -24,7 +25,7 @@ const getInitials = (name?: string | null) => {
     return name.slice(0, 2).toUpperCase();
 };
 
-export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
+export function GlobalChatbot({ isOpen, onClose, chatLimit }: GlobalChatbotProps) {
     const { user: firebaseUser } = useAuth();
     const { user: dbUser } = useUserStore();
     const { questions, currentIndex, isActive } = useQuizStore();
@@ -515,6 +516,14 @@ export function GlobalChatbot({ isOpen, onClose }: GlobalChatbotProps) {
                                     </DialogTitle>
                                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                 </div>
+                                {chatLimit && (
+                                    <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${chatLimit.remaining > 0
+                                            ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
+                                            : "bg-destructive/10 border-destructive/20 text-destructive"
+                                        }`}>
+                                        {chatLimit.remaining}/{chatLimit.limit}
+                                    </div>
+                                )}
 
                                 {isActive && currentQuestion && (
                                     <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 animate-in fade-in slide-in-from-left-2 transition-all">

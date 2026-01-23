@@ -159,24 +159,7 @@ export function Navbar() {
               <span className="text-xs sm:text-sm font-bold">{dbUser?.coins || 0}</span>
             </motion.div>
 
-            {/* Chat Credits Stats */}
-            {chatLimit && (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className={cn(
-                  "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-colors",
-                  chatLimit.remaining > 0
-                    ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
-                    : "bg-destructive/10 border-destructive/20 text-destructive"
-                )}
-                title={chatLimit.type === 'PRO' ? "Daily AI Credits (60 per day)" : "Trial Credits (3 per day)"}
-              >
-                <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shrink-0 relative">
-                  <Image src="/images/ai-avatar.png" alt="AI" fill className="object-contain" />
-                </div>
-                <span className="text-xs sm:text-sm font-bold">{chatLimit.remaining}/{chatLimit.limit}</span>
-              </motion.div>
-            )}
+
 
             <ThemeToggle />
 
@@ -274,6 +257,7 @@ export function Navbar() {
       <GlobalChatbot
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
+        chatLimit={chatLimit}
       />
 
       <FeedbackModal
