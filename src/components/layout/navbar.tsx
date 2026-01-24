@@ -23,6 +23,8 @@ import {
   MessageSquare,
   TrendingUp,
   HelpCircle,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -39,8 +41,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Settings, CreditCard } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
 import { useUserStore } from '@/store/user-store';
+import { useTheme } from 'next-themes';
 import { ProfileModal } from '@/components/profile-modal';
 import dynamic from 'next/dynamic';
 
@@ -68,7 +70,14 @@ export function Navbar() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
   const setSupportModalOpen = useUiStore((state) => state.setSupportModalOpen);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -161,7 +170,7 @@ export function Navbar() {
 
 
 
-            <ThemeToggle />
+
 
             <Button
               id="tour-global-chat"
@@ -221,6 +230,18 @@ export function Navbar() {
                       <span>Reset Password</span>
                     </DropdownMenuItem>
                   </Link>
+                )}
+                {mounted && (
+                  <DropdownMenuItem
+                    className="focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setTheme(theme === 'dark' ? 'light' : 'dark');
+                    }}
+                  >
+                    {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+                    <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem
