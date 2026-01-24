@@ -41,25 +41,11 @@ interface TopicData {
 
 const quickActions = [
   {
-    title: 'Practice Quiz',
-    description: 'Random questions from all topics',
-    icon: BookOpen,
-    href: '/quiz',
-    color: 'from-indigo-600 to-violet-600',
-  },
-  {
     title: 'Mistakes Bank',
     description: 'Master the questions you missed',
     icon: XCircle,
     href: '/mistakes',
     color: 'from-rose-600 to-pink-600',
-  },
-  {
-    title: 'Item Set',
-    description: 'Vignette-style questions',
-    icon: FileText,
-    href: '/item-sets',
-    color: 'from-indigo-600 to-violet-600',
   },
 ];
 
@@ -257,38 +243,6 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {quickActions.map((action, index) => {
-          const Icon = action.icon;
-          return (
-            <motion.div
-              key={action.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + index * 0.1 }}
-            >
-              <Link href={action.href}>
-                <Card className="group relative overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all duration-300 bg-card border-border rounded-2xl">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-                  <CardContent className="p-8">
-                    <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${action.color} mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                      <Icon className="h-7 w-7 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">{action.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{action.description}</p>
-                    <div className="flex items-center text-indigo-400 text-sm font-bold group-hover:translate-x-1 transition-transform">
-                      Get Started
-                      <ArrowRight className="h-4 w-4 ml-1.5" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          );
-        })}
-      </div>
-
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Performance Chart */}
         <div className="lg:col-span-2">
@@ -369,6 +323,38 @@ export default function DashboardPage() {
           {/* Leaderboard Widget */}
           <Leaderboard />
         </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 gap-6">
+        {quickActions.map((action, index) => {
+          const Icon = action.icon;
+          return (
+            <motion.div
+              key={action.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 + index * 0.1 }}
+            >
+              <Link href={action.href}>
+                <Card className="group relative overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all duration-300 bg-card border-border rounded-2xl">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                  <CardContent className="p-8">
+                    <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${action.color} mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                      <Icon className="h-7 w-7 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground mb-2">{action.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{action.description}</p>
+                    <div className="flex items-center text-indigo-400 text-sm font-bold group-hover:translate-x-1 transition-transform">
+                      Get Started
+                      <ArrowRight className="h-4 w-4 ml-1.5" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Recent Activity */}

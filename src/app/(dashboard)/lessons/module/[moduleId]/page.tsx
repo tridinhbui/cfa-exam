@@ -43,6 +43,11 @@ export default function LessonModulePage() {
                 const data = await response.json();
 
                 if (response.ok) {
+                    // Clean up content: Remove fallback video link if it exists to avoid duplication in UI
+                    if (data.content) {
+                        data.content = data.content.replace(/\n\n---\n\*\*Video Lecture:\*\* https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]+/, '');
+                        data.content = data.content.replace(/\*\*Video Lecture:\*\* https:\/\/www\.youtube\.com\/watch\?v=[a-zA-Z0-9_-]+\n\n/, '');
+                    }
                     setLesson(data);
                 } else if (response.status === 404) {
                     setLesson(null); // Triggers "Coming Soon" state
@@ -204,6 +209,26 @@ export default function LessonModulePage() {
                     </div>
                 </div>
             </div>
+
+
+            {lesson.videoUrl && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-12"
+                >
+                    <div className="relative aspect-video rounded-3xl overflow-hidden border border-border/50 shadow-2xl group">
+                        <iframe
+                            src={lesson.videoUrl.replace('watch?v=', 'embed/')}
+                            title="Video Lecture"
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        />
+                        <div className="absolute inset-0 pointer-events-none border-2 border-indigo-500/20 rounded-3xl group-hover:border-indigo-500/40 transition-colors" />
+                    </div>
+                </motion.div>
+            )}
 
             {/* Main Content Area */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

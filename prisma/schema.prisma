@@ -7,7 +7,7 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   directUrl  = env("DIRECT_URL")
-  extensions = [vector]
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector]
 }
 
 model User {
@@ -29,28 +29,27 @@ model User {
   chatCount              Int                  @default(0)
   chatResetTime          DateTime?
   hasCompletedOnboarding Boolean?             @default(false)
+  hasRedeemedReferral    Boolean              @default(false)
   chatSessions           ChatSession[]
   dailyProgress          DailyProgress[]
+  feedbacks              Feedback[]
   itemSetAttempts        ItemSetAttempt[]
   quizAttempts           QuizAttempt[]
   studyPlans             StudyPlan[]
+  supportMessages        SupportMessage[]
   topicPerformances      TopicPerformance[]
   transactions           Transaction[]
   moduleProgress         UserModuleProgress[]
   wrongQuestions         WrongQuestion[]
-  feedbacks              Feedback[]
-  supportMessages        SupportMessage[]
-  hasRedeemedReferral    Boolean          @default(false)
 }
 
 model SupportMessage {
   id        String   @id @default(cuid())
   userId    String
-  content   String   @db.Text
+  content   String
   isAdmin   Boolean  @default(false)
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-  
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -310,6 +309,7 @@ model LessonContent {
   moduleId  String   @unique
   content   String
   updatedAt DateTime @updatedAt
+  videoUrl  String?
   module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 }
 
@@ -417,6 +417,22 @@ model ChatMessage {
   @@index([createdAt])
 }
 
+model Feedback {
+  id           String           @id @default(cuid())
+  userId       String
+  rating       Int
+  category     FeedbackCategory @default(GENERAL)
+  strengths    String?
+  weaknesses   String?
+  bugs         String?
+  improvements String?
+  content      String?
+  createdAt    DateTime         @default(now())
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 enum CFALevel {
   LEVEL_1
   LEVEL_2
@@ -457,22 +473,6 @@ enum ChunkType {
 enum UserRole {
   USER
   ADMIN
-}
-
-model Feedback {
-  id           String           @id @default(cuid())
-  userId       String
-  rating       Int
-  category     FeedbackCategory @default(GENERAL)
-  strengths    String?
-  weaknesses   String?
-  bugs         String?
-  improvements String?
-  content      String?
-  createdAt    DateTime         @default(now())
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 enum FeedbackCategory {
