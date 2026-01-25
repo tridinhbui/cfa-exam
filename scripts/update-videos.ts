@@ -4,52 +4,53 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    const videoData = [
-        {
-            moduleId: 'cmk8lppl90001l1bx18x8f0f0', // Module 1.1
-            videoUrl: 'https://www.youtube.com/watch?v=QIl6JH_PuW8',
-            title: 'Rates and Returns'
+    const videoUrl = 'https://www.youtube.com/watch?v=FmVBqrMYreM';
+
+    // Find all modules with code 10.2 or 10.3 that belong to book-1
+    const modules = await prisma.module.findMany({
+        where: {
+            code: { in: ['10.2', '10.3'] },
+            reading: {
+                bookId: 'book-1'
+            }
         },
-        {
-            moduleId: 'cmk8lppoj0003l1bxrttf1igy', // Module 1.2
-            videoUrl: 'https://www.youtube.com/watch?v=gz8oox7NRxU',
-            title: 'Money-Weighted and Time-Weighted Returns'
-        },
-        {
-            moduleId: 'cmk8lpprq0005l1bx2v8sbx9t', // Module 1.3
-            videoUrl: 'https://www.youtube.com/watch?v=kL7SjhDCMQM',
-            title: 'Other Return Measures'
+        include: {
+            reading: true
         }
-    ];
+    });
 
-    console.log('Updating video URLs and content placeholders...');
+    console.log(`Found ${modules.length} modules in Book 1 with codes 10.2 or 10.3`);
 
-    for (const item of videoData) {
+    for (const module of modules) {
         try {
-            const existing = await prisma.lessonContent.findUnique({ where: { moduleId: item.moduleId } });
-            const newContent = existing?.content.includes('Video Lecture:')
-                ? existing.content
-                : `${existing?.content || ''}\n\n---\n**Video Lecture:** ${item.videoUrl}`;
-
-            await prisma.lessonContent.upsert({
-                where: { moduleId: item.moduleId },
-                update: {
-                    videoUrl: item.videoUrl,
-                    content: newContent
-                },
-                create: {
-                    moduleId: item.moduleId,
-                    videoUrl: item.videoUrl,
-                    content: `# ${item.title}\n\n**Video Lecture:** ${item.videoUrl}\n\nContent for this module is being enriched.`
-                }
+            // Check if lessonContent exists for this module
+            const existing = await (prisma.lessonContent as any).findUnique({
+                where: { moduleId: module.id }
             });
-            console.log(`✅ Upserted video/content for module ${item.moduleId}`);
+
+            if (existing) {
+                // Update only the videoUrl field
+                await (prisma.lessonContent as any).update({
+                    where: { moduleId: module.id },
+                    data: { videoUrl: videoUrl }
+                });
+                console.log(`✅ Updated videoUrl for module ${module.code} (${module.id})`);
+            } else {
+                // Create new record with only videoUrl (content will be null/empty)
+                await (prisma.lessonContent as any).create({
+                    data: {
+                        moduleId: module.id,
+                        videoUrl: videoUrl
+                    }
+                });
+                console.log(`✅ Created lessonContent with videoUrl for module ${module.code} (${module.id})`);
+            }
         } catch (error) {
-            console.error(`❌ Failed to process module ${item.moduleId}:`, error.message);
+            console.error(`❌ Error updating module ${module.code}:`, (error as any).message);
         }
     }
 
-    console.log('Update completed.');
+    console.log('Video URL update completed for Book 1 modules 10.2 and 10.3');
 }
 
 main()
