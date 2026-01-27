@@ -58,35 +58,33 @@ export default function LandingPage() {
         {loadingState !== 'complete' && <LoadingScreen isExiting={loadingState === 'exiting'} />}
       </AnimatePresence>
 
-      {loadingState === 'complete' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative z-10"
-        >
-          <LandingNavbar
-            user={user}
-            dbUserSubscription={dbUser?.subscription}
-            loadingState={loadingState}
-          />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: loadingState === 'complete' ? 1 : 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="relative z-10"
+      >
+        <LandingNavbar
+          user={user}
+          dbUserSubscription={dbUser?.subscription}
+          loadingState={loadingState}
+        />
 
-          <main>
-            <HeroSection user={user} />
-            <MissionSection />
-            <FeaturesSection />
-            <WhyChooseUsSection />
-            <CurriculumSection user={user} />
+        <main>
+          <HeroSection user={user} />
+          <MissionSection />
+          <FeaturesSection />
+          <WhyChooseUsSection />
+          <CurriculumSection user={user} />
 
-            {/* Pricing Section - Hide if user is PRO */}
-            {dbUser?.subscription !== 'PRO' && <PricingSection />}
+          {/* Pricing Section - Hide if user is PRO */}
+          {dbUser?.subscription !== 'PRO' && <PricingSection />}
 
-            <CTASection user={user} />
-          </main>
+          <CTASection user={user} />
+        </main>
 
-          <Footer />
-        </motion.div>
-      )}
+        <Footer />
+      </motion.div>
     </div>
   );
 }
