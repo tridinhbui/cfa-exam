@@ -84,12 +84,6 @@ function ModuleQuizContent() {
         user && moduleId ? `/api/quiz/module/${moduleId}` : null
     );
 
-    useEffect(() => {
-        if (data && !data.error && moduleId) {
-            startQuiz(moduleId as string, data.questions, 'PRACTICE');
-        }
-    }, [data, moduleId, startQuiz]);
-
     const isLoading = swrLoading || !data;
 
     const moduleInfo = data ? {
@@ -98,6 +92,28 @@ function ModuleQuizContent() {
         readingId: data.readingId,
         bookId: data.bookId
     } : null;
+
+    useEffect(() => {
+        if (data && !data.error && moduleId) {
+            startQuiz(moduleId as string, data.questions, 'PRACTICE');
+        }
+    }, [data, moduleId, startQuiz]);
+
+    // Add Esc key listener to go back to item set selection
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                if (moduleInfo?.bookId && moduleInfo?.readingId) {
+                    router.push(`/item-sets?bookId=${moduleInfo.bookId}&readingId=${moduleInfo.readingId}`);
+                } else {
+                    router.push('/item-sets');
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [router, moduleInfo]);
 
     const allNotes = (data?.studyNotes as any[])?.flatMap((standard) =>
         (standard.notes as any[]).map((note, nIdx) => ({
@@ -135,7 +151,7 @@ function ModuleQuizContent() {
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="ghost"
-                                size="icon"
+                                size="sm"
                                 onClick={() => {
                                     if (moduleInfo?.bookId && moduleInfo?.readingId) {
                                         router.push(`/item-sets?bookId=${moduleInfo.bookId}&readingId=${moduleInfo.readingId}`);
@@ -143,9 +159,10 @@ function ModuleQuizContent() {
                                         router.push('/item-sets');
                                     }
                                 }}
-                                className="rounded-full hover:bg-muted"
+                                className="rounded-full hover:bg-muted text-muted-foreground flex items-center gap-1 h-8 px-2"
                             >
-                                <X className="h-5 w-5" />
+                                <X className="h-4 w-4" />
+                                <span className="text-[10px] font-bold tracking-tighter opacity-70">ESC</span>
                             </Button>
                             <div>
                                 <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">

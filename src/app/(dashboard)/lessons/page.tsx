@@ -121,6 +121,20 @@ function LessonsContent() {
         }
     };
 
+    // Add Esc key listener to go back hierarchically
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                if (selectedReading || selectedBook) {
+                    handleBack();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedBook, selectedReading]);
+
     if (loading || !user) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
