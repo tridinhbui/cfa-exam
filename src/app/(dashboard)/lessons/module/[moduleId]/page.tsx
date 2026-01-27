@@ -50,7 +50,7 @@ export default function LessonModulePage() {
                     }
                     setLesson(data);
                 } else if (response.status === 404) {
-                    setLesson(null); // Triggers "Coming Soon" state
+                    setLesson(data); // Preserve module data for "Coming Soon" state to allow navigation
                 } else {
                     setError(data.error);
                 }
@@ -81,6 +81,22 @@ export default function LessonModulePage() {
         fetchLesson();
         fetchProgress();
     }, [user, moduleId]);
+
+    // Add Esc key listener to go back to reading view
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                if (lesson?.module?.readingId && lesson?.module?.reading?.bookId) {
+                    router.push(`/lessons?bookId=${lesson.module.reading.bookId}&readingId=${lesson.module.readingId}`);
+                } else {
+                    router.push('/lessons');
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [router, lesson]);
 
     const toggleCompletion = async () => {
         if (!user || !moduleId || togglingProgress) return;
@@ -127,7 +143,7 @@ export default function LessonModulePage() {
     }
 
     // If no lesson content exists, show the "Coming Soon" state
-    if (!lesson) {
+    if (!lesson || !lesson.content) {
         return (
             <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
                 <Button
@@ -178,7 +194,7 @@ export default function LessonModulePage() {
                     className="flex items-center gap-2 text-muted-foreground hover:text-indigo-400 transition-colors p-0 hover:bg-transparent"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    Back to Curriculum
+                    Back to Curriculum <span className="text-[10px] opacity-50 ml-1 font-mono tracking-tighter">(Esc)</span>
                 </Button>
             </div>
 

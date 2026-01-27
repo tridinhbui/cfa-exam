@@ -21,7 +21,7 @@ export async function GET(
         // Use raw SQL to be 100% sure we get the data from the DB bypassing any Prisma Client caching/type issues
         const results = await prisma.$queryRawUnsafe<any[]>(
             `SELECT lc.id, lc."moduleId", lc.content, lc."videoUrl", lc."updatedAt",
-                    m.title as "moduleTitle", m.code as "moduleCode",
+                    m.title as "moduleTitle", m.code as "moduleCode", m."readingId",
                     r.title as "readingTitle", r."bookId", r."order" as "readingOrder"
              FROM "LessonContent" lc
              JOIN "Module" m ON lc."moduleId" = m.id
@@ -54,7 +54,9 @@ export async function GET(
             module: {
                 title: data.moduleTitle,
                 code: data.moduleCode,
+                readingId: data.readingId,
                 reading: {
+                    id: data.readingId,
                     title: data.readingTitle,
                     bookId: data.bookId,
                     order: data.readingOrder
