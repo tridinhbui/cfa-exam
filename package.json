@@ -12,7 +12,8 @@
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@paypal/react-paypal-js": "^8.9.2",
-    "@prisma/client": "^5.22.0",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -43,7 +44,8 @@
     "next-auth": "^4.24.13",
     "next-themes": "^0.4.6",
     "openai": "^6.10.0",
-    "prisma": "^5.22.0",
+    "pg": "^8.18.0",
+    "prisma": "^7.3.0",
     "puppeteer": "^24.34.0",
     "puppeteer-core": "^24.34.0",
     "react": "19.2.1",
@@ -60,11 +62,13 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@prisma/config": "^7.3.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.5",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
