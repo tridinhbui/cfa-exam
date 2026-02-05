@@ -97,7 +97,9 @@ export function LandingNavbar({ user, dbUserSubscription, loadingState }: Landin
 
                         {/* Mobile Menu Toggle */}
                         <div className="lg:hidden flex items-center gap-3">
-                            <ThemeToggle />
+                            <div className="sm:hidden">
+                                <ThemeToggle />
+                            </div>
                             <button
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 className="p-2 text-slate-400 hover:text-white transition-colors"
