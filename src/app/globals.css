@@ -236,8 +236,20 @@
   }
 
   .markdown-content .katex-display,
-  .lesson-content-container .katex-display {
+  .lesson-content-container .katex-display,
+  .prose .katex-display {
     @apply my-6 overflow-x-auto overflow-y-hidden py-4 px-2 bg-indigo-500/5 rounded-xl border border-indigo-500/10;
+  }
+
+  @media (max-width: 640px) {
+    .prose .katex-display {
+      @apply my-4 py-3 px-1;
+      font-size: 0.9em;
+    }
+
+    .prose .katex {
+      font-size: 0.95em;
+    }
   }
 
   .markdown-content .katex,
