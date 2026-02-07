@@ -34,14 +34,17 @@ interface QuizAIAssistantProps {
 
 // Helper to clean and format LaTeX from AI responses
 const formatMath = (content: string) => {
+    if (!content) return '';
     return content
-        // Replace \[ math \] with $$ math $$
+        // 1. Escape currency $ symbols (dollar followed by a digit) to prevent them being treated as math delimiters
+        .replace(/\$(?=\d)/g, '\\$')
+        // 2. Replace \[ math \] with $$ math $$
         .replace(/\\\[/g, '$$$$')
         .replace(/\\\]/g, '$$$$')
-        // Replace \( math \) with $ math $
+        // 3. Replace \( math \) with $ math $
         .replace(/\\\(/g, '$')
         .replace(/\\\)/g, '$')
-        // Fix double backslashes if any (often happens in JSON strings)
+        // 4. Fix double backslashes if any
         .replace(/\\\\/g, '\\');
 };
 
@@ -153,7 +156,7 @@ export function QuizAIAssistant({ question, explanation, options, topic, current
     return (
         <Card
             ref={cardRef}
-            className="flex flex-col h-[600px] border-border/50 bg-card/50 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl relative select-none"
+            className="flex flex-col h-[600px] w-full border-border/50 bg-card/50 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl relative select-none"
         >
             {/* Header */}
             <div className="p-4 border-b border-border/50 bg-indigo-500/5 flex items-center gap-3 select-auto">
@@ -173,7 +176,7 @@ export function QuizAIAssistant({ question, explanation, options, topic, current
             {/* Chat Content */}
             <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4 overscroll-contain select-auto"
+                className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar p-4 space-y-4 overscroll-contain select-auto"
             >
                 {messages.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-4">
@@ -193,14 +196,14 @@ export function QuizAIAssistant({ question, explanation, options, topic, current
                             key={i}
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} min-w-0 w-full`}
                         >
-                            <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${m.role === 'user'
+                            <div className={`max-w-[90%] sm:max-w-[85%] min-w-0 p-3 rounded-2xl text-sm ${m.role === 'user'
                                 ? 'bg-indigo-600 text-white rounded-tr-none'
                                 : 'bg-muted/50 text-foreground rounded-tl-none border border-border/50'
                                 }`}>
                                 {m.role === 'assistant' ? (
-                                    <div className="prose prose-invert prose-sm max-w-none break-words">
+                                    <div className="prose prose-invert prose-sm max-w-none break-words overflow-x-auto no-scrollbar">
                                         <ReactMarkdown
                                             remarkPlugins={[remarkMath]}
                                             rehypePlugins={[rehypeKatex]}
